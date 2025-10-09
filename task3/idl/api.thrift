@@ -136,9 +136,27 @@ struct DeleteToDoListResponse{
     2: string msg
 }
 
+struct DeleteCompletedToDoListsRequest {
+}
+
+struct DeleteCompletedToDoListsResponse {
+    1: Code code
+    2: string msg
+}
+
+struct DeleteAllUserToDoListsRequest {
+}
+
+struct DeleteAllUserToDoListsResponse {
+    1: Code code
+    2: string msg
+}
+
 service ToDoListService{
     CreateToDoListResponse CreateToDoList(1:CreateToDoListRequest req)(api.post="v1/todo_list/create/")
     UpdateToDoListResponse UpdateToDoList(1:UpdateToDoListRequest req)(api.post="v1/todo_list/update/:todo_list_id")
     QueryToDoListResponse QueryToDoList(1:QueryToDoListRequest req)(api.post="v1/todo_list/query/")
     DeleteToDoListResponse DeleteToDoList(1:DeleteToDoListRequest req)(api.post="v1/todo_list/delete/:todo_list_id")
+    DeleteCompletedToDoListsResponse DeleteCompletedToDoLists(1: DeleteCompletedToDoListsRequest req)(api.post="/v1/todo_list/delete_completed")
+    DeleteAllUserToDoListsResponse DeleteAllUserToDoLists(1: DeleteAllUserToDoListsRequest req)(api.post="/v1/todo_list/delete_all")
 }

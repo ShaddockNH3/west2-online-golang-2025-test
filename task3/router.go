@@ -19,6 +19,7 @@ func customizedRegister(r *server.Hertz) {
 		{
 			userPublicGroup.POST("/create", task3.CreateUser)
 			userPublicGroup.POST("/login", mw.JwtMiddleware.LoginHandler)
+			userPublicGroup.POST("/query/", task3.QueryUser)
 		}
 
 		auth := v1.Group("/")
@@ -28,7 +29,6 @@ func customizedRegister(r *server.Hertz) {
 			{
 				userPrivateGroup.POST("/update/:user_id", task3.UpdateUser)
 				userPrivateGroup.POST("/delete/:user_id", task3.DeleteUser)
-				userPrivateGroup.POST("/query/", task3.QueryUser)
 			}
 
 			todoGroup := auth.Group("/todo_list")

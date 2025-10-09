@@ -115,3 +115,13 @@ func _login0Mw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _deleteallusertodolistsMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _deletecompletedtodolistsMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

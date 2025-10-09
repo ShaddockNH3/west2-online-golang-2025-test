@@ -86,11 +86,76 @@ func DeleteToDoList(ctx context.Context, c *app.RequestContext) {
 	var req task3.DeleteToDoListRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		c.JSON(consts.StatusBadRequest, &task3.DeleteToDoListResponse{Code: task3.Code_ParamInvalid, Msg: err.Error()})
 		return
 	}
 
-	resp := new(task3.DeleteToDoListResponse)
+	v, ok := c.Get(mw.UserIDKey)
+	if !ok {
+		c.JSON(consts.StatusInternalServerError, &task3.DeleteToDoListResponse{Code: task3.Code_DBErr, Msg: "failed to get user id"})
+		return
+	}
 
-	c.JSON(consts.StatusOK, resp)
+	userID := v.(int64)
+
+	if err = mysql.DeleteToDoListByID(req.TodoListID, userID); err != nil {
+		c.JSON(consts.StatusInternalServerError, &task3.DeleteToDoListResponse{Code: task3.Code_DBErr, Msg: err.Error()})
+		return
+	}
+
+	c.JSON(consts.StatusOK, &task3.DeleteToDoListResponse{Code: task3.Code_Success})
+}
+
+// DeleteCompletedToDoLists .
+// @router /v1/todo_list/delete_completed [POST]
+func DeleteCompletedToDoLists(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req task3.DeleteCompletedToDoListsRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.JSON(consts.StatusBadRequest, &task3.DeleteCompletedToDoListsResponse{Code: task3.Code_ParamInvalid, Msg: err.Error()})
+		return
+	}
+
+	v, ok := c.Get(mw.UserIDKey)
+	if !ok {
+		c.JSON(consts.StatusInternalServerError, &task3.DeleteCompletedToDoListsResponse{Code: task3.Code_DBErr, Msg: "failed to get user id"})
+		return
+	}
+
+	userID := v.(int64)
+
+	if err = mysql.DeleteToDoListsComplete(userID); err != nil {
+		c.JSON(consts.StatusInternalServerError, &task3.DeleteCompletedToDoListsResponse{Code: task3.Code_DBErr, Msg: err.Error()})
+		return
+	}
+
+	c.JSON(consts.StatusOK, &task3.DeleteCompletedToDoListsResponse{Code: task3.Code_Success})
+}
+
+// DeleteAllUserToDoLists .
+// @router /v1/todo_list/delete_all [POST]
+func DeleteAllUserToDoLists(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req task3.DeleteAllUserToDoListsRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.JSON(consts.StatusBadRequest, &task3.DeleteAllUserToDoListsResponse{Code: task3.Code_ParamInvalid, Msg: err.Error()})
+		return
+	}
+
+	v, ok := c.Get(mw.UserIDKey)
+	if !ok {
+		c.JSON(consts.StatusInternalServerError, &task3.DeleteAllUserToDoListsResponse{Code: task3.Code_DBErr, Msg: "failed to get user id"})
+		return
+	}
+
+	userID := v.(int64)
+
+	if err = mysql.DeleteAllUserToDoLists(userID); err != nil {
+		c.JSON(consts.StatusInternalServerError, &task3.DeleteAllUserToDoListsResponse{Code: task3.Code_DBErr, Msg: err.Error()})
+		return
+	}
+
+	c.JSON(consts.StatusOK, &task3.DeleteAllUserToDoListsResponse{Code: task3.Code_Success})
 }

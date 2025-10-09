@@ -78,6 +78,7 @@ func DeleteUser(ctx context.Context, c *app.RequestContext) {
 
 	if err = mysql.DeleteUser(req.UserID); err != nil {
 		c.JSON(consts.StatusInternalServerError, &task3.DeleteUserResponse{Code: task3.Code_DBErr, Msg: err.Error()})
+		return
 	}
 
 	c.JSON(consts.StatusOK, &task3.DeleteUserResponse{Code: task3.Code_Success})

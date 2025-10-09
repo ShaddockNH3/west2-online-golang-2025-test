@@ -21,6 +21,8 @@ func Register(r *server.Hertz) {
 		_v1 := root.Group("/v1", _v1Mw()...)
 		{
 			_todo_list := _v1.Group("/todo_list", _todo_listMw()...)
+			_todo_list.POST("/delete_all", append(_deleteallusertodolistsMw(), task3.DeleteAllUserToDoLists)...)
+			_todo_list.POST("/delete_completed", append(_deletecompletedtodolistsMw(), task3.DeleteCompletedToDoLists)...)
 			{
 				_create := _todo_list.Group("/create", _createMw()...)
 				_create.POST("/", append(_createtodolistMw(), task3.CreateToDoList)...)

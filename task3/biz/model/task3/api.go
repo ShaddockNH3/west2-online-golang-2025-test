@@ -335,7 +335,7 @@ func (p *User) String() string {
 type CreateUserRequest struct {
 	Name      string `thrift:"name,1" form:"name" json:"name" vd:"(len($) > 0 && len($) < 100)"`
 	Introduce string `thrift:"introduce,2" form:"introduce" json:"introduce" vd:"(len($) > 0 && len($) < 1000)"`
-	Password  string `thrift:"password,3" form:"password" form:"password" json:"password" vd:"(len($) >= 6)"`
+	Password  string `thrift:"password,3" form:"password" json:"password" vd:"(len($) >= 6)"`
 }
 
 func NewCreateUserRequest() *CreateUserRequest {
@@ -753,7 +753,7 @@ func (p *CreateUserResponse) String() string {
 type QueryUserRequest struct {
 	Keyword  *string `thrift:"Keyword,1,optional" form:"keyword" json:"keyword,omitempty" query:"keyword"`
 	Page     int64   `thrift:"page,2" form:"page" json:"page" query:"page" vd:"$ > 0"`
-	PageSize int64   `thrift:"page_size,3" form:"page_size" json:"page_size" query:"page_size" vd:"($ > 0 || $ <= 100)"`
+	PageSize int64   `thrift:"page_size,3" form:"page_size" form:"page_size" json:"page_size" query:"page_size" vd:"($ > 0 || $ <= 100)"`
 }
 
 func NewQueryUserRequest() *QueryUserRequest {
@@ -2037,8 +2037,8 @@ func (p *UpdateUserResponse) String() string {
 
 // jwt认证相关
 type LoginRequest struct {
-	Name     string `thrift:"name,1" form:"name" form:"name" json:"name" vd:"(len($) > 0 && len($) < 100)"`
-	Password string `thrift:"password,2" form:"password" json:"password" vd:"(len($) > 0)"`
+	Name     string `thrift:"name,1" form:"name" json:"name" vd:"(len($) > 0 && len($) < 100)"`
+	Password string `thrift:"password,2" form:"password" form:"password" json:"password" vd:"(len($) > 0)"`
 }
 
 func NewLoginRequest() *LoginRequest {
@@ -2792,7 +2792,7 @@ func (p *ToDoList) String() string {
 
 type CreateToDoListRequest struct {
 	Title   string `thrift:"title,1" form:"title" json:"title" vd:"len($)>0&&len($)<1000"`
-	Context string `thrift:"context,2" form:"context" form:"context" json:"context" vd:"len($)>0&&len($)<1000"`
+	Context string `thrift:"context,2" form:"context" json:"context" vd:"len($)>0&&len($)<1000"`
 }
 
 func NewCreateToDoListRequest() *CreateToDoListRequest {
@@ -3627,7 +3627,7 @@ func (p *UpdateToDoListResponse) String() string {
 }
 
 type QueryToDoListRequest struct {
-	Keyword  *string `thrift:"Keyword,1,optional" form:"keyword" form:"keyword" json:"keyword,omitempty" query:"keyword"`
+	Keyword  *string `thrift:"Keyword,1,optional" form:"keyword" json:"keyword,omitempty" query:"keyword"`
 	Page     int64   `thrift:"page,2" form:"page" json:"page" query:"page" vd:"$ > 0"`
 	PageSize int64   `thrift:"page_size,3" form:"page_size" json:"page_size" query:"page_size" vd:"($ > 0 || $ <= 100)"`
 }
@@ -4493,6 +4493,544 @@ func (p *DeleteToDoListResponse) String() string {
 
 }
 
+type DeleteCompletedToDoListsRequest struct {
+}
+
+func NewDeleteCompletedToDoListsRequest() *DeleteCompletedToDoListsRequest {
+	return &DeleteCompletedToDoListsRequest{}
+}
+
+func (p *DeleteCompletedToDoListsRequest) InitDefault() {
+}
+
+var fieldIDToName_DeleteCompletedToDoListsRequest = map[int16]string{}
+
+func (p *DeleteCompletedToDoListsRequest) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		if err = iprot.Skip(fieldTypeId); err != nil {
+			goto SkipFieldTypeError
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+SkipFieldTypeError:
+	return thrift.PrependError(fmt.Sprintf("%T skip field type %d error", p, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *DeleteCompletedToDoListsRequest) Write(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteStructBegin("DeleteCompletedToDoListsRequest"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *DeleteCompletedToDoListsRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("DeleteCompletedToDoListsRequest(%+v)", *p)
+
+}
+
+type DeleteCompletedToDoListsResponse struct {
+	Code Code   `thrift:"code,1,default,Code" form:"code" json:"code" query:"code"`
+	Msg  string `thrift:"msg,2" form:"msg" json:"msg" query:"msg"`
+}
+
+func NewDeleteCompletedToDoListsResponse() *DeleteCompletedToDoListsResponse {
+	return &DeleteCompletedToDoListsResponse{}
+}
+
+func (p *DeleteCompletedToDoListsResponse) InitDefault() {
+}
+
+func (p *DeleteCompletedToDoListsResponse) GetCode() (v Code) {
+	return p.Code
+}
+
+func (p *DeleteCompletedToDoListsResponse) GetMsg() (v string) {
+	return p.Msg
+}
+
+var fieldIDToName_DeleteCompletedToDoListsResponse = map[int16]string{
+	1: "code",
+	2: "msg",
+}
+
+func (p *DeleteCompletedToDoListsResponse) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.I32 {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 2:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_DeleteCompletedToDoListsResponse[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *DeleteCompletedToDoListsResponse) ReadField1(iprot thrift.TProtocol) error {
+
+	var _field Code
+	if v, err := iprot.ReadI32(); err != nil {
+		return err
+	} else {
+		_field = Code(v)
+	}
+	p.Code = _field
+	return nil
+}
+func (p *DeleteCompletedToDoListsResponse) ReadField2(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.Msg = _field
+	return nil
+}
+
+func (p *DeleteCompletedToDoListsResponse) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("DeleteCompletedToDoListsResponse"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *DeleteCompletedToDoListsResponse) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("code", thrift.I32, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI32(int32(p.Code)); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *DeleteCompletedToDoListsResponse) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("msg", thrift.STRING, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Msg); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *DeleteCompletedToDoListsResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("DeleteCompletedToDoListsResponse(%+v)", *p)
+
+}
+
+type DeleteAllUserToDoListsRequest struct {
+}
+
+func NewDeleteAllUserToDoListsRequest() *DeleteAllUserToDoListsRequest {
+	return &DeleteAllUserToDoListsRequest{}
+}
+
+func (p *DeleteAllUserToDoListsRequest) InitDefault() {
+}
+
+var fieldIDToName_DeleteAllUserToDoListsRequest = map[int16]string{}
+
+func (p *DeleteAllUserToDoListsRequest) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		if err = iprot.Skip(fieldTypeId); err != nil {
+			goto SkipFieldTypeError
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+SkipFieldTypeError:
+	return thrift.PrependError(fmt.Sprintf("%T skip field type %d error", p, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *DeleteAllUserToDoListsRequest) Write(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteStructBegin("DeleteAllUserToDoListsRequest"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *DeleteAllUserToDoListsRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("DeleteAllUserToDoListsRequest(%+v)", *p)
+
+}
+
+type DeleteAllUserToDoListsResponse struct {
+	Code Code   `thrift:"code,1,default,Code" form:"code" json:"code" query:"code"`
+	Msg  string `thrift:"msg,2" form:"msg" json:"msg" query:"msg"`
+}
+
+func NewDeleteAllUserToDoListsResponse() *DeleteAllUserToDoListsResponse {
+	return &DeleteAllUserToDoListsResponse{}
+}
+
+func (p *DeleteAllUserToDoListsResponse) InitDefault() {
+}
+
+func (p *DeleteAllUserToDoListsResponse) GetCode() (v Code) {
+	return p.Code
+}
+
+func (p *DeleteAllUserToDoListsResponse) GetMsg() (v string) {
+	return p.Msg
+}
+
+var fieldIDToName_DeleteAllUserToDoListsResponse = map[int16]string{
+	1: "code",
+	2: "msg",
+}
+
+func (p *DeleteAllUserToDoListsResponse) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.I32 {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 2:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_DeleteAllUserToDoListsResponse[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *DeleteAllUserToDoListsResponse) ReadField1(iprot thrift.TProtocol) error {
+
+	var _field Code
+	if v, err := iprot.ReadI32(); err != nil {
+		return err
+	} else {
+		_field = Code(v)
+	}
+	p.Code = _field
+	return nil
+}
+func (p *DeleteAllUserToDoListsResponse) ReadField2(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.Msg = _field
+	return nil
+}
+
+func (p *DeleteAllUserToDoListsResponse) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("DeleteAllUserToDoListsResponse"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *DeleteAllUserToDoListsResponse) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("code", thrift.I32, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI32(int32(p.Code)); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *DeleteAllUserToDoListsResponse) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("msg", thrift.STRING, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Msg); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *DeleteAllUserToDoListsResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("DeleteAllUserToDoListsResponse(%+v)", *p)
+
+}
+
 type UserService interface {
 	UpdateUser(ctx context.Context, req *UpdateUserRequest) (r *UpdateUserResponse, err error)
 
@@ -4585,6 +5123,10 @@ type ToDoListService interface {
 	QueryToDoList(ctx context.Context, req *QueryToDoListRequest) (r *QueryToDoListResponse, err error)
 
 	DeleteToDoList(ctx context.Context, req *DeleteToDoListRequest) (r *DeleteToDoListResponse, err error)
+
+	DeleteCompletedToDoLists(ctx context.Context, req *DeleteCompletedToDoListsRequest) (r *DeleteCompletedToDoListsResponse, err error)
+
+	DeleteAllUserToDoLists(ctx context.Context, req *DeleteAllUserToDoListsRequest) (r *DeleteAllUserToDoListsResponse, err error)
 }
 
 type ToDoListServiceClient struct {
@@ -4645,6 +5187,24 @@ func (p *ToDoListServiceClient) DeleteToDoList(ctx context.Context, req *DeleteT
 	_args.Req = req
 	var _result ToDoListServiceDeleteToDoListResult
 	if err = p.Client_().Call(ctx, "DeleteToDoList", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+func (p *ToDoListServiceClient) DeleteCompletedToDoLists(ctx context.Context, req *DeleteCompletedToDoListsRequest) (r *DeleteCompletedToDoListsResponse, err error) {
+	var _args ToDoListServiceDeleteCompletedToDoListsArgs
+	_args.Req = req
+	var _result ToDoListServiceDeleteCompletedToDoListsResult
+	if err = p.Client_().Call(ctx, "DeleteCompletedToDoLists", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+func (p *ToDoListServiceClient) DeleteAllUserToDoLists(ctx context.Context, req *DeleteAllUserToDoListsRequest) (r *DeleteAllUserToDoListsResponse, err error) {
+	var _args ToDoListServiceDeleteAllUserToDoListsArgs
+	_args.Req = req
+	var _result ToDoListServiceDeleteAllUserToDoListsResult
+	if err = p.Client_().Call(ctx, "DeleteAllUserToDoLists", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
@@ -6429,6 +6989,8 @@ func NewToDoListServiceProcessor(handler ToDoListService) *ToDoListServiceProces
 	self.AddToProcessorMap("UpdateToDoList", &toDoListServiceProcessorUpdateToDoList{handler: handler})
 	self.AddToProcessorMap("QueryToDoList", &toDoListServiceProcessorQueryToDoList{handler: handler})
 	self.AddToProcessorMap("DeleteToDoList", &toDoListServiceProcessorDeleteToDoList{handler: handler})
+	self.AddToProcessorMap("DeleteCompletedToDoLists", &toDoListServiceProcessorDeleteCompletedToDoLists{handler: handler})
+	self.AddToProcessorMap("DeleteAllUserToDoLists", &toDoListServiceProcessorDeleteAllUserToDoLists{handler: handler})
 	return self
 }
 func (p *ToDoListServiceProcessor) Process(ctx context.Context, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
@@ -6624,6 +7186,102 @@ func (p *toDoListServiceProcessorDeleteToDoList) Process(ctx context.Context, se
 		result.Success = retval
 	}
 	if err2 = oprot.WriteMessageBegin("DeleteToDoList", thrift.REPLY, seqId); err2 != nil {
+		err = err2
+	}
+	if err2 = result.Write(oprot); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
+		err = err2
+	}
+	if err != nil {
+		return
+	}
+	return true, err
+}
+
+type toDoListServiceProcessorDeleteCompletedToDoLists struct {
+	handler ToDoListService
+}
+
+func (p *toDoListServiceProcessorDeleteCompletedToDoLists) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := ToDoListServiceDeleteCompletedToDoListsArgs{}
+	if err = args.Read(iprot); err != nil {
+		iprot.ReadMessageEnd()
+		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
+		oprot.WriteMessageBegin("DeleteCompletedToDoLists", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return false, err
+	}
+
+	iprot.ReadMessageEnd()
+	var err2 error
+	result := ToDoListServiceDeleteCompletedToDoListsResult{}
+	var retval *DeleteCompletedToDoListsResponse
+	if retval, err2 = p.handler.DeleteCompletedToDoLists(ctx, args.Req); err2 != nil {
+		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing DeleteCompletedToDoLists: "+err2.Error())
+		oprot.WriteMessageBegin("DeleteCompletedToDoLists", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return true, err2
+	} else {
+		result.Success = retval
+	}
+	if err2 = oprot.WriteMessageBegin("DeleteCompletedToDoLists", thrift.REPLY, seqId); err2 != nil {
+		err = err2
+	}
+	if err2 = result.Write(oprot); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
+		err = err2
+	}
+	if err != nil {
+		return
+	}
+	return true, err
+}
+
+type toDoListServiceProcessorDeleteAllUserToDoLists struct {
+	handler ToDoListService
+}
+
+func (p *toDoListServiceProcessorDeleteAllUserToDoLists) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := ToDoListServiceDeleteAllUserToDoListsArgs{}
+	if err = args.Read(iprot); err != nil {
+		iprot.ReadMessageEnd()
+		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
+		oprot.WriteMessageBegin("DeleteAllUserToDoLists", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return false, err
+	}
+
+	iprot.ReadMessageEnd()
+	var err2 error
+	result := ToDoListServiceDeleteAllUserToDoListsResult{}
+	var retval *DeleteAllUserToDoListsResponse
+	if retval, err2 = p.handler.DeleteAllUserToDoLists(ctx, args.Req); err2 != nil {
+		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing DeleteAllUserToDoLists: "+err2.Error())
+		oprot.WriteMessageBegin("DeleteAllUserToDoLists", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return true, err2
+	} else {
+		result.Success = retval
+	}
+	if err2 = oprot.WriteMessageBegin("DeleteAllUserToDoLists", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -7814,5 +8472,593 @@ func (p *ToDoListServiceDeleteToDoListResult) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("ToDoListServiceDeleteToDoListResult(%+v)", *p)
+
+}
+
+type ToDoListServiceDeleteCompletedToDoListsArgs struct {
+	Req *DeleteCompletedToDoListsRequest `thrift:"req,1"`
+}
+
+func NewToDoListServiceDeleteCompletedToDoListsArgs() *ToDoListServiceDeleteCompletedToDoListsArgs {
+	return &ToDoListServiceDeleteCompletedToDoListsArgs{}
+}
+
+func (p *ToDoListServiceDeleteCompletedToDoListsArgs) InitDefault() {
+}
+
+var ToDoListServiceDeleteCompletedToDoListsArgs_Req_DEFAULT *DeleteCompletedToDoListsRequest
+
+func (p *ToDoListServiceDeleteCompletedToDoListsArgs) GetReq() (v *DeleteCompletedToDoListsRequest) {
+	if !p.IsSetReq() {
+		return ToDoListServiceDeleteCompletedToDoListsArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+var fieldIDToName_ToDoListServiceDeleteCompletedToDoListsArgs = map[int16]string{
+	1: "req",
+}
+
+func (p *ToDoListServiceDeleteCompletedToDoListsArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *ToDoListServiceDeleteCompletedToDoListsArgs) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ToDoListServiceDeleteCompletedToDoListsArgs[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ToDoListServiceDeleteCompletedToDoListsArgs) ReadField1(iprot thrift.TProtocol) error {
+	_field := NewDeleteCompletedToDoListsRequest()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Req = _field
+	return nil
+}
+
+func (p *ToDoListServiceDeleteCompletedToDoListsArgs) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("DeleteCompletedToDoLists_args"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ToDoListServiceDeleteCompletedToDoListsArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Req.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ToDoListServiceDeleteCompletedToDoListsArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ToDoListServiceDeleteCompletedToDoListsArgs(%+v)", *p)
+
+}
+
+type ToDoListServiceDeleteCompletedToDoListsResult struct {
+	Success *DeleteCompletedToDoListsResponse `thrift:"success,0,optional"`
+}
+
+func NewToDoListServiceDeleteCompletedToDoListsResult() *ToDoListServiceDeleteCompletedToDoListsResult {
+	return &ToDoListServiceDeleteCompletedToDoListsResult{}
+}
+
+func (p *ToDoListServiceDeleteCompletedToDoListsResult) InitDefault() {
+}
+
+var ToDoListServiceDeleteCompletedToDoListsResult_Success_DEFAULT *DeleteCompletedToDoListsResponse
+
+func (p *ToDoListServiceDeleteCompletedToDoListsResult) GetSuccess() (v *DeleteCompletedToDoListsResponse) {
+	if !p.IsSetSuccess() {
+		return ToDoListServiceDeleteCompletedToDoListsResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+var fieldIDToName_ToDoListServiceDeleteCompletedToDoListsResult = map[int16]string{
+	0: "success",
+}
+
+func (p *ToDoListServiceDeleteCompletedToDoListsResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *ToDoListServiceDeleteCompletedToDoListsResult) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField0(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ToDoListServiceDeleteCompletedToDoListsResult[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ToDoListServiceDeleteCompletedToDoListsResult) ReadField0(iprot thrift.TProtocol) error {
+	_field := NewDeleteCompletedToDoListsResponse()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Success = _field
+	return nil
+}
+
+func (p *ToDoListServiceDeleteCompletedToDoListsResult) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("DeleteCompletedToDoLists_result"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField0(oprot); err != nil {
+			fieldId = 0
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ToDoListServiceDeleteCompletedToDoListsResult) writeField0(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSuccess() {
+		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Success.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
+}
+
+func (p *ToDoListServiceDeleteCompletedToDoListsResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ToDoListServiceDeleteCompletedToDoListsResult(%+v)", *p)
+
+}
+
+type ToDoListServiceDeleteAllUserToDoListsArgs struct {
+	Req *DeleteAllUserToDoListsRequest `thrift:"req,1"`
+}
+
+func NewToDoListServiceDeleteAllUserToDoListsArgs() *ToDoListServiceDeleteAllUserToDoListsArgs {
+	return &ToDoListServiceDeleteAllUserToDoListsArgs{}
+}
+
+func (p *ToDoListServiceDeleteAllUserToDoListsArgs) InitDefault() {
+}
+
+var ToDoListServiceDeleteAllUserToDoListsArgs_Req_DEFAULT *DeleteAllUserToDoListsRequest
+
+func (p *ToDoListServiceDeleteAllUserToDoListsArgs) GetReq() (v *DeleteAllUserToDoListsRequest) {
+	if !p.IsSetReq() {
+		return ToDoListServiceDeleteAllUserToDoListsArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+var fieldIDToName_ToDoListServiceDeleteAllUserToDoListsArgs = map[int16]string{
+	1: "req",
+}
+
+func (p *ToDoListServiceDeleteAllUserToDoListsArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *ToDoListServiceDeleteAllUserToDoListsArgs) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ToDoListServiceDeleteAllUserToDoListsArgs[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ToDoListServiceDeleteAllUserToDoListsArgs) ReadField1(iprot thrift.TProtocol) error {
+	_field := NewDeleteAllUserToDoListsRequest()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Req = _field
+	return nil
+}
+
+func (p *ToDoListServiceDeleteAllUserToDoListsArgs) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("DeleteAllUserToDoLists_args"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ToDoListServiceDeleteAllUserToDoListsArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Req.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ToDoListServiceDeleteAllUserToDoListsArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ToDoListServiceDeleteAllUserToDoListsArgs(%+v)", *p)
+
+}
+
+type ToDoListServiceDeleteAllUserToDoListsResult struct {
+	Success *DeleteAllUserToDoListsResponse `thrift:"success,0,optional"`
+}
+
+func NewToDoListServiceDeleteAllUserToDoListsResult() *ToDoListServiceDeleteAllUserToDoListsResult {
+	return &ToDoListServiceDeleteAllUserToDoListsResult{}
+}
+
+func (p *ToDoListServiceDeleteAllUserToDoListsResult) InitDefault() {
+}
+
+var ToDoListServiceDeleteAllUserToDoListsResult_Success_DEFAULT *DeleteAllUserToDoListsResponse
+
+func (p *ToDoListServiceDeleteAllUserToDoListsResult) GetSuccess() (v *DeleteAllUserToDoListsResponse) {
+	if !p.IsSetSuccess() {
+		return ToDoListServiceDeleteAllUserToDoListsResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+var fieldIDToName_ToDoListServiceDeleteAllUserToDoListsResult = map[int16]string{
+	0: "success",
+}
+
+func (p *ToDoListServiceDeleteAllUserToDoListsResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *ToDoListServiceDeleteAllUserToDoListsResult) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField0(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ToDoListServiceDeleteAllUserToDoListsResult[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ToDoListServiceDeleteAllUserToDoListsResult) ReadField0(iprot thrift.TProtocol) error {
+	_field := NewDeleteAllUserToDoListsResponse()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Success = _field
+	return nil
+}
+
+func (p *ToDoListServiceDeleteAllUserToDoListsResult) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("DeleteAllUserToDoLists_result"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField0(oprot); err != nil {
+			fieldId = 0
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ToDoListServiceDeleteAllUserToDoListsResult) writeField0(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSuccess() {
+		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Success.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
+}
+
+func (p *ToDoListServiceDeleteAllUserToDoListsResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ToDoListServiceDeleteAllUserToDoListsResult(%+v)", *p)
 
 }

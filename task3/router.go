@@ -34,6 +34,9 @@ func customizedRegister(r *server.Hertz) {
 			todoGroup := auth.Group("/todo_list")
 			{
 				todoGroup.POST("/create", task3.CreateToDoList)
+				todoGroup.POST("/delete/:todo_list_id", task3.DeleteToDoList)
+				todoGroup.POST("/delete_completed", task3.DeleteCompletedToDoLists)
+				todoGroup.POST("/delete_all", task3.DeleteAllUserToDoLists)
 			}
 		}
 	}

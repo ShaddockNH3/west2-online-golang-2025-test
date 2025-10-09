@@ -5,12 +5,10 @@ package task3
 import (
 	"context"
 
-	"github.com/ShaddockNH3/west2-online-golang-2025-test/task3/biz/dal/mysql"
-	"github.com/ShaddockNH3/west2-online-golang-2025-test/task3/biz/model"
 	task3 "github.com/ShaddockNH3/west2-online-golang-2025-test/task3/biz/model/task3"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task3/biz/mw"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task3/biz/pack"
-	"github.com/ShaddockNH3/west2-online-golang-2025-test/task3/biz/utils"
+	"github.com/ShaddockNH3/west2-online-golang-2025-test/task3/biz/service"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 )
@@ -34,17 +32,10 @@ func UpdateUser(ctx context.Context, c *app.RequestContext) {
 
 	userID := v.(int64)
 
-	if userID != req.UserID {
-		c.JSON(consts.StatusForbidden, &task3.UpdateUserResponse{Code: task3.Code_ParamInvalid, Msg: "you can only update your own information"})
-		return
-	}
+	userService := service.NewUserService(ctx)
+	err = userService.UpdateUser(userID, &req)
 
-	u := &model.User{}
-	u.ID = uint(req.UserID)
-	u.Name = req.Name
-	u.Introduce = req.Introduce
-
-	if err = mysql.UpdateUser(u); err != nil {
+	if err != nil {
 		c.JSON(consts.StatusInternalServerError, &task3.UpdateUserResponse{Code: task3.Code_DBErr, Msg: err.Error()})
 		return
 	}
@@ -71,12 +62,10 @@ func DeleteUser(ctx context.Context, c *app.RequestContext) {
 
 	userID := v.(int64)
 
-	if userID != req.UserID {
-		c.JSON(consts.StatusForbidden, &task3.UpdateUserResponse{Code: task3.Code_ParamInvalid, Msg: "you can only update your own information"})
-		return
-	}
+	userService := service.NewUserService(ctx)
+	err = userService.DeleteUser(userID, &req)
 
-	if err = mysql.DeleteUser(req.UserID); err != nil {
+	if err != nil {
 		c.JSON(consts.StatusInternalServerError, &task3.DeleteUserResponse{Code: task3.Code_DBErr, Msg: err.Error()})
 		return
 	}
@@ -95,7 +84,8 @@ func QueryUser(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	users, total, err := mysql.QueryUser(req.Keyword, req.Page, req.PageSize)
+	userService := service.NewUserService(ctx)
+	users, total, err := userService.QueryUser(&req)
 
 	if err != nil {
 		c.JSON(consts.StatusInternalServerError, &task3.QueryUserResponse{Code: task3.Code_DBErr, Msg: err.Error()})
@@ -115,30 +105,10 @@ func CreateUser(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	users, err := mysql.QueryUserByName(req.Name)
+	userService := service.NewUserService(ctx)
+	err = userService.CreateUser(&req)
+
 	if err != nil {
-		c.JSON(consts.StatusBadRequest, &task3.CreateUserResponse{Code: task3.Code_ParamInvalid, Msg: err.Error()})
-		return
-	}
-
-	if users != nil {
-		c.JSON(consts.StatusBadRequest, &task3.CreateUserResponse{Code: task3.Code_ParamInvalid, Msg: "user already exists"})
-		return
-	}
-
-	password, err := utils.HashPassword(req.Password)
-	if err != nil {
-		c.JSON(consts.StatusBadRequest, &task3.CreateUserResponse{Code: task3.Code_ParamInvalid, Msg: err.Error()})
-		return
-	}
-
-	newUser := &model.User{
-		Name:      req.Name,
-		Introduce: req.Introduce,
-		Password:  password,
-	}
-
-	if err = mysql.CreateUser(newUser); err != nil {
 		c.JSON(consts.StatusInternalServerError, &task3.CreateUserResponse{Code: task3.Code_DBErr, Msg: err.Error()})
 		return
 	}

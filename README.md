@@ -14,7 +14,7 @@ task3目前已经实现——
 bonus（已完成）
 
 - 考虑了数据库交互的安全性（把密码用了哈希加密）
-- 使用了三层架构设计（router -> handler -> service -> dal），handler和service层目前杂糅
+- 使用了三层架构设计（router -> handler -> service -> dal）
 
 todo
 

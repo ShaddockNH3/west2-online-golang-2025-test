@@ -6,9 +6,9 @@ import (
 	"context"
 
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task3/biz/dal/mysql"
-	"github.com/ShaddockNH3/west2-online-golang-2025-test/task3/biz/model"
 	task3 "github.com/ShaddockNH3/west2-online-golang-2025-test/task3/biz/model/task3"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task3/biz/mw"
+	"github.com/ShaddockNH3/west2-online-golang-2025-test/task3/biz/service"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 )
@@ -32,15 +32,11 @@ func CreateToDoList(ctx context.Context, c *app.RequestContext) {
 
 	userID := v.(int64)
 
-	newToDo := &model.ToDoList{
-		UserID:  userID,
-		Title:   req.Title,
-		Context: req.Context,
-		Status:  int(task3.Status_ToDo),
-	}
+	ToDoListService := service.NewToDoListService(ctx)
+	err = ToDoListService.CreateToDoList(userID, &req)
 
-	if err = mysql.CreateToDoList(newToDo); err != nil {
-		c.JSON(consts.StatusInternalServerError, &task3.CreateToDoListResponse{Code: task3.Code_DBErr, Msg: err.Error()})
+	if err != nil {
+		c.JSON(consts.StatusInternalServerError, &task3.CreateToDoListResponse{Code: task3.Code_DBErr, Msg: "failed to get user id"})
 		return
 	}
 

@@ -125,3 +125,43 @@ func _deletecompletedtodolistsMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _deletealltodosMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _todo_listsMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _querybatchtodolistMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _deletecompletedtodosMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _deletependingtodosMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _todo_lists0Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _updatebatchstatusMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _usersMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

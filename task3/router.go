@@ -15,28 +15,32 @@ func customizedRegister(r *server.Hertz) {
 
 	v1 := r.Group("/v1")
 	{
-		userPublicGroup := v1.Group("/user")
+		publicGroup := v1.Group("/")
 		{
-			userPublicGroup.POST("/create", task3.CreateUser)
-			userPublicGroup.POST("/login", mw.JwtMiddleware.LoginHandler)
-			userPublicGroup.POST("/query/", task3.QueryUser)
+			publicGroup.POST("/users", task3.CreateUser) // 对应 CreateUser
+			publicGroup.POST("/user/login", task3.Login) // 对应 Login
+			publicGroup.GET("/users", task3.QueryUser)   // 对应 QueryUser
 		}
 
-		auth := v1.Group("/")
-		auth.Use(mw.JwtMiddleware.MiddlewareFunc())
+		privateGroup := v1.Group("/")
+		privateGroup.Use(mw.JwtMiddleware.MiddlewareFunc())
 		{
-			userPrivateGroup := auth.Group("/user")
+			userRoutes := privateGroup.Group("/users")
 			{
-				userPrivateGroup.POST("/update/:user_id", task3.UpdateUser)
-				userPrivateGroup.POST("/delete/:user_id", task3.DeleteUser)
+				userRoutes.PUT("/:user_id", task3.UpdateUser)
+				userRoutes.DELETE("/:user_id", task3.DeleteUser)
 			}
 
-			todoGroup := auth.Group("/todo_list")
+			todoRoutes := privateGroup.Group("/todo_lists")
 			{
-				todoGroup.POST("/create", task3.CreateToDoList)
-				todoGroup.POST("/delete/:todo_list_id", task3.DeleteToDoList)
-				todoGroup.POST("/delete_completed", task3.DeleteCompletedToDoLists)
-				todoGroup.POST("/delete_all", task3.DeleteAllUserToDoLists)
+				todoRoutes.POST("/", task3.CreateToDoList) // POST /v1/todo_lists
+				todoRoutes.PATCH("/:todo_list_id", task3.UpdateToDoList)
+				todoRoutes.PUT("/status", task3.UpdateBatchStatus)
+				todoRoutes.GET("/", task3.QueryBatchToDoList) // GET /v1/todo_lists
+				todoRoutes.DELETE("/:todo_list_id", task3.DeleteToDoList)
+				todoRoutes.DELETE("/pending", task3.DeletePendingToDos)
+				todoRoutes.DELETE("/completed", task3.DeleteCompletedToDos)
+				todoRoutes.DELETE("/", task3.DeleteAllToDos)
 			}
 		}
 	}

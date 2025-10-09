@@ -24,9 +24,9 @@ struct CreateUserResponse{
 }
 
 struct QueryUserRequest{
-    1: optional string Keyword (api.body="keyword", api.form="keyword",api.query="keyword")
-    2: i64 page (api.body="page", api.form="page",api.query="page",api.vd="$ > 0")
-    3: i64 page_size (api.body="page_size", api.form="page_size",api.query="page_size",api.vd="($ > 0 || $ <= 100)")
+    1: optional string Keyword (api.body="keyword")
+    2: i64 page (api.body="page",api.query="page",api.vd="$ > 0")
+    3: i64 page_size (api.body="page_size",api.query="page_size",api.vd="($ > 0 || $ <= 100)")
 }
 
 struct QueryUserResponse{
@@ -56,7 +56,6 @@ struct UpdateUserResponse{
     2: string msg
 }
 
-
 // jwt认证相关
 struct LoginRequest {
     1: string name (api.body="name", api.form="name", api.vd="(len($) > 0 && len($) < 100)")
@@ -70,17 +69,18 @@ struct LoginResponse {
 }
 
 service UserService {
-   UpdateUserResponse UpdateUser(1:UpdateUserRequest req)(api.post="/v1/user/update/:user_id")
-   DeleteUserResponse DeleteUser(1:DeleteUserRequest req)(api.post="/v1/user/delete/:user_id")
-   QueryUserResponse  QueryUser(1: QueryUserRequest req)(api.post="/v1/user/query/")
-   CreateUserResponse CreateUser(1:CreateUserRequest req)(api.post="/v1/user/create/")
-   LoginResponse Login(1:LoginRequest req)(api.post="/v1/user/login/")
+   UpdateUserResponse UpdateUser(1:UpdateUserRequest req)(api.put="/v1/users/:user_id")
+   DeleteUserResponse DeleteUser(1:DeleteUserRequest req)(api.delete="/v1/users/:user_id")
+   QueryUserResponse  QueryUser(1: QueryUserRequest req)(api.get="/v1/users")
+   CreateUserResponse CreateUser(1:CreateUserRequest req)(api.post="/v1/users")
+   LoginResponse Login(1:LoginRequest req)(api.post="/v1/user/login")
 }
 
 // 待办事项
 enum Status{
-    ToDo=0
-    Complete=1
+    PENDING=0
+    COMPLETED=1
+    // ARCHIVED=2
 }
 
 // 四个参数
@@ -103,10 +103,10 @@ struct CreateToDoListResponse{
 }
 
 struct UpdateToDoListRequest{
-    1: i64 todo_list_id (api.path="todo_list_id",api.form="todo_list_id",api.vd="$>0")
-    2: Status status (api.path="status",api.form="status",api.vd="($==0||$==1)")
-    3: string title (api.body="title",api.form="title",api.vd="len($)>0&&len($)<1000")
-    4: string context (api.body="context",api.form="context",api.vd="len($)>0&&len($)<1000")
+    1: required i64 todo_list_id (api.path="todo_list_id"),
+    2: optional string title (api.body="title"), 
+    3: optional string context (api.body="context"),
+    4: optional Status status (api.body="status"),
 }
 
 struct UpdateToDoListResponse{
@@ -114,16 +114,26 @@ struct UpdateToDoListResponse{
     2: string msg
 }
 
-struct QueryToDoListRequest{
-    1: optional string Keyword (api.body="keyword", api.form="keyword",api.query="keyword")
-    2: i64 page (api.body="page", api.form="page",api.query="page",api.vd="$ > 0")
-    3: i64 page_size (api.body="page_size", api.form="page_size",api.query="page_size",api.vd="($ > 0 || $ <= 100)")
+struct UpdateBatchStatusRequest {
+    1: required Status status (api.body="status")
 }
 
-struct QueryToDoListResponse{
+struct UpdateBatchStatusResponse{
     1: Code code
     2: string msg
-    3: list<ToDoList> todo_list
+}
+
+struct QueryBatchToDoListsRequest{
+    1: optional string keyword (api.query="keyword")
+    2: optional Status status (api.query="status")
+    3: i64 page (api.query="page",api.vd="$ > 0")
+    4: i64 page_size (api.query="page_size",api.vd="($ > 0 && $ <= 100)")
+}
+
+struct QueryBatchToDoListResponse{
+    1: Code code
+    2: string msg
+    3: list<ToDoList> todo_lists
     4: i64 total
 }
 
@@ -136,27 +146,17 @@ struct DeleteToDoListResponse{
     2: string msg
 }
 
-struct DeleteCompletedToDoListsRequest {
-}
-
-struct DeleteCompletedToDoListsResponse {
-    1: Code code
-    2: string msg
-}
-
-struct DeleteAllUserToDoListsRequest {
-}
-
-struct DeleteAllUserToDoListsResponse {
-    1: Code code
-    2: string msg
-}
-
 service ToDoListService{
-    CreateToDoListResponse CreateToDoList(1:CreateToDoListRequest req)(api.post="v1/todo_list/create/")
-    UpdateToDoListResponse UpdateToDoList(1:UpdateToDoListRequest req)(api.post="v1/todo_list/update/:todo_list_id")
-    QueryToDoListResponse QueryToDoList(1:QueryToDoListRequest req)(api.post="v1/todo_list/query/")
-    DeleteToDoListResponse DeleteToDoList(1:DeleteToDoListRequest req)(api.post="v1/todo_list/delete/:todo_list_id")
-    DeleteCompletedToDoListsResponse DeleteCompletedToDoLists(1: DeleteCompletedToDoListsRequest req)(api.post="/v1/todo_list/delete_completed")
-    DeleteAllUserToDoListsResponse DeleteAllUserToDoLists(1: DeleteAllUserToDoListsRequest req)(api.post="/v1/todo_list/delete_all")
+    CreateToDoListResponse CreateToDoList(1:CreateToDoListRequest req)(api.post="/v1/todo_lists")
+
+    UpdateToDoListResponse UpdateToDoList(1:UpdateToDoListRequest req)(api.patch="/v1/todo_lists/:todo_list_id")
+    UpdateBatchStatusResponse UpdateBatchStatus(1:UpdateBatchStatusRequest req)(api.put="/v1/todo_lists/status")
+
+    QueryBatchToDoListResponse QueryBatchToDoList(1:QueryBatchToDoListsRequest req)(api.get="/v1/todo_lists")
+
+    DeleteToDoListResponse DeleteToDoList(1:DeleteToDoListRequest req)(api.delete="/v1/todo_lists/:todo_list_id")
+
+    DeleteToDoListResponse DeletePendingToDos(1:DeleteToDoListRequest  req)(api.delete="/v1/todo_lists/pending")
+    DeleteToDoListResponse DeleteCompletedToDos(1:DeleteToDoListRequest req)(api.delete="/v1/todo_lists/completed")
+    DeleteToDoListResponse DeleteAllToDos(1:DeleteToDoListRequest req)(api.delete="/v1/todo_lists")
 }

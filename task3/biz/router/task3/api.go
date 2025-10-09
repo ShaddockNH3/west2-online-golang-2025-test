@@ -19,49 +19,26 @@ func Register(r *server.Hertz) {
 	root := r.Group("/", rootMw()...)
 	{
 		_v1 := root.Group("/v1", _v1Mw()...)
-		{
-			_todo_list := _v1.Group("/todo_list", _todo_listMw()...)
-			_todo_list.POST("/delete_all", append(_deleteallusertodolistsMw(), task3.DeleteAllUserToDoLists)...)
-			_todo_list.POST("/delete_completed", append(_deletecompletedtodolistsMw(), task3.DeleteCompletedToDoLists)...)
-			{
-				_create := _todo_list.Group("/create", _createMw()...)
-				_create.POST("/", append(_createtodolistMw(), task3.CreateToDoList)...)
-			}
-			{
-				_delete := _todo_list.Group("/delete", _deleteMw()...)
-				_delete.POST("/:todo_list_id", append(_deletetodolistMw(), task3.DeleteToDoList)...)
-			}
-			{
-				_query := _todo_list.Group("/query", _queryMw()...)
-				_query.POST("/", append(_querytodolistMw(), task3.QueryToDoList)...)
-			}
-			{
-				_update := _todo_list.Group("/update", _updateMw()...)
-				_update.POST("/:todo_list_id", append(_updatetodolistMw(), task3.UpdateToDoList)...)
-			}
-		}
+		_v1.DELETE("/todo_lists", append(_deletealltodosMw(), task3.DeleteAllToDos)...)
+		_v1.GET("/todo_lists", append(_querybatchtodolistMw(), task3.QueryBatchToDoList)...)
+		_todo_lists := _v1.Group("/todo_lists", _todo_listsMw()...)
+		_todo_lists.DELETE("/completed", append(_deletecompletedtodosMw(), task3.DeleteCompletedToDos)...)
+		_todo_lists.DELETE("/pending", append(_deletependingtodosMw(), task3.DeletePendingToDos)...)
+		_todo_lists.DELETE("/:todo_list_id", append(_deletetodolistMw(), task3.DeleteToDoList)...)
+		_v1.POST("/todo_lists", append(_createtodolistMw(), task3.CreateToDoList)...)
+		_todo_lists0 := _v1.Group("/todo_lists", _todo_lists0Mw()...)
+		_todo_lists0.PUT("/status", append(_updatebatchstatusMw(), task3.UpdateBatchStatus)...)
+		_todo_lists0.PATCH("/:todo_list_id", append(_updatetodolistMw(), task3.UpdateToDoList)...)
+		_v1.GET("/users", append(_queryuserMw(), task3.QueryUser)...)
+		_v1.POST("/users", append(_createuserMw(), task3.CreateUser)...)
 		{
 			_user := _v1.Group("/user", _userMw()...)
-			{
-				_create0 := _user.Group("/create", _create0Mw()...)
-				_create0.POST("/", append(_createuserMw(), task3.CreateUser)...)
-			}
-			{
-				_delete0 := _user.Group("/delete", _delete0Mw()...)
-				_delete0.POST("/:user_id", append(_deleteuserMw(), task3.DeleteUser)...)
-			}
-			{
-				_login := _user.Group("/login", _loginMw()...)
-				_login.POST("/", append(_login0Mw(), task3.Login)...)
-			}
-			{
-				_query0 := _user.Group("/query", _query0Mw()...)
-				_query0.POST("/", append(_queryuserMw(), task3.QueryUser)...)
-			}
-			{
-				_update0 := _user.Group("/update", _update0Mw()...)
-				_update0.POST("/:user_id", append(_updateuserMw(), task3.UpdateUser)...)
-			}
+			_user.POST("/login", append(_loginMw(), task3.Login)...)
+		}
+		{
+			_users := _v1.Group("/users", _usersMw()...)
+			_users.DELETE("/:user_id", append(_deleteuserMw(), task3.DeleteUser)...)
+			_users.PUT("/:user_id", append(_updateuserMw(), task3.UpdateUser)...)
 		}
 	}
 }

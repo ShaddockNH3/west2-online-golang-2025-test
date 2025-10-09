@@ -5,9 +5,9 @@ package task3
 import (
 	"context"
 
-	"github.com/ShaddockNH3/west2-online-golang-2025-test/task3/biz/dal/mysql"
 	task3 "github.com/ShaddockNH3/west2-online-golang-2025-test/task3/biz/model/task3"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task3/biz/mw"
+	"github.com/ShaddockNH3/west2-online-golang-2025-test/task3/biz/pack"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task3/biz/service"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
@@ -49,30 +49,89 @@ func UpdateToDoList(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req task3.UpdateToDoListRequest
 	err = c.BindAndValidate(&req)
+
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		c.JSON(consts.StatusBadRequest, &task3.UpdateToDoListResponse{Code: task3.Code_ParamInvalid, Msg: err.Error()})
 		return
 	}
 
-	resp := new(task3.UpdateToDoListResponse)
+	v, ok := c.Get(mw.UserIDKey)
+	if !ok {
+		c.JSON(consts.StatusInternalServerError, &task3.UpdateToDoListResponse{Code: task3.Code_DBErr, Msg: "failed to get user id"})
+		return
+	}
 
-	c.JSON(consts.StatusOK, resp)
+	userID := v.(int64)
+
+	ToDoListService := service.NewToDoListService(ctx)
+	err = ToDoListService.UpdateToDoList(userID, &req)
+
+	if err != nil {
+		c.JSON(consts.StatusInternalServerError, &task3.UpdateToDoListResponse{Code: task3.Code_DBErr, Msg: "failed to get user id"})
+		return
+	}
+
+	c.JSON(consts.StatusOK, &task3.UpdateToDoListResponse{Code: task3.Code_Success, Msg: "todo list update successfully"})
 }
 
-// QueryToDoList .
-// @router v1/todo_list/query/ [POST]
-func QueryToDoList(ctx context.Context, c *app.RequestContext) {
+// UpdateBatchStatus .
+// @router /v1/todo_lists/status [PUT]
+func UpdateBatchStatus(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req task3.QueryToDoListRequest
+	var req task3.UpdateBatchStatusRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		c.JSON(consts.StatusBadRequest, &task3.UpdateBatchStatusResponse{Code: task3.Code_ParamInvalid, Msg: err.Error()})
 		return
 	}
 
-	resp := new(task3.QueryToDoListResponse)
+	v, ok := c.Get(mw.UserIDKey)
+	if !ok {
+		c.JSON(consts.StatusInternalServerError, &task3.UpdateBatchStatusResponse{Code: task3.Code_DBErr, Msg: "failed to get user id"})
+		return
+	}
 
-	c.JSON(consts.StatusOK, resp)
+	userID := v.(int64)
+
+	ToDoListService := service.NewToDoListService(ctx)
+	err = ToDoListService.UpdateBatchStatus(userID, &req)
+
+	if err != nil {
+		c.JSON(consts.StatusInternalServerError, &task3.UpdateBatchStatusResponse{Code: task3.Code_DBErr, Msg: "failed to get user id"})
+		return
+	}
+
+	c.JSON(consts.StatusOK, &task3.UpdateBatchStatusResponse{Code: task3.Code_Success, Msg: "todo list update successfully"})
+}
+
+// QueryBatchToDoList .
+// @router /v1/todo_lists [GET]
+func QueryBatchToDoList(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req task3.QueryBatchToDoListsRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.JSON(consts.StatusBadRequest, &task3.QueryBatchToDoListResponse{Code: task3.Code_ParamInvalid, Msg: err.Error()})
+		return
+	}
+
+	v, ok := c.Get(mw.UserIDKey)
+	if !ok {
+		c.JSON(consts.StatusInternalServerError, &task3.QueryBatchToDoListResponse{Code: task3.Code_DBErr, Msg: "failed to get user id"})
+		return
+	}
+
+	userID := v.(int64)
+
+	ToDoListService := service.NewToDoListService(ctx)
+	todo_lists, total, err := ToDoListService.QueryBatchToDoList(userID, &req)
+
+	if err != nil {
+		c.JSON(consts.StatusInternalServerError, &task3.QueryBatchToDoListResponse{Code: task3.Code_DBErr, Msg: "failed to get user id"})
+		return
+	}
+
+	c.JSON(consts.StatusOK, &task3.QueryBatchToDoListResponse{Code: task3.Code_Success, TodoLists: pack.ToDoLists(todo_lists), Total: total, Msg: "todo list query successfully"})
 }
 
 // DeleteToDoList .
@@ -94,64 +153,104 @@ func DeleteToDoList(ctx context.Context, c *app.RequestContext) {
 
 	userID := v.(int64)
 
-	if err = mysql.DeleteToDoListByID(req.TodoListID, userID); err != nil {
-		c.JSON(consts.StatusInternalServerError, &task3.DeleteToDoListResponse{Code: task3.Code_DBErr, Msg: err.Error()})
+	ToDoListService := service.NewToDoListService(ctx)
+	err = ToDoListService.DeleteToDoList(userID, &req)
+
+	if err != nil {
+		c.JSON(consts.StatusInternalServerError, &task3.DeleteToDoListResponse{Code: task3.Code_DBErr, Msg: "failed to get user id"})
 		return
 	}
 
-	c.JSON(consts.StatusOK, &task3.DeleteToDoListResponse{Code: task3.Code_Success})
+	c.JSON(consts.StatusOK, &task3.DeleteToDoListResponse{Code: task3.Code_Success, Msg: "todo list delete successfully"})
 }
 
-// DeleteCompletedToDoLists .
-// @router /v1/todo_list/delete_completed [POST]
-func DeleteCompletedToDoLists(ctx context.Context, c *app.RequestContext) {
+// DeletePendingToDos .
+// @router /v1/todo_lists/pending [DELETE]
+func DeletePendingToDos(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req task3.DeleteCompletedToDoListsRequest
+	var req task3.DeleteToDoListRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.JSON(consts.StatusBadRequest, &task3.DeleteCompletedToDoListsResponse{Code: task3.Code_ParamInvalid, Msg: err.Error()})
+		c.JSON(consts.StatusBadRequest, &task3.DeleteToDoListResponse{Code: task3.Code_ParamInvalid, Msg: err.Error()})
 		return
 	}
 
 	v, ok := c.Get(mw.UserIDKey)
 	if !ok {
-		c.JSON(consts.StatusInternalServerError, &task3.DeleteCompletedToDoListsResponse{Code: task3.Code_DBErr, Msg: "failed to get user id"})
+		c.JSON(consts.StatusInternalServerError, &task3.DeleteToDoListResponse{Code: task3.Code_DBErr, Msg: "failed to get user id"})
 		return
 	}
 
 	userID := v.(int64)
 
-	if err = mysql.DeleteToDoListsComplete(userID); err != nil {
-		c.JSON(consts.StatusInternalServerError, &task3.DeleteCompletedToDoListsResponse{Code: task3.Code_DBErr, Msg: err.Error()})
+	ToDoListService := service.NewToDoListService(ctx)
+	err = ToDoListService.DeletePendingToDos(userID, &req)
+
+	if err != nil {
+		c.JSON(consts.StatusInternalServerError, &task3.DeleteToDoListResponse{Code: task3.Code_DBErr, Msg: "failed to get user id"})
 		return
 	}
 
-	c.JSON(consts.StatusOK, &task3.DeleteCompletedToDoListsResponse{Code: task3.Code_Success})
+	c.JSON(consts.StatusOK, &task3.DeleteToDoListResponse{Code: task3.Code_Success, Msg: "todo list delete successfully"})
 }
 
-// DeleteAllUserToDoLists .
-// @router /v1/todo_list/delete_all [POST]
-func DeleteAllUserToDoLists(ctx context.Context, c *app.RequestContext) {
+// DeleteCompletedToDos .
+// @router /v1/todo_lists/completed [DELETE]
+func DeleteCompletedToDos(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req task3.DeleteAllUserToDoListsRequest
+	var req task3.DeleteToDoListRequest
 	err = c.BindAndValidate(&req)
+
 	if err != nil {
-		c.JSON(consts.StatusBadRequest, &task3.DeleteAllUserToDoListsResponse{Code: task3.Code_ParamInvalid, Msg: err.Error()})
+		c.JSON(consts.StatusBadRequest, &task3.DeleteToDoListResponse{Code: task3.Code_ParamInvalid, Msg: err.Error()})
 		return
 	}
 
 	v, ok := c.Get(mw.UserIDKey)
 	if !ok {
-		c.JSON(consts.StatusInternalServerError, &task3.DeleteAllUserToDoListsResponse{Code: task3.Code_DBErr, Msg: "failed to get user id"})
+		c.JSON(consts.StatusInternalServerError, &task3.DeleteToDoListResponse{Code: task3.Code_DBErr, Msg: "failed to get user id"})
 		return
 	}
 
 	userID := v.(int64)
 
-	if err = mysql.DeleteAllUserToDoLists(userID); err != nil {
-		c.JSON(consts.StatusInternalServerError, &task3.DeleteAllUserToDoListsResponse{Code: task3.Code_DBErr, Msg: err.Error()})
+	ToDoListService := service.NewToDoListService(ctx)
+	err = ToDoListService.DeleteCompletedToDos(userID, &req)
+
+	if err != nil {
+		c.JSON(consts.StatusInternalServerError, &task3.DeleteToDoListResponse{Code: task3.Code_DBErr, Msg: "failed to get user id"})
 		return
 	}
 
-	c.JSON(consts.StatusOK, &task3.DeleteAllUserToDoListsResponse{Code: task3.Code_Success})
+	c.JSON(consts.StatusOK, &task3.DeleteToDoListResponse{Code: task3.Code_Success, Msg: "todo list delete successfully"})
+}
+
+// DeleteAllToDos .
+// @router /v1/todo_lists [DELETE]
+func DeleteAllToDos(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req task3.DeleteToDoListRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.JSON(consts.StatusBadRequest, &task3.DeleteToDoListResponse{Code: task3.Code_ParamInvalid, Msg: err.Error()})
+		return
+	}
+
+	v, ok := c.Get(mw.UserIDKey)
+	if !ok {
+		c.JSON(consts.StatusInternalServerError, &task3.DeleteToDoListResponse{Code: task3.Code_DBErr, Msg: "failed to get user id"})
+		return
+	}
+
+	userID := v.(int64)
+
+	ToDoListService := service.NewToDoListService(ctx)
+	err = ToDoListService.DeleteAllToDos(userID, &req)
+
+	if err != nil {
+		c.JSON(consts.StatusInternalServerError, &task3.DeleteToDoListResponse{Code: task3.Code_DBErr, Msg: "failed to get user id"})
+		return
+	}
+
+	c.JSON(consts.StatusOK, &task3.DeleteToDoListResponse{Code: task3.Code_Success, Msg: "todo list delete successfully"})
 }

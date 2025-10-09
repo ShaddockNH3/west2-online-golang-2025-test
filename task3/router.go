@@ -17,9 +17,9 @@ func customizedRegister(r *server.Hertz) {
 	{
 		publicGroup := v1.Group("/")
 		{
-			publicGroup.POST("/users", task3.CreateUser) // 对应 CreateUser
-			publicGroup.POST("/user/login", task3.Login) // 对应 Login
-			publicGroup.GET("/users", task3.QueryUser)   // 对应 QueryUser
+			publicGroup.POST("/users", task3.CreateUser)                   // 对应 CreateUser
+			publicGroup.POST("/user/login", mw.JwtMiddleware.LoginHandler) // 对应 Login
+			publicGroup.GET("/users", task3.QueryUser)                     // 对应 QueryUser
 		}
 
 		privateGroup := v1.Group("/")
@@ -29,14 +29,15 @@ func customizedRegister(r *server.Hertz) {
 			{
 				userRoutes.PUT("/:user_id", task3.UpdateUser)
 				userRoutes.DELETE("/:user_id", task3.DeleteUser)
+				// 删除有问题
 			}
 
 			todoRoutes := privateGroup.Group("/todo_lists")
 			{
 				todoRoutes.POST("/", task3.CreateToDoList) // POST /v1/todo_lists
 				todoRoutes.PATCH("/:todo_list_id", task3.UpdateToDoList)
-				todoRoutes.PUT("/status", task3.UpdateBatchStatus)
-				todoRoutes.GET("/", task3.QueryBatchToDoList) // GET /v1/todo_lists
+				todoRoutes.PUT("/status", task3.UpdateBatchStatus) // 批量更新是ok的
+				todoRoutes.GET("/", task3.QueryBatchToDoList)      // 没判断是本人的逻辑
 				todoRoutes.DELETE("/:todo_list_id", task3.DeleteToDoList)
 				todoRoutes.DELETE("/pending", task3.DeletePendingToDos)
 				todoRoutes.DELETE("/completed", task3.DeleteCompletedToDos)

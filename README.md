@@ -17,9 +17,9 @@ bonus（已完成）
 
 - 考虑了数据库交互的安全性（把密码用了哈希加密）
 - 使用了三层架构设计（router -> handler -> service -> dal）
+- 自动生成接口文档
 
 todo
 
-- 自动生成接口文档
 - 重新设计json
 - 使用redis

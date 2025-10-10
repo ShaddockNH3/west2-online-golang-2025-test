@@ -146,6 +146,14 @@ struct DeleteToDoListResponse{
     2: string msg
 }
 
+struct DeletePatchToDoListRequest{
+}
+
+struct DeletePatchToDoListResponse{
+    1: Code code
+    2: string msg
+}
+
 service ToDoListService{
     CreateToDoListResponse CreateToDoList(1:CreateToDoListRequest req)(api.post="/v1/todo_lists")
 
@@ -156,7 +164,7 @@ service ToDoListService{
 
     DeleteToDoListResponse DeleteToDoList(1:DeleteToDoListRequest req)(api.delete="/v1/todo_lists/:todo_list_id")
 
-    DeleteToDoListResponse DeletePendingToDos(1:DeleteToDoListRequest  req)(api.delete="/v1/todo_lists/pending")
-    DeleteToDoListResponse DeleteCompletedToDos(1:DeleteToDoListRequest req)(api.delete="/v1/todo_lists/completed")
-    DeleteToDoListResponse DeleteAllToDos(1:DeleteToDoListRequest req)(api.delete="/v1/todo_lists")
+    DeletePatchToDoListResponse DeletePendingToDos(1:DeletePatchToDoListRequest  req)(api.delete="/v1/todo_lists/pending")
+    DeletePatchToDoListResponse DeleteCompletedToDos(1:DeletePatchToDoListRequest req)(api.delete="/v1/todo_lists/completed")
+    DeletePatchToDoListResponse DeleteAllToDos(1:DeletePatchToDoListRequest req)(api.delete="/v1/todo_lists")
 }

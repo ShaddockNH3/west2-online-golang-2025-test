@@ -36,7 +36,7 @@ func (s *ToDoListService) CreateToDoList(currentUserID int64, req *task3.CreateT
 func (s *ToDoListService) QueryBatchToDoList(currentUserID int64, req *task3.QueryBatchToDoListsRequest) ([]*model.ToDoList, int64, error) {
 	var err error
 
-	todo_lists, total, err := mysql.QueryBatchToDoList(req.Keyword, (*int64)(req.Status), req.Page, req.PageSize)
+	todo_lists, total, err := mysql.QueryBatchToDoList(currentUserID, req.Keyword, (*int64)(req.Status), req.Page, req.PageSize)
 
 	if err != nil {
 		return nil, 0, err
@@ -66,7 +66,7 @@ func (s *ToDoListService) UpdateToDoList(currentUserID int64, req *task3.UpdateT
 		existingToDo.Context = *req.Context
 	}
 
-	if err = mysql.UpdateToDoListByID(existingToDo); err != nil {
+	if err = mysql.UpdateToDoListByID(int64(existingToDo.ID), existingToDo); err != nil {
 		return err
 	}
 
@@ -95,7 +95,7 @@ func (s *ToDoListService) DeleteToDoList(currentUserID int64, req *task3.DeleteT
 	return nil
 }
 
-func (s *ToDoListService) DeletePendingToDos(currentUserID int64, req *task3.DeleteToDoListRequest) error {
+func (s *ToDoListService) DeletePendingToDos(currentUserID int64) error {
 	var err error
 
 	if err = mysql.DeletePendingToDos(currentUserID); err != nil {
@@ -105,20 +105,20 @@ func (s *ToDoListService) DeletePendingToDos(currentUserID int64, req *task3.Del
 	return nil
 }
 
-func (s *ToDoListService) DeleteCompletedToDos(currentUserID int64, req *task3.DeleteToDoListRequest) error {
+func (s *ToDoListService) DeleteCompletedToDos(currentUserID int64) error {
 	var err error
 
-	if err = mysql.DeletePendingToDos(currentUserID); err != nil {
+	if err = mysql.DeleteCompletedToDos(currentUserID); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (s *ToDoListService) DeleteAllToDos(currentUserID int64, req *task3.DeleteToDoListRequest) error {
+func (s *ToDoListService) DeleteAllToDos(currentUserID int64) error {
 	var err error
 
-	if err = mysql.DeletePendingToDos(currentUserID); err != nil {
+	if err = mysql.DeleteAllToDos(currentUserID); err != nil {
 		return err
 	}
 

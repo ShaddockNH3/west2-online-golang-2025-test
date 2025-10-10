@@ -168,89 +168,89 @@ func DeleteToDoList(ctx context.Context, c *app.RequestContext) {
 // @router /v1/todo_lists/pending [DELETE]
 func DeletePendingToDos(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req task3.DeleteToDoListRequest
+	var req task3.DeletePatchToDoListRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.JSON(consts.StatusBadRequest, &task3.DeleteToDoListResponse{Code: task3.Code_ParamInvalid, Msg: err.Error()})
+		c.JSON(consts.StatusBadRequest, &task3.DeletePatchToDoListResponse{Code: task3.Code_ParamInvalid, Msg: err.Error()})
 		return
 	}
 
 	v, ok := c.Get(mw.UserIDKey)
 	if !ok {
-		c.JSON(consts.StatusInternalServerError, &task3.DeleteToDoListResponse{Code: task3.Code_DBErr, Msg: "failed to get user id"})
+		c.JSON(consts.StatusInternalServerError, &task3.DeletePatchToDoListResponse{Code: task3.Code_DBErr, Msg: "failed to get user id"})
 		return
 	}
 
 	userID := v.(int64)
 
 	ToDoListService := service.NewToDoListService(ctx)
-	err = ToDoListService.DeletePendingToDos(userID, &req)
+	err = ToDoListService.DeletePendingToDos(userID)
 
 	if err != nil {
-		c.JSON(consts.StatusInternalServerError, &task3.DeleteToDoListResponse{Code: task3.Code_DBErr, Msg: "failed to get user id"})
+		c.JSON(consts.StatusInternalServerError, &task3.DeletePatchToDoListResponse{Code: task3.Code_DBErr, Msg: "failed to get user id"})
 		return
 	}
 
-	c.JSON(consts.StatusOK, &task3.DeleteToDoListResponse{Code: task3.Code_Success, Msg: "todo list delete successfully"})
+	c.JSON(consts.StatusOK, &task3.DeletePatchToDoListResponse{Code: task3.Code_Success, Msg: "todo list delete successfully"})
 }
 
 // DeleteCompletedToDos .
 // @router /v1/todo_lists/completed [DELETE]
 func DeleteCompletedToDos(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req task3.DeleteToDoListRequest
+	var req task3.DeletePatchToDoListRequest
 	err = c.BindAndValidate(&req)
 
 	if err != nil {
-		c.JSON(consts.StatusBadRequest, &task3.DeleteToDoListResponse{Code: task3.Code_ParamInvalid, Msg: err.Error()})
+		c.JSON(consts.StatusBadRequest, &task3.DeletePatchToDoListResponse{Code: task3.Code_ParamInvalid, Msg: err.Error()})
 		return
 	}
 
 	v, ok := c.Get(mw.UserIDKey)
 	if !ok {
-		c.JSON(consts.StatusInternalServerError, &task3.DeleteToDoListResponse{Code: task3.Code_DBErr, Msg: "failed to get user id"})
+		c.JSON(consts.StatusInternalServerError, &task3.DeletePatchToDoListResponse{Code: task3.Code_DBErr, Msg: "failed to get user id"})
 		return
 	}
 
 	userID := v.(int64)
 
 	ToDoListService := service.NewToDoListService(ctx)
-	err = ToDoListService.DeleteCompletedToDos(userID, &req)
+	err = ToDoListService.DeleteCompletedToDos(userID)
 
 	if err != nil {
-		c.JSON(consts.StatusInternalServerError, &task3.DeleteToDoListResponse{Code: task3.Code_DBErr, Msg: "failed to get user id"})
+		c.JSON(consts.StatusInternalServerError, &task3.DeletePatchToDoListResponse{Code: task3.Code_DBErr, Msg: "failed to get user id"})
 		return
 	}
 
-	c.JSON(consts.StatusOK, &task3.DeleteToDoListResponse{Code: task3.Code_Success, Msg: "todo list delete successfully"})
+	c.JSON(consts.StatusOK, &task3.DeletePatchToDoListResponse{Code: task3.Code_Success, Msg: "todo list delete successfully"})
 }
 
 // DeleteAllToDos .
 // @router /v1/todo_lists [DELETE]
 func DeleteAllToDos(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req task3.DeleteToDoListRequest
+	var req task3.DeletePatchToDoListRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.JSON(consts.StatusBadRequest, &task3.DeleteToDoListResponse{Code: task3.Code_ParamInvalid, Msg: err.Error()})
+		c.JSON(consts.StatusBadRequest, &task3.DeletePatchToDoListResponse{Code: task3.Code_ParamInvalid, Msg: err.Error()})
 		return
 	}
 
 	v, ok := c.Get(mw.UserIDKey)
 	if !ok {
-		c.JSON(consts.StatusInternalServerError, &task3.DeleteToDoListResponse{Code: task3.Code_DBErr, Msg: "failed to get user id"})
+		c.JSON(consts.StatusInternalServerError, &task3.DeletePatchToDoListResponse{Code: task3.Code_DBErr, Msg: "failed to get user id"})
 		return
 	}
 
 	userID := v.(int64)
 
 	ToDoListService := service.NewToDoListService(ctx)
-	err = ToDoListService.DeleteAllToDos(userID, &req)
+	err = ToDoListService.DeleteAllToDos(userID)
 
 	if err != nil {
-		c.JSON(consts.StatusInternalServerError, &task3.DeleteToDoListResponse{Code: task3.Code_DBErr, Msg: "failed to get user id"})
+		c.JSON(consts.StatusInternalServerError, &task3.DeletePatchToDoListResponse{Code: task3.Code_DBErr, Msg: "failed to get user id"})
 		return
 	}
 
-	c.JSON(consts.StatusOK, &task3.DeleteToDoListResponse{Code: task3.Code_Success, Msg: "todo list delete successfully"})
+	c.JSON(consts.StatusOK, &task3.DeletePatchToDoListResponse{Code: task3.Code_Success, Msg: "todo list delete successfully"})
 }

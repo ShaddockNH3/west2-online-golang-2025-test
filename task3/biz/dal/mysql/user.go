@@ -16,7 +16,7 @@ func DeleteUser(userId int64) error {
 }
 
 func UpdateUser(user *model.User) error {
-	return DB.Updates(user).Error
+	return DB.Where("id = ?", user.ID).Updates(user).Error
 }
 
 func QueryUser(keyword *string, page, pageSize int64) ([]*model.User, int64, error) {

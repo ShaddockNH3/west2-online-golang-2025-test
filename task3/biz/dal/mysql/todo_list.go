@@ -25,8 +25,8 @@ func DeleteAllToDos(userID int64) error {
 	return DB.Where("user_id = ?", userID).Delete(&model.ToDoList{}).Error
 }
 
-func UpdateToDoListByID(todo_list *model.ToDoList) error {
-	return DB.Updates(todo_list).Error
+func UpdateToDoListByID(TodoListID int64, todo_list *model.ToDoList) error {
+	return DB.Where("id=?", TodoListID).Updates(todo_list).Error
 }
 
 func UpdateBatchStatus(userID int64, status int) error {
@@ -41,8 +41,11 @@ func QueryToDoListByID(todoListID int64, userID int64) (*model.ToDoList, error) 
 	return &todoList, nil
 }
 
-func QueryBatchToDoList(keyword *string, status *int64, page, pageSize int64) ([]*model.ToDoList, int64, error) {
+func QueryBatchToDoList(currentUserID int64, keyword *string, status *int64, page, pageSize int64) ([]*model.ToDoList, int64, error) {
 	db := DB.Model(model.ToDoList{})
+
+	db = db.Where("user_id = ?", currentUserID).First(db)
+
 	if keyword != nil && len(*keyword) != 0 {
 		db = db.Where(DB.Or("name like ?", "%"+*keyword+"%").
 			Or("introduce like ?", "%"+*keyword+"%"))

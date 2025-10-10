@@ -1,25 +1,15 @@
 # west2-online-golang-2025-test
 
-task1和task2在其他仓库，写的很抽象，未来有机会再移过来~~（搬史）~~
+## task1
 
-task3目前已经实现——
+task1在其他仓库，很久之前写的，写的非常乱，未来有机会再移过来~~（搬史）~~
 
-- 用户登录
-- 用户注册
-- 用户查询
-- 用户删除
-- 增添备忘录
-- 删除备忘录
-- 更新备忘录
-- 查询备忘录
+## task2
 
-bonus（已完成）
+task2也已经是蛮久之前写的了，也写得很乱，而且代码用了很多AI，b站爬虫不写了，python模拟浏览器搞定，go爬虫主要核心在于并行，py即便是httpx也只是并发。
 
-- 考虑了数据库交互的安全性（把密码用了哈希加密）
-- 使用了三层架构设计（router -> handler -> service -> dal）
-- 自动生成接口文档
+fzu_go文件我主要的失误在于锁的问题，向表内写入的时候没有进行锁的约束，从而导致报错
 
-todo
+## task3
 
-- 重新设计json
-- 使用redis
+task3目前已经实现所有基本功能，完成三个bonus，详见[task3](https://github.com/ShaddockNH3/west2-online-golang-2025-test/tree/main/task3)

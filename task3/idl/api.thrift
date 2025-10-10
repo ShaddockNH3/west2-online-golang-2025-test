@@ -83,7 +83,7 @@ enum Status{
     // ARCHIVED=2
 }
 
-// 四个参数
+// 这里还得再改，设计一下todolist的返回格式
 struct ToDoList{
     1: i64 user_id
     2: i64 todo_list_id

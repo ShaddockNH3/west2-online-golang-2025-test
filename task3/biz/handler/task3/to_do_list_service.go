@@ -14,7 +14,16 @@ import (
 )
 
 // CreateToDoList .
-// @router v1/todo_list/create/ [POST]
+// @Summary      创建新的待办事项
+// @Description  为当前登录用户创建一个新的待办事项
+// @Accept       application/json
+// @Produce      application/json
+// @Param        CreateToDoListRequest body task3.CreateToDoListRequest true "待办事项的标题和内容"
+// @Success      200 {object} task3.CreateToDoListResponse "成功"
+// @Failure      400 {object} task3.CreateToDoListResponse "参数错误"
+// @Failure      500 {object} task3.CreateToDoListResponse "服务器内部错误"
+// @Security     ApiKeyAuth
+// @Router       /v1/todo_lists [post]
 func CreateToDoList(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req task3.CreateToDoListRequest
@@ -44,7 +53,17 @@ func CreateToDoList(ctx context.Context, c *app.RequestContext) {
 }
 
 // UpdateToDoList .
-// @router v1/todo_list/update/:todo_list_id [POST]
+// @Summary      更新指定的待办事项
+// @Description  更新某个待办事项的标题、内容或状态
+// @Accept       application/json
+// @Produce      application/json
+// @Param        todo_list_id path int true "待办事项ID"
+// @Param        UpdateToDoListRequest body task3.UpdateToDoListRequest true "需要更新的字段"
+// @Success      200 {object} task3.UpdateToDoListResponse "成功"
+// @Failure      400 {object} task3.UpdateToDoListResponse "参数错误"
+// @Failure      500 {object} task3.UpdateToDoListResponse "服务器内部错误"
+// @Security     ApiKeyAuth
+// @Router       /v1/todo_lists/{todo_list_id} [patch]
 func UpdateToDoList(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req task3.UpdateToDoListRequest
@@ -75,7 +94,16 @@ func UpdateToDoList(ctx context.Context, c *app.RequestContext) {
 }
 
 // UpdateBatchStatus .
-// @router /v1/todo_lists/status [PUT]
+// @Summary      批量更新所有待办事项的状态
+// @Description  将当前用户的所有待办事项统一更新为指定的状态 (0: PENDING, 1: COMPLETED)
+// @Accept       application/json
+// @Produce      application/json
+// @Param        UpdateBatchStatusRequest body task3.UpdateBatchStatusRequest true "要更新的目标状态"
+// @Success      200 {object} task3.UpdateBatchStatusResponse "成功"
+// @Failure      400 {object} task3.UpdateBatchStatusResponse "参数错误"
+// @Failure      500 {object} task3.UpdateBatchStatusResponse "服务器内部错误"
+// @Security     ApiKeyAuth
+// @Router       /v1/todo_lists/status [put]
 func UpdateBatchStatus(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req task3.UpdateBatchStatusRequest
@@ -105,7 +133,19 @@ func UpdateBatchStatus(ctx context.Context, c *app.RequestContext) {
 }
 
 // QueryBatchToDoList .
-// @router /v1/todo_lists [GET]
+// @Summary      查询待办事项列表
+// @Description  根据关键词、状态分页查询当前用户的待办事项列表
+// @Accept       application/json
+// @Produce      application/json
+// @Param        keyword query string false "搜索关键词 (在标题或内容中)"
+// @Param        status query int false "状态 (0: PENDING, 1: COMPLETED)" Enums(0, 1)
+// @Param        page query int true "页码" default(1)
+// @Param        page_size query int true "每页数量" default(10)
+// @Success      200 {object} task3.QueryBatchToDoListResponse "成功"
+// @Failure      400 {object} task3.QueryBatchToDoListResponse "参数错误"
+// @Failure      500 {object} task3.QueryBatchToDoListResponse "服务器内部错误"
+// @Security     ApiKeyAuth
+// @Router       /v1/todo_lists [get]
 func QueryBatchToDoList(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req task3.QueryBatchToDoListsRequest
@@ -135,7 +175,16 @@ func QueryBatchToDoList(ctx context.Context, c *app.RequestContext) {
 }
 
 // DeleteToDoList .
-// @router v1/todo_list/delete/:todo_list_id [POST]
+// @Summary      删除指定的待办事项
+// @Description  删除当前用户拥有的某一个待办事项
+// @Accept       application/json
+// @Produce      application/json
+// @Param        todo_list_id path int true "待办事项ID"
+// @Success      200 {object} task3.DeleteToDoListResponse "成功"
+// @Failure      400 {object} task3.DeleteToDoListResponse "参数错误"
+// @Failure      500 {object} task3.DeleteToDoListResponse "服务器内部错误"
+// @Security     ApiKeyAuth
+// @Router       /v1/todo_lists/{todo_list_id} [delete]
 func DeleteToDoList(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req task3.DeleteToDoListRequest
@@ -165,7 +214,14 @@ func DeleteToDoList(ctx context.Context, c *app.RequestContext) {
 }
 
 // DeletePendingToDos .
-// @router /v1/todo_lists/pending [DELETE]
+// @Summary      删除所有未完成的待办事项
+// @Description  删除当前用户所有状态为 PENDING 的待办事项
+// @Accept       application/json
+// @Produce      application/json
+// @Success      200 {object} task3.DeletePatchToDoListResponse "成功"
+// @Failure      500 {object} task3.DeletePatchToDoListResponse "服务器内部错误"
+// @Security     ApiKeyAuth
+// @Router       /v1/todo_lists/pending [delete]
 func DeletePendingToDos(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req task3.DeletePatchToDoListRequest
@@ -195,7 +251,14 @@ func DeletePendingToDos(ctx context.Context, c *app.RequestContext) {
 }
 
 // DeleteCompletedToDos .
-// @router /v1/todo_lists/completed [DELETE]
+// @Summary      删除所有已完成的待办事项
+// @Description  删除当前用户所有状态为 COMPLETED 的待办事项
+// @Accept       application/json
+// @Produce      application/json
+// @Success      200 {object} task3.DeletePatchToDoListResponse "成功"
+// @Failure      500 {object} task3.DeletePatchToDoListResponse "服务器内部错误"
+// @Security     ApiKeyAuth
+// @Router       /v1/todo_lists/completed [delete]
 func DeleteCompletedToDos(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req task3.DeletePatchToDoListRequest
@@ -226,7 +289,14 @@ func DeleteCompletedToDos(ctx context.Context, c *app.RequestContext) {
 }
 
 // DeleteAllToDos .
-// @router /v1/todo_lists [DELETE]
+// @Summary      删除所有待办事项
+// @Description  删除当前用户所有的待办事项，无论状态如何
+// @Accept       application/json
+// @Produce      application/json
+// @Success      200 {object} task3.DeletePatchToDoListResponse "成功"
+// @Failure      500 {object} task3.DeletePatchToDoListResponse "服务器内部错误"
+// @Security     ApiKeyAuth
+// @Router       /v1/todo_lists [delete]
 func DeleteAllToDos(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req task3.DeletePatchToDoListRequest

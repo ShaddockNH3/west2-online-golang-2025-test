@@ -1,0 +1,574 @@
+basePath: /
+definitions:
+  task3.Code:
+    enum:
+    - 1
+    - 2
+    - 3
+    format: int64
+    type: integer
+    x-enum-varnames:
+    - Code_Success
+    - Code_ParamInvalid
+    - Code_DBErr
+  task3.CreateToDoListRequest:
+    properties:
+      context:
+        type: string
+      title:
+        type: string
+    type: object
+  task3.CreateToDoListResponse:
+    properties:
+      code:
+        $ref: '#/definitions/task3.Code'
+      msg:
+        type: string
+    type: object
+  task3.CreateUserRequest:
+    properties:
+      introduce:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    type: object
+  task3.CreateUserResponse:
+    properties:
+      Code:
+        $ref: '#/definitions/task3.Code'
+      msg:
+        type: string
+    type: object
+  task3.DeletePatchToDoListResponse:
+    properties:
+      code:
+        $ref: '#/definitions/task3.Code'
+      msg:
+        type: string
+    type: object
+  task3.DeleteToDoListResponse:
+    properties:
+      code:
+        $ref: '#/definitions/task3.Code'
+      msg:
+        type: string
+    type: object
+  task3.DeleteUserResponse:
+    properties:
+      Code:
+        $ref: '#/definitions/task3.Code'
+      msg:
+        type: string
+    type: object
+  task3.LoginRequest:
+    properties:
+      name:
+        type: string
+      password:
+        type: string
+    type: object
+  task3.LoginResponse:
+    properties:
+      code:
+        $ref: '#/definitions/task3.Code'
+      msg:
+        type: string
+      token:
+        type: string
+    type: object
+  task3.QueryBatchToDoListResponse:
+    properties:
+      code:
+        $ref: '#/definitions/task3.Code'
+      msg:
+        type: string
+      todo_lists:
+        items:
+          $ref: '#/definitions/task3.ToDoList'
+        type: array
+      total:
+        type: integer
+    type: object
+  task3.QueryUserResponse:
+    properties:
+      Code:
+        $ref: '#/definitions/task3.Code'
+      Users:
+        items:
+          $ref: '#/definitions/task3.User'
+        type: array
+      msg:
+        type: string
+      total:
+        type: integer
+    type: object
+  task3.Status:
+    enum:
+    - 0
+    - 1
+    format: int64
+    type: integer
+    x-enum-varnames:
+    - Status_PENDING
+    - Status_COMPLETED
+  task3.ToDoList:
+    properties:
+      context:
+        type: string
+      status:
+        $ref: '#/definitions/task3.Status'
+      title:
+        type: string
+      todo_list_id:
+        type: integer
+      user_id:
+        type: integer
+    type: object
+  task3.UpdateBatchStatusRequest:
+    properties:
+      status:
+        $ref: '#/definitions/task3.Status'
+    type: object
+  task3.UpdateBatchStatusResponse:
+    properties:
+      code:
+        $ref: '#/definitions/task3.Code'
+      msg:
+        type: string
+    type: object
+  task3.UpdateToDoListRequest:
+    properties:
+      context:
+        type: string
+      status:
+        $ref: '#/definitions/task3.Status'
+      title:
+        type: string
+      todo_list_id:
+        type: integer
+    type: object
+  task3.UpdateToDoListResponse:
+    properties:
+      code:
+        $ref: '#/definitions/task3.Code'
+      msg:
+        type: string
+    type: object
+  task3.UpdateUserRequest:
+    properties:
+      introduce:
+        type: string
+      name:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  task3.UpdateUserResponse:
+    properties:
+      code:
+        $ref: '#/definitions/task3.Code'
+      msg:
+        type: string
+    type: object
+  task3.User:
+    properties:
+      introduce:
+        type: string
+      name:
+        type: string
+      user_id:
+        type: integer
+    type: object
+host: localhost:8888
+info:
+  contact: {}
+  description: 这是一个备忘录后端项目，基于hertz框架，包含用户的注册与登录，以及模拟备忘录的功能
+  title: Task3
+  version: "1.0"
+paths:
+  /v1/todo_lists:
+    delete:
+      consumes:
+      - application/json
+      description: 删除当前用户所有的待办事项，无论状态如何
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/task3.DeletePatchToDoListResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/task3.DeletePatchToDoListResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 删除所有待办事项
+    get:
+      consumes:
+      - application/json
+      description: 根据关键词、状态分页查询当前用户的待办事项列表
+      parameters:
+      - description: 搜索关键词 (在标题或内容中)
+        in: query
+        name: keyword
+        type: string
+      - description: '状态 (0: PENDING, 1: COMPLETED)'
+        enum:
+        - 0
+        - 1
+        in: query
+        name: status
+        type: integer
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        required: true
+        type: integer
+      - default: 10
+        description: 每页数量
+        in: query
+        name: page_size
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/task3.QueryBatchToDoListResponse'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/task3.QueryBatchToDoListResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/task3.QueryBatchToDoListResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 查询待办事项列表
+    post:
+      consumes:
+      - application/json
+      description: 为当前登录用户创建一个新的待办事项
+      parameters:
+      - description: 待办事项的标题和内容
+        in: body
+        name: CreateToDoListRequest
+        required: true
+        schema:
+          $ref: '#/definitions/task3.CreateToDoListRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/task3.CreateToDoListResponse'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/task3.CreateToDoListResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/task3.CreateToDoListResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 创建新的待办事项
+  /v1/todo_lists/{todo_list_id}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除当前用户拥有的某一个待办事项
+      parameters:
+      - description: 待办事项ID
+        in: path
+        name: todo_list_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/task3.DeleteToDoListResponse'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/task3.DeleteToDoListResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/task3.DeleteToDoListResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 删除指定的待办事项
+    patch:
+      consumes:
+      - application/json
+      description: 更新某个待办事项的标题、内容或状态
+      parameters:
+      - description: 待办事项ID
+        in: path
+        name: todo_list_id
+        required: true
+        type: integer
+      - description: 需要更新的字段
+        in: body
+        name: UpdateToDoListRequest
+        required: true
+        schema:
+          $ref: '#/definitions/task3.UpdateToDoListRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/task3.UpdateToDoListResponse'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/task3.UpdateToDoListResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/task3.UpdateToDoListResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 更新指定的待办事项
+  /v1/todo_lists/completed:
+    delete:
+      consumes:
+      - application/json
+      description: 删除当前用户所有状态为 COMPLETED 的待办事项
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/task3.DeletePatchToDoListResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/task3.DeletePatchToDoListResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 删除所有已完成的待办事项
+  /v1/todo_lists/pending:
+    delete:
+      consumes:
+      - application/json
+      description: 删除当前用户所有状态为 PENDING 的待办事项
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/task3.DeletePatchToDoListResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/task3.DeletePatchToDoListResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 删除所有未完成的待办事项
+  /v1/todo_lists/status:
+    put:
+      consumes:
+      - application/json
+      description: '将当前用户的所有待办事项统一更新为指定的状态 (0: PENDING, 1: COMPLETED)'
+      parameters:
+      - description: 要更新的目标状态
+        in: body
+        name: UpdateBatchStatusRequest
+        required: true
+        schema:
+          $ref: '#/definitions/task3.UpdateBatchStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/task3.UpdateBatchStatusResponse'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/task3.UpdateBatchStatusResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/task3.UpdateBatchStatusResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 批量更新所有待办事项的状态
+  /v1/user/create/:
+    post:
+      consumes:
+      - application/json
+      description: 提供用户名、介绍和密码来注册一个新用户
+      parameters:
+      - description: 创建用户所需的信息
+        in: body
+        name: CreateUserRequest
+        required: true
+        schema:
+          $ref: '#/definitions/task3.CreateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/task3.CreateUserResponse'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/task3.CreateUserResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/task3.CreateUserResponse'
+      summary: 创建用户（注册）
+  /v1/user/login:
+    post:
+      consumes:
+      - application/json
+      description: 用户使用用户名和密码登录，成功后获取JWT Token
+      parameters:
+      - description: 用户的登录凭据
+        in: body
+        name: LoginRequest
+        required: true
+        schema:
+          $ref: '#/definitions/task3.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 登录成功，返回Token
+          schema:
+            $ref: '#/definitions/task3.LoginResponse'
+        "400":
+          description: 参数错误或认证失败
+          schema:
+            $ref: '#/definitions/task3.LoginResponse'
+      summary: 用户登录
+  /v1/users:
+    get:
+      consumes:
+      - application/json
+      description: 根据关键词分页查询用户列表
+      parameters:
+      - description: 搜索关键词
+        in: query
+        name: keyword
+        type: string
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        required: true
+        type: integer
+      - default: 10
+        description: 每页数量
+        in: query
+        name: page_size
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/task3.QueryUserResponse'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/task3.QueryUserResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/task3.QueryUserResponse'
+      summary: 查询用户列表
+  /v1/users/{user_id}:
+    delete:
+      consumes:
+      - application/json
+      description: 软删除指定ID的用户（需要JWT认证）
+      parameters:
+      - description: 用户ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/task3.DeleteUserResponse'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/task3.DeleteUserResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/task3.DeleteUserResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 删除用户
+    put:
+      consumes:
+      - application/json
+      description: 用户可以更新自己的姓名和个人介绍
+      parameters:
+      - description: 用户ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      - description: 请求体
+        in: body
+        name: UpdateUserRequest
+        required: true
+        schema:
+          $ref: '#/definitions/task3.UpdateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/task3.UpdateUserResponse'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/task3.UpdateUserResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/task3.UpdateUserResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 更新用户信息
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

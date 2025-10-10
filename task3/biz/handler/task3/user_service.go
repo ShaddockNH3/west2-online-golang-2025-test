@@ -14,7 +14,17 @@ import (
 )
 
 // UpdateUser .
-// @router /v1/user/update/:user_id [POST]
+// @Summary      更新用户信息
+// @Description  用户可以更新自己的姓名和个人介绍
+// @Accept       application/json
+// @Produce      application/json
+// @Param        user_id path int true "用户ID"
+// @Param        UpdateUserRequest body task3.UpdateUserRequest true "请求体"
+// @Success      200 {object} task3.UpdateUserResponse "成功"
+// @Failure      400 {object} task3.UpdateUserResponse "参数错误"
+// @Failure      500 {object} task3.UpdateUserResponse "服务器内部错误"
+// @Security     ApiKeyAuth
+// @Router       /v1/users/{user_id} [put]
 func UpdateUser(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req task3.UpdateUserRequest
@@ -44,7 +54,16 @@ func UpdateUser(ctx context.Context, c *app.RequestContext) {
 }
 
 // DeleteUser .
-// @router /v1/user/delete/:user_id [POST]
+// @Summary      删除用户
+// @Description  软删除指定ID的用户（需要JWT认证）
+// @Accept       application/json
+// @Produce      application/json
+// @Param        user_id path int true "用户ID"
+// @Success      200 {object} task3.DeleteUserResponse "成功"
+// @Failure      400 {object} task3.DeleteUserResponse "参数错误"
+// @Failure      500 {object} task3.DeleteUserResponse "服务器内部错误"
+// @Security     ApiKeyAuth
+// @Router       /v1/users/{user_id} [delete]
 func DeleteUser(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req task3.DeleteUserRequest
@@ -74,7 +93,17 @@ func DeleteUser(ctx context.Context, c *app.RequestContext) {
 }
 
 // QueryUser .
-// @router /v1/user/query/ [POST]
+// @Summary      查询用户列表
+// @Description  根据关键词分页查询用户列表
+// @Accept       application/json
+// @Produce      application/json
+// @Param        keyword query string false "搜索关键词"
+// @Param        page query int true "页码" default(1)
+// @Param        page_size query int true "每页数量" default(10)
+// @Success      200 {object} task3.QueryUserResponse "成功"
+// @Failure      400 {object} task3.QueryUserResponse "参数错误"
+// @Failure      500 {object} task3.QueryUserResponse "服务器内部错误"
+// @Router       /v1/users [get]
 func QueryUser(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req task3.QueryUserRequest
@@ -95,6 +124,14 @@ func QueryUser(ctx context.Context, c *app.RequestContext) {
 }
 
 // CreateUser .
+// @Summary      创建用户（注册）
+// @Description  提供用户名、介绍和密码来注册一个新用户
+// @Accept       application/json
+// @Produce      application/json
+// @Param        CreateUserRequest body task3.CreateUserRequest true "创建用户所需的信息"
+// @Success      200 {object} task3.CreateUserResponse "成功"
+// @Failure      400 {object} task3.CreateUserResponse "参数错误"
+// @Failure      500 {object} task3.CreateUserResponse "服务器内部错误"
 // @router /v1/user/create/ [POST]
 func CreateUser(ctx context.Context, c *app.RequestContext) {
 	var err error
@@ -117,17 +154,25 @@ func CreateUser(ctx context.Context, c *app.RequestContext) {
 }
 
 // Login .
-// @router /v1/user/login/ [POST]
+// @Summary      用户登录
+// @Description  用户使用用户名和密码登录，成功后获取JWT Token
+// @Accept       application/json
+// @Produce      application/json
+// @Param        LoginRequest body task3.LoginRequest true "用户的登录凭据"
+// @Success      200 {object} task3.LoginResponse "登录成功，返回Token"
+// @Failure      400 {object} task3.LoginResponse "参数错误或认证失败"
+// @Router       /v1/user/login [post]
 func Login(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req task3.LoginRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		c.JSON(consts.StatusBadRequest, &task3.LoginResponse{Code: task3.Code_ParamInvalid, Msg: err.Error()})
 		return
 	}
-
 	resp := new(task3.LoginResponse)
+	resp.Code = task3.Code_Success
+	resp.Msg = "Login successful"
 
 	c.JSON(consts.StatusOK, resp)
 }

@@ -1,6 +1,8 @@
 package pack
 
 import (
+	//"time"
+
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task3/biz/model"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task3/biz/model/task3"
 )
@@ -25,5 +27,7 @@ func ToDoList(model *model.ToDoList) *task3.ToDoList {
 		Title:      model.Title,
 		Context:    model.Context,
 		Status:     task3.Status(model.Status),
+		//CreateAt:   time(model.CreatedAt.Format(time.RFC3339)),
+		//UpdatedAt:  time(model.UpdatedAt.Format(time.RFC3339)),
 	}
 }

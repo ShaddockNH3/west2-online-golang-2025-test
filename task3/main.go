@@ -6,14 +6,28 @@ import (
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task3/biz/dal"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task3/biz/mw"
 	"github.com/cloudwego/hertz/pkg/app/server"
+
+	_ "github.com/ShaddockNH3/west2-online-golang-2025-test/task3/docs"
+	"github.com/hertz-contrib/swagger"
+	swaggerFiles "github.com/swaggo/files"
 )
 
+// @title           Task3
+// @version         1.0
+// @description     这是一个备忘录后端项目，基于hertz框架，包含用户的注册与登录，以及模拟备忘录的功能
+// @host            localhost:8888
+// @BasePath        /
+
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
 func main() {
 	dal.Init()
 
 	mw.InitJwt()
 
 	h := server.Default()
+	h.GET("/swagger/*any", swagger.WrapHandler(swaggerFiles.Handler))
 
 	customizedRegister(h)
 

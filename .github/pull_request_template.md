@@ -5,7 +5,7 @@
 - [ ] 我已经为本次 PR 中所有的 commit 进行了签名 (GPG 或 SSH 密钥)。
 - [ ] 这是一次 **破坏性变更 (Breaking Change)**。
 
-  - > **如果勾选此项**，请确保 PR 标题以 `BREAKING CHANGE:` 开头，并在下方详细说明其影响。
+> **如果勾选此项**，请确保 PR 标题以 `BREAKING CHANGE:` 开头，并在下方详细说明其影响。
 
 ---
 

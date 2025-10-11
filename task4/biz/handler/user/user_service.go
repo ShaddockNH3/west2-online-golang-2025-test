@@ -4,8 +4,12 @@ package user
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/model/common"
 	user "github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/model/user"
+	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/service/user_service"
+	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/pkg/errno"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 )
@@ -17,11 +21,34 @@ func RegisterUser(ctx context.Context, c *app.RequestContext) {
 	var req user.RegisterUserRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		resp := new(user.RegisterUserResponse)
+		resp.Base = &common.BaseResponse{
+			Code: fmt.Sprintf("%d", errno.ParamErr.ErrCode),
+			Msg:  err.Error(),
+		}
 		return
 	}
 
+	userService := user_service.NewUserService(ctx)
+	err = userService.RegisterUser(&req)
+
 	resp := new(user.RegisterUserResponse)
+
+	if err != nil {
+		e := errno.ConvertErr(err)
+
+		resp.Base = &common.BaseResponse{
+			Code: fmt.Sprintf("%d", e.ErrCode),
+			Msg:  e.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	resp.Base = &common.BaseResponse{
+		Code: fmt.Sprintf("%d", errno.Success.ErrCode), // 10000
+		Msg:  errno.Success.ErrMsg,                     // "success"
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }

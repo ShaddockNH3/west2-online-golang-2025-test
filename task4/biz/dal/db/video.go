@@ -35,3 +35,68 @@ func QueryVideoByTitle(title string) (*VideoItems, error) {
 	}
 	return &video, nil
 }
+
+func QueryVideosByID(userID string, page, pageSize int64) ([]VideoItems, int64, error) {
+	var total int64
+	if err := DB.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	var videos []VideoItems
+	if err := DB.Where("user_id = ?", userID).Find(&videos).Error; err != nil {
+		return nil, 0, err
+	}
+
+	if err := DB.Limit(int(pageSize)).Offset(int(pageSize * (page - 1))).Find(&videos).Error; err != nil {
+		return nil, 0, err
+	}
+
+	return videos, total, nil
+}
+
+func QueryVideosByKeyword(keyword string, page, pageSize int64, from_date, to_date *int64, username *string) ([]VideoItems, int64, error) {
+	if keyword != "" {
+		DB = DB.Where(DB.Or("name like ?", "%"+keyword+"%").
+			Or("introduce like ?", "%"+keyword+"%"))
+	}
+
+	var total int64
+	if err := DB.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	var videos []VideoItems
+
+	// 页数
+	if err := DB.Limit(int(pageSize)).Offset(int(pageSize * (page - 1))).Find(&videos).Error; err != nil {
+		return nil, 0, err
+	}
+
+	if from_date != nil {
+		if err := DB.Where("created_at >= ?", *from_date).Error; err != nil {
+			return nil, 0, err
+		}
+	}
+
+	if to_date != nil {
+		if err := DB.Where("created_at <= ?", *to_date).Error; err != nil {
+			return nil, 0, err
+		}
+	}
+
+	if username != nil {
+		user, err := QueryUserByUsername(*username)
+		if err != nil {
+			return nil, 0, err
+		}
+		if user.ID != "" {
+			if err := DB.Where("user_id = ?", user.ID).Find(&videos).Error; err != nil {
+				return nil, 0, err
+			}
+		} else {
+			return nil, 0, nil
+		}
+	}
+
+	return videos, total, nil
+}

@@ -44,3 +44,11 @@ func (s *VideoService) CreateVideo(UserID string, VideoURL string, CoverURL stri
 
 	return nil
 }
+
+func (s *VideoService) ListVideos(req *video.ListVideoRequest) ([]db.VideoItems, int64, error) {
+	videos, total, err := db.QueryVideosByID(req.UserID, req.PageNum, req.PageSize)
+	if err != nil {
+		return nil, 0, err
+	}
+	return videos, total, nil
+}

@@ -6,7 +6,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ----------------------------
 DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '用户ID',
+  `id` varchar(100) COLLATE utf8mb4_general_ci NOT NULL COMMENT '用户ID (UUID)',
   `username` varchar(255) COLLATE utf8mb4_general_ci NOT NULL COMMENT '用户名',
   `password` varchar(255) COLLATE utf8mb4_general_ci NOT NULL COMMENT '用户密码',
   `avatar_url` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '用户头像URL',
@@ -22,8 +22,8 @@ CREATE TABLE `users` (
 -- ----------------------------
 DROP TABLE IF EXISTS `videos`;
 CREATE TABLE `videos` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '视频ID',
-  `user_id` bigint unsigned NOT NULL COMMENT '视频作者ID',
+  `id` varchar(100) COLLATE utf8mb4_general_ci NOT NULL COMMENT '视频ID (UUID)',
+  `user_id` varchar(100) COLLATE utf8mb4_general_ci NOT NULL COMMENT '视频作者ID',
   `video_url` varchar(255) COLLATE utf8mb4_general_ci NOT NULL COMMENT '视频播放URL',
   `cover_url` varchar(255) COLLATE utf8mb4_general_ci NOT NULL COMMENT '视频封面URL',
   `title` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '视频标题',
@@ -43,10 +43,10 @@ CREATE TABLE `videos` (
 -- ----------------------------
 DROP TABLE IF EXISTS `comments`;
 CREATE TABLE `comments` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '评论ID',
-  `user_id` bigint unsigned NOT NULL COMMENT '评论用户ID',
-  `video_id` bigint unsigned NOT NULL COMMENT '评论视频ID',
-  `parent_id` bigint unsigned DEFAULT NULL COMMENT '父评论ID (用于楼中楼)',
+  `id` varchar(100) COLLATE utf8mb4_general_ci NOT NULL COMMENT '评论ID (UUID)',
+  `user_id` varchar(100) COLLATE utf8mb4_general_ci NOT NULL COMMENT '评论用户ID',
+  `video_id` varchar(100) COLLATE utf8mb4_general_ci NOT NULL COMMENT '评论视频ID',
+  `parent_id` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '父评论ID (用于楼中楼)',
   `content` text COLLATE utf8mb4_general_ci NOT NULL COMMENT '评论内容',
   `like_count` bigint unsigned NOT NULL DEFAULT '0' COMMENT '点赞数',
   `child_count` bigint unsigned NOT NULL DEFAULT '0' COMMENT '子评论数',
@@ -63,9 +63,9 @@ CREATE TABLE `comments` (
 -- ----------------------------
 DROP TABLE IF EXISTS `follows`;
 CREATE TABLE `follows` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '关系ID',
-  `user_id` bigint unsigned NOT NULL COMMENT '被关注用户ID',
-  `follower_id` bigint unsigned NOT NULL COMMENT '关注用户ID (粉丝ID)',
+  `id` varchar(100) COLLATE utf8mb4_general_ci NOT NULL COMMENT '关系ID (UUID)',
+  `user_id` varchar(100) COLLATE utf8mb4_general_ci NOT NULL COMMENT '被关注用户ID',
+  `follower_id` varchar(100) COLLATE utf8mb4_general_ci NOT NULL COMMENT '关注用户ID (粉丝ID)',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `deleted_at` timestamp NULL DEFAULT NULL COMMENT '删除时间 (软删除)',
   PRIMARY KEY (`id`),
@@ -76,3 +76,4 @@ CREATE TABLE `follows` (
 
 
 SET FOREIGN_KEY_CHECKS = 1;
+

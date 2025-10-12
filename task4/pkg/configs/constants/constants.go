@@ -23,6 +23,7 @@ const (
 )
 
 const (
-	DefaultURL       = "https://ShaddockNH3.github.com/static/"
-	DefaultAvatarURL = "https://ShaddockNH3.github.com/static/avatars/default_avatar.jpg"
+	Host             = "http://172.28.172.13:8888"
+	DefaultURL       = Host + "/static/"
+	DefaultAvatarURL = Host + "/static/avatars/default_avatar.jpg"
 )

@@ -25,9 +25,11 @@ func InitJwt() {
 	JwtMiddleware, err = hertzjwt.New(&hertzjwt.HertzJWTMiddleware{
 		Key:           []byte(constants.JwtSecretKey),
 		Timeout:       constants.AccessTokenTimeout,
-		TokenLookup:   "header: Access-Token, query: token, form: token",
-		TokenHeadName: "",
+		TokenLookup:   "header:Authorization",
+		TokenHeadName: "Bearer",
 		IdentityKey:   constants.JwtIdentityKey,
+
+		MaxRefresh: 10 * time.Second,
 
 		// 登录验证逻辑
 		Authenticator: func(ctx context.Context, c *app.RequestContext) (interface{}, error) {
@@ -42,6 +44,7 @@ func InitJwt() {
 			if ok := utils.VerifyPassword(loginReq.Password, dbUser.Password); !ok {
 				return nil, errno.PasswordIsNotVerified
 			}
+			c.Set("db_user", dbUser)
 			return dbUser, nil
 		},
 
@@ -58,7 +61,8 @@ func InitJwt() {
 		// 登录成功响应逻辑
 		LoginResponse: func(ctx context.Context, c *app.RequestContext, code int, accessToken string, expire time.Time) {
 			hlog.CtxInfof(ctx, "用户登录成功, IP: "+c.ClientIP())
-			data, _ := c.Get("JWT_PAYLOAD")
+
+			data, _ := c.Get("db_user")
 			dbUser := data.(*db.User)
 
 			c.Header("Access-Token", accessToken)
@@ -98,8 +102,8 @@ func InitJwt() {
 
 		// 验证token逻辑
 		Authorizator: func(data interface{}, ctx context.Context, c *app.RequestContext) bool {
-			if v, ok := data.(string); ok {
-				c.Set(constants.ContextCurrentUserKey, v)
+			if userID, ok := data.(string); ok {
+				c.Set(constants.ContextCurrentUserKey, userID)
 				return true
 			}
 			return false

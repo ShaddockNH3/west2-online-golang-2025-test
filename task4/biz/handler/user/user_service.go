@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -63,17 +64,17 @@ func RegisterUser(ctx context.Context, c *app.RequestContext) {
 // LoginUser .
 // @router /v1/user/login [POST]
 func LoginUser(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req user.LoginUserRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
-		return
-	}
+	// var err error
+	// var req user.LoginUserRequest
+	// err = c.BindAndValidate(&req)
+	// if err != nil {
+	// 	c.String(consts.StatusBadRequest, err.Error())
+	// 	return
+	// }
 
-	resp := new(user.LoginUserResponse)
+	// resp := new(user.LoginUserResponse)
 
-	c.JSON(consts.StatusOK, resp)
+	// c.JSON(consts.StatusOK, resp)
 }
 
 // InfoUser .
@@ -92,7 +93,9 @@ func InfoUser(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	if req.UserID == nil {
+	var NowUserID string
+
+	if req.UserID == nil || *req.UserID == "" {
 		currentUserID, exists := c.Get(constants.ContextCurrentUserKey)
 		if !exists {
 			resp := new(user.InfoUserResponse)
@@ -103,12 +106,13 @@ func InfoUser(ctx context.Context, c *app.RequestContext) {
 			c.JSON(consts.StatusOK, resp)
 			return
 		}
-		req.UserID = new(string)
-		*req.UserID = currentUserID.(string)
+		NowUserID = currentUserID.(string)
+	} else {
+		NowUserID = *req.UserID
 	}
 
 	userService := user_service.NewUserService(ctx)
-	dbUser, err := userService.InfoUser(&req)
+	dbUser, err := userService.InfoUser(NowUserID, &req)
 
 	resp := new(user.InfoUserResponse)
 
@@ -270,7 +274,19 @@ func AvatarUploadUser(ctx context.Context, c *app.RequestContext) {
 	}
 
 	filename := fmt.Sprintf("%s_%d_%s", currentUserID, time.Now().Unix(), fileHeader.Filename)
-	savePath := filepath.Join(projectRoot, "uploads", "avatars", filename)
+	savePathDir := filepath.Join(projectRoot, "uploads", "avatars")
+
+	if err := os.MkdirAll(savePathDir, 0755); err != nil {
+		resp := new(user.AvatarUploadUserResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  "创建目录失败: " + err.Error(), // 可以给一个更明确的错误提示
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	savePath := filepath.Join(savePathDir, filename)
 
 	if err = c.SaveUploadedFile(fileHeader, savePath); err != nil {
 		resp := new(user.AvatarUploadUserResponse)

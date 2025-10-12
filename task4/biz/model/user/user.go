@@ -783,7 +783,7 @@ func (p *LoginUserResponse) String() string {
 }
 
 type InfoUserRequest struct {
-	UserID *string `thrift:"user_id,1,optional" json:"user_id,omitempty" query:"user_id" vd:"(len($) > 0 && len($) < 100)"`
+	UserID *string `thrift:"user_id,1,optional" json:"user_id,omitempty" query:"user_id" vd:"(len($) == 0) || (len($) > 0 && len($) < 100)"`
 }
 
 func NewInfoUserRequest() *InfoUserRequest {

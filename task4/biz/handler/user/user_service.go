@@ -9,6 +9,7 @@ import (
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/model/common"
 	user "github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/model/user"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/service/user_service"
+	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/pkg/configs/constants"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/pkg/errno"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
@@ -23,9 +24,10 @@ func RegisterUser(ctx context.Context, c *app.RequestContext) {
 	if err != nil {
 		resp := new(user.RegisterUserResponse)
 		resp.Base = &common.BaseResponse{
-			Code: fmt.Sprintf("%d", errno.ParamErr.ErrCode),
+			Code: "-1",
 			Msg:  err.Error(),
 		}
+		c.JSON(consts.StatusOK, resp)
 		return
 	}
 
@@ -38,7 +40,7 @@ func RegisterUser(ctx context.Context, c *app.RequestContext) {
 		e := errno.ConvertErr(err)
 
 		resp.Base = &common.BaseResponse{
-			Code: fmt.Sprintf("%d", e.ErrCode),
+			Code: "-1",
 			Msg:  e.ErrMsg,
 		}
 		c.JSON(consts.StatusOK, resp)
@@ -76,11 +78,64 @@ func InfoUser(ctx context.Context, c *app.RequestContext) {
 	var req user.InfoUserRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		resp := new(user.InfoUserResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  err.Error(),
+		}
+		c.JSON(consts.StatusOK, resp)
 		return
 	}
 
+	if req.UserID == nil {
+		currentUserID, exists := c.Get(constants.ContextCurrentUserKey)
+		if !exists {
+			resp := new(user.InfoUserResponse)
+			resp.Base = &common.BaseResponse{
+				Code: "-1",
+				Msg:  errno.UnableToRetrieveUserInfoErr.ErrMsg,
+			}
+			c.JSON(consts.StatusOK, resp)
+			return
+		}
+		req.UserID = new(string)
+		*req.UserID = currentUserID.(string)
+	}
+
+	userService := user_service.NewUserService(ctx)
+	dbUser, err := userService.InfoUser(&req)
+
 	resp := new(user.InfoUserResponse)
+
+	if err != nil {
+		e := errno.ConvertErr(err)
+
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  e.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	resp.Base = &common.BaseResponse{
+		Code: fmt.Sprintf("%d", errno.Success.ErrCode), // 10000
+		Msg:  errno.Success.ErrMsg,                     // "success"
+	}
+
+	deleteAtStr := ""
+	if dbUser.DeletedAt.Valid {
+		deleteAtStr = dbUser.DeletedAt.Time.Format("2006-01-02 15:04:05")
+	}
+
+	resp.Data = &common.UserDataResponse{
+		ID:        dbUser.ID,
+		Username:  dbUser.Username,
+		AvatarURL: dbUser.AvatarUrl,
+		CreateAt:  dbUser.CreatedAt.Format("2006-01-02 15:04:05"),
+		UpdateAt:  dbUser.UpdatedAt.Format("2006-01-02 15:04:05"),
+		DeleteAt:  deleteAtStr,
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }

@@ -41,6 +41,7 @@ func (s *UserService) RegisterUser(req *user.RegisterUserRequest) error {
 		Username:  req.Username,
 		Password:  passwordHash,
 		AvatarUrl: constants.DefaultAvatarURL,
+		// 默认头像还需要自己再编写
 	}
 
 	if err = db.CreateUser(newUser); err != nil {
@@ -48,4 +49,19 @@ func (s *UserService) RegisterUser(req *user.RegisterUserRequest) error {
 	}
 
 	return nil
+}
+
+func (s *UserService) InfoUser(req *user.InfoUserRequest) (db.User, error) {
+	var err error
+
+	user, err := db.QueryUserByUserId(*req.UserID)
+
+	if err != nil {
+		return db.User{}, err
+	}
+	if user == nil {
+		return db.User{}, errno.UserNotExistErr
+	}
+
+	return *user, nil
 }

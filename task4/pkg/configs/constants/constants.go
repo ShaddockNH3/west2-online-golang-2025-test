@@ -12,7 +12,7 @@ const (
 )
 
 const (
-	MySQLDefaultDSN = "west2:west2_password@tcp(127.0.0.1:3306)/west2_test?charset=utf8mb4&parseTime=True&loc=Local"
+	MySQLDefaultDSN = "gorm:gorm@tcp(127.0.0.1:9910)/gorm?charset=utf8mb4&parseTime=True&loc=Local"
 )
 
 const (
@@ -23,5 +23,6 @@ const (
 )
 
 const (
-	DefaultAvatarURL = "https://ShaddockNH3.github.com/static/default_avatar.png"
+	DefaultURL       = "https://ShaddockNH3.github.com/static/"
+	DefaultAvatarURL = "https://ShaddockNH3.github.com/static/avatars/default_avatar.jpg"
 )

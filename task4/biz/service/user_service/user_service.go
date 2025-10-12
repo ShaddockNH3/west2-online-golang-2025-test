@@ -51,17 +51,32 @@ func (s *UserService) RegisterUser(req *user.RegisterUserRequest) error {
 	return nil
 }
 
-func (s *UserService) InfoUser(req *user.InfoUserRequest) (db.User, error) {
+func (s *UserService) InfoUser(req *user.InfoUserRequest) (*db.User, error) {
 	var err error
 
 	user, err := db.QueryUserByUserId(*req.UserID)
 
 	if err != nil {
-		return db.User{}, err
+		return nil, err
 	}
 	if user == nil {
-		return db.User{}, errno.UserNotExistErr
+		return nil, errno.UserNotExistErr
 	}
 
-	return *user, nil
+	return user, nil
+}
+
+func (s *UserService) AvatarUploadUser(user_id string, avatar_url string, req *user.AvatarUploadUserRequest) (*db.User, error) {
+	var err error
+
+	if err := db.UploadAvatar(user_id, avatar_url); err != nil {
+		return nil, err
+	}
+
+	updatedUser, err := db.QueryUserByUserId(user_id)
+	if err != nil {
+		return nil, err
+	}
+
+	return updatedUser, nil
 }

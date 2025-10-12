@@ -5,6 +5,11 @@ package user
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"path/filepath"
+	"runtime"
+	"strings"
+	"time"
 
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/model/common"
 	user "github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/model/user"
@@ -147,11 +152,171 @@ func AvatarUploadUser(ctx context.Context, c *app.RequestContext) {
 	var req user.AvatarUploadUserRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		resp := new(user.AvatarUploadUserResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  err.Error(),
+		}
+		c.JSON(consts.StatusOK, resp)
 		return
 	}
 
+	// 获取当前用户ID
+	currentUserID, exists := c.Get(constants.ContextCurrentUserKey)
+	if !exists {
+		resp := new(user.InfoUserResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  errno.UnableToRetrieveUserInfoErr.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	// 获取文件
+	fileHeader, err := c.FormFile("data")
+	if err != nil {
+		resp := new(user.AvatarUploadUserResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  errno.FileUploadErr.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	// 检查文件是否存在
+	if fileHeader == nil {
+		resp := new(user.AvatarUploadUserResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  errno.FileUploadErr.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	// 检查文件是否为图片
+	file, err := fileHeader.Open()
+	if err != nil {
+		resp := new(user.AvatarUploadUserResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  errno.FileOpenErr.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+	defer file.Close()
+
+	buffer := make([]byte, 512)
+	_, err = file.Read(buffer)
+	if err != nil {
+		resp := new(user.AvatarUploadUserResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  errno.FileReadErr.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	contentType := http.DetectContentType(buffer)
+	allowedTypes := []string{"image/jpeg", "image/png", "image/gif"}
+	isAllowed := false
+	for _, t := range allowedTypes {
+		if contentType == t {
+			isAllowed = true
+			break
+		}
+	}
+
+	if !isAllowed {
+		resp := new(user.AvatarUploadUserResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  errno.FileTypeErr.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	_, err = file.Seek(0, 0)
+	if err != nil {
+		resp := new(user.AvatarUploadUserResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  errno.FileSeekErr.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	// 保存文件到本地
+	// 需要确保有 ./uploads/avatars 目录
+	_, currentFilePath, _, _ := runtime.Caller(0)
+	projectRoot := ""
+	if idx := strings.LastIndex(currentFilePath, "task4"); idx != -1 {
+		projectRoot = currentFilePath[:idx+len("task4")]
+	}
+	if projectRoot == "" {
+		resp := new(user.AvatarUploadUserResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  errno.UnableFindPathErr.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	filename := fmt.Sprintf("%s_%d_%s", currentUserID, time.Now().Unix(), fileHeader.Filename)
+	savePath := filepath.Join(projectRoot, "uploads", "avatars", filename)
+
+	if err = c.SaveUploadedFile(fileHeader, savePath); err != nil {
+		resp := new(user.AvatarUploadUserResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  errno.FileSaveErr.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	avatarURL := constants.DefaultURL + "avatars/" + filename
+
+	// 更新用户头像地址
+	userService := user_service.NewUserService(ctx)
+	updatedUser, err := userService.AvatarUploadUser(currentUserID.(string), avatarURL, &req)
+
+	// 如果更新失败，返回错误
 	resp := new(user.AvatarUploadUserResponse)
+	if err != nil {
+		e := errno.ConvertErr(err)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  e.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	deleteAtStr := ""
+	if updatedUser.DeletedAt.Valid {
+		deleteAtStr = updatedUser.DeletedAt.Time.Format("2006-01-02 15:04:05")
+	}
+
+	resp.Base = &common.BaseResponse{
+		Code: fmt.Sprintf("%d", errno.Success.ErrCode),
+		Msg:  errno.Success.ErrMsg,
+	}
+	resp.Data = &common.UserDataResponse{
+		ID:        updatedUser.ID,
+		Username:  updatedUser.Username,
+		AvatarURL: updatedUser.AvatarUrl,
+		CreateAt:  updatedUser.CreatedAt.Format("2006-01-02 15:04:05"),
+		UpdateAt:  updatedUser.UpdatedAt.Format("2006-01-02 15:04:05"),
+		DeleteAt:  deleteAtStr,
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }

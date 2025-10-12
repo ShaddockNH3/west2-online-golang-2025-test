@@ -332,11 +332,45 @@ func SearchVideo(ctx context.Context, c *app.RequestContext) {
 	var req video.SearchVideoRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		resp := new(video.SearchVideoResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  err.Error(),
+		}
+		c.JSON(consts.StatusOK, resp)
 		return
 	}
 
+	VideoService := video_service.NewVideoService(ctx)
+	videos, total, err := VideoService.SearchVideos(&req)
+
+	if err != nil {
+		resp := new(video.SearchVideoResponse)
+		e := errno.ConvertErr(err)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  e.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	packed := pack.Videos(videos)
+	items := make([]*common.VideoItems, len(packed))
+    for i := range packed {
+        items[i] = &packed[i]
+    }
+
+	// 返回响应
 	resp := new(video.SearchVideoResponse)
+	resp.Base = &common.BaseResponse{
+		Code: fmt.Sprintf("%d", errno.Success.ErrCode), // 10000
+		Msg:  errno.Success.ErrMsg,                     // "success"
+	}
+	resp.Data = &common.VideoDataForListResponse{
+		Items: items,
+		Total: total,
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }

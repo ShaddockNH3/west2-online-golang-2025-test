@@ -52,3 +52,11 @@ func (s *VideoService) ListVideos(req *video.ListVideoRequest) ([]db.VideoItems,
 	}
 	return videos, total, nil
 }
+
+func (s *VideoService) SearchVideos(req *video.SearchVideoRequest) ([]db.VideoItems, int64, error) {
+	videos, total, err := db.QueryVideosByKeyword(req.Keyword, req.PageNum, req.PageSize, req.FromDate, req.ToDate, req.Username)
+	if err != nil {
+		return nil, 0, err
+	}
+	return videos, total, nil
+}

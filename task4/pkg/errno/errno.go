@@ -12,15 +12,26 @@ const (
 	ServiceErrCode = iota + 10001 // 服务级错误
 	ParamErrCode                  // 参数错误
 
-	UserAlreadyExistErrCode // 用户已存在
+	UserAlreadyExistErrCode         // 用户已存在
+	UserNotExistErrCode             // 用户不存在
+	PasswordIsNotVerifiedErrCode    // 密码错误
+	UnableToRetrieveUserInfoErrCode // 无法获取用户信息
+
+	FileUploadErrCode // 文件上传错误
+	FileSaveErrCode   // 文件保存错误
+	UnableFindPathErrCode // 无法找到路径
+	FileOpenErrCode   // 文件打开错误
+	FileReadErrCode   // 文件读取错误
+	FileTypeErrCode   // 文件类型错误
+	FileSeekErrCode   // 文件大小错误
 )
 
 // ========================== Error Messages ==========================
 
 const (
-	SuccessMsg   = "Success"
+	SuccessMsg    = "Success"
 	ServiceErrMsg = "Service is unable to start successfully"
-	ParamErrMsg  = "Wrong Parameter has been given"
+	ParamErrMsg   = "Wrong Parameter has been given"
 )
 
 // ErrNo defines a custom error type.
@@ -54,8 +65,19 @@ var (
 	ParamErr   = NewErrNo(ParamErrCode, ParamErrMsg)
 
 	// User-related errors
-	UserAlreadyExistErr = NewErrNo(UserAlreadyExistErrCode, "User already exists")
-	// ... 之后可以继续在这里添加其他错误哦 ♪
+	UserAlreadyExistErr         = NewErrNo(UserAlreadyExistErrCode, "User already exists")
+	UserNotExistErr             = NewErrNo(UserNotExistErrCode, "User does not exist")
+	PasswordIsNotVerified       = NewErrNo(PasswordIsNotVerifiedErrCode, "Password is not verified")
+	UnableToRetrieveUserInfoErr = NewErrNo(UnableToRetrieveUserInfoErrCode, "Unable to retrieve user information")
+
+	// File-related errors
+	FileUploadErr = NewErrNo(FileUploadErrCode, "File upload error")
+	FileSaveErr   = NewErrNo(FileSaveErrCode, "File save error")
+	UnableFindPathErr = NewErrNo(UnableFindPathErrCode, "Unable to find path")
+	FileOpenErr   = NewErrNo(FileOpenErrCode, "File open error")
+	FileReadErr   = NewErrNo(FileReadErrCode, "File read error")
+	FileTypeErr   = NewErrNo(FileTypeErrCode, "File type error")
+	FileSeekErr   = NewErrNo(FileSeekErrCode, "File size error")
 )
 
 // ConvertErr converts a generic error to ErrNo.

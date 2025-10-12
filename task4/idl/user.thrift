@@ -23,7 +23,7 @@ struct LoginUserResponse{
 }
 
 struct InfoUserRequest{
-    1: optional string user_id (api.query="user_id", api.vd="(len($) > 0 && len($) < 100)")
+    1: optional string user_id (api.query="user_id", api.vd="(len($) == 0) || (len($) > 0 && len($) < 100)")
 }
 
 struct InfoUserResponse{

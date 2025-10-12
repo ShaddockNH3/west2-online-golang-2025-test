@@ -1,7 +1,18 @@
 package constants
 
+import "time"
+
+// Jwt
 const (
-	MySQLDefaultDSN = "west2:west2_password@tcp(127.0.0.1:3306)/west2_test?charset=utf8mb4&parseTime=True&loc=Local"
+	JwtSecretKey          = "task4-secret-key"
+	AccessTokenTimeout    = 2 * time.Hour
+	RefreshTokenTimeout   = 7 * 24 * time.Hour
+	JwtIdentityKey        = "user_id"
+	ContextCurrentUserKey = "current_user_id"
+)
+
+const (
+	MySQLDefaultDSN = "gorm:gorm@tcp(127.0.0.1:9910)/gorm?charset=utf8mb4&parseTime=True&loc=Local"
 )
 
 const (
@@ -12,5 +23,7 @@ const (
 )
 
 const (
-	DefaultAvatarURL = "https://ShaddockNH3.github.com/static/default_avatar.png"
+	Host             = "http://172.28.172.13:8888"
+	DefaultURL       = Host + "/static/"
+	DefaultAvatarURL = Host + "/static/avatars/default_avatar.jpg"
 )

@@ -23,7 +23,7 @@ func (s *UserService) RegisterUser(req *user.RegisterUserRequest) error {
 	var err error
 
 	user, err := db.QueryUserByUsername(req.Username)
-	if err != nil {
+	if err != nil && err.Error() != "record not found" {
 		return err
 	}
 	if user != nil {
@@ -48,4 +48,34 @@ func (s *UserService) RegisterUser(req *user.RegisterUserRequest) error {
 	}
 
 	return nil
+}
+
+func (s *UserService) InfoUser(userID string, req *user.InfoUserRequest) (*db.User, error) {
+	var err error
+
+	user, err := db.QueryUserByUserId(userID)
+
+	if err != nil {
+		return nil, err
+	}
+	if user == nil {
+		return nil, errno.UserNotExistErr
+	}
+
+	return user, nil
+}
+
+func (s *UserService) AvatarUploadUser(user_id string, avatar_url string, req *user.AvatarUploadUserRequest) (*db.User, error) {
+	var err error
+
+	if err := db.UploadAvatar(user_id, avatar_url); err != nil {
+		return nil, err
+	}
+
+	updatedUser, err := db.QueryUserByUserId(user_id)
+	if err != nil {
+		return nil, err
+	}
+
+	return updatedUser, nil
 }

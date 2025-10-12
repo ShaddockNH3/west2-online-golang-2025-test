@@ -14,6 +14,8 @@ fzu_go文件我主要的失误在于锁的问题，向表内写入的时候没�
 
 task3目前已经实现所有基本功能，完成三个bonus，详见[task3](https://github.com/ShaddockNH3/west2-online-golang-2025-test/tree/main/task3)，注意了数据库交互保存的是哈希加密的密码，考虑了service层 ，并且采用了自动生成接口文档
 
+主要缺陷在于未使用redis，接口返回值很不规范。并且还有注入重复编写delete接口等问题
+
 ## task4
 
-这是一条测试commit签名的测试
+task4目前正在最基本限度的完成，目前完成了用户注册的四个接口并已经测试

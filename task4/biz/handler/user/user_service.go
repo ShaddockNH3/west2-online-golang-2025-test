@@ -280,7 +280,7 @@ func AvatarUploadUser(ctx context.Context, c *app.RequestContext) {
 		resp := new(user.AvatarUploadUserResponse)
 		resp.Base = &common.BaseResponse{
 			Code: "-1",
-			Msg:  "创建目录失败: " + err.Error(), // 可以给一个更明确的错误提示
+			Msg:  errno.FileDirCreateErr.ErrMsg,
 		}
 		c.JSON(consts.StatusOK, resp)
 		return

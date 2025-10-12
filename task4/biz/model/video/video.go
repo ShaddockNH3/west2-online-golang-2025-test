@@ -11,8 +11,8 @@ import (
 
 type PublishVideoRequest struct {
 	// 1: optional file data (api.form="data")
-	Title       *string `thrift:"title,2,optional" form:"title" json:"title,omitempty" vd:"(len($) > 0 && len($) < 100)"`
-	Description *string `thrift:"description,3,optional" form:"description" json:"description,omitempty" vd:"(len($) > 0 && len($) < 100)"`
+	Title       *string `thrift:"title,2,optional" form:"title" json:"title,omitempty" vd:"(len($) == 0) || (len($) > 0 && len($) < 100)"`
+	Description *string `thrift:"description,3,optional" form:"description" json:"description,omitempty" vd:"((len($) == 0) || (len($) > 0 && len($) < 100))"`
 }
 
 func NewPublishVideoRequest() *PublishVideoRequest {
@@ -1206,7 +1206,7 @@ type SearchVideoRequest struct {
 	PageSize int64   `thrift:"page_size,3" form:"page_size" json:"page_size" vd:"$>=0"`
 	FromDate *int64  `thrift:"from_date,4,optional" form:"from_date" json:"from_date,omitempty" vd:"$>=0"`
 	ToDate   *int64  `thrift:"to_date,5,optional" form:"to_date" json:"to_date,omitempty" vd:"$>=0"`
-	Username *string `thrift:"username,6,optional" form:"username" json:"username,omitempty" vd:"(len($) > 0 && len($) < 100)"`
+	Username *string `thrift:"username,6,optional" form:"username" json:"username,omitempty" vd:"(len($) == 0) || (len($) > 0 && len($) < 100)"`
 }
 
 func NewSearchVideoRequest() *SearchVideoRequest {

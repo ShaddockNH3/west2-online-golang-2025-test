@@ -24,6 +24,9 @@ const (
 	FileReadErrCode   // 文件读取错误
 	FileTypeErrCode   // 文件类型错误
 	FileSeekErrCode   // 文件大小错误
+	FileDirCreateErrCode // 文件目录创建错误
+	FileCoverCreateErrCode // 文件封面创建错误
+	VideoAlreadyExistErrCode // 视频已存在
 )
 
 // ========================== Error Messages ==========================
@@ -78,6 +81,9 @@ var (
 	FileReadErr   = NewErrNo(FileReadErrCode, "File read error")
 	FileTypeErr   = NewErrNo(FileTypeErrCode, "File type error")
 	FileSeekErr   = NewErrNo(FileSeekErrCode, "File size error")
+	FileDirCreateErr = NewErrNo(FileDirCreateErrCode, "File directory creation error")
+	FileCoverCreateErr = NewErrNo(FileCoverCreateErrCode, "File cover creation error")
+	VideoAlreadyExistErr = NewErrNo(VideoAlreadyExistErrCode, "Video already exists")
 )
 
 // ConvertErr converts a generic error to ErrNo.

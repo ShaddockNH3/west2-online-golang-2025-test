@@ -4,8 +4,21 @@ package video
 
 import (
 	"context"
+	"fmt"
+	"net/http"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"runtime"
+	"strings"
+	"time"
 
+	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/model/common"
+	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/model/user"
 	video "github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/model/video"
+	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/service/video_service"
+	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/pkg/configs/constants"
+	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/pkg/errno"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 )
@@ -17,11 +30,224 @@ func PublishVideo(ctx context.Context, c *app.RequestContext) {
 	var req video.PublishVideoRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		resp := new(video.PublishVideoResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  err.Error(),
+		}
+		c.JSON(consts.StatusOK, resp)
 		return
 	}
 
+	// 获取当前用户ID
+	currentUserID, exists := c.Get(constants.ContextCurrentUserKey)
+	if !exists {
+		resp := new(video.PublishVideoResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  errno.UnableToRetrieveUserInfoErr.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	// 处理视频文件上传
+
+	fileHeader, err := c.FormFile("data")
+	if err != nil {
+		resp := new(video.PublishVideoResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  errno.FileUploadErr.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	if fileHeader == nil {
+		resp := new(video.PublishVideoResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  errno.FileUploadErr.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	// 检查文件是否为视频
+	file, err := fileHeader.Open()
+	if err != nil {
+		resp := new(video.PublishVideoResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  errno.FileOpenErr.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+	defer file.Close()
+
+	buffer := make([]byte, 512)
+	_, err = file.Read(buffer)
+	if err != nil {
+		resp := new(video.PublishVideoResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  errno.FileReadErr.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	contentType := http.DetectContentType(buffer)
+	allowedTypes := []string{"video/mp4", "video/quicktime", "video/webm", "video/x-msvideo"}
+	isAllowed := false
+	for _, t := range allowedTypes {
+		if contentType == t {
+			isAllowed = true
+			break
+		}
+	}
+
+	if !isAllowed {
+		resp := new(video.PublishVideoResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  errno.FileTypeErr.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	_, err = file.Seek(0, 0)
+	if err != nil {
+		resp := new(video.PublishVideoResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  errno.FileSeekErr.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	// 保存文件到本地
+	// 需要确保有 ./uploads/videos 目录
+	_, currentFilePath, _, _ := runtime.Caller(0)
+	projectRoot := ""
+	if idx := strings.LastIndex(currentFilePath, "task4"); idx != -1 {
+		projectRoot = currentFilePath[:idx+len("task4")]
+	}
+	if projectRoot == "" {
+		resp := new(user.AvatarUploadUserResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  errno.UnableFindPathErr.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	// 创建文件名
+	filename := fmt.Sprintf("%s_%d_%s", currentUserID, time.Now().Unix(), fileHeader.Filename)
+	savePathDir := filepath.Join(projectRoot, "uploads", "videos", currentUserID.(string))
+
+	if err := os.MkdirAll(savePathDir, 0755); err != nil {
+		resp := new(user.AvatarUploadUserResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  errno.FileDirCreateErr.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	savePath := filepath.Join(savePathDir, filename)
+
+	if err = c.SaveUploadedFile(fileHeader, savePath); err != nil {
+		resp := new(user.AvatarUploadUserResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  errno.FileSaveErr.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	currentVideoURL := constants.DefaultURL + "videos/" + filename
+
+	// 处理封面文件，默认为视频第一帧
+
+	coverFilename := strings.TrimSuffix(filename, filepath.Ext(filename)) + ".jpg"
+	coverSavePathDir := filepath.Join(projectRoot, "uploads", "covers", currentUserID.(string))
+
+	// 确保存放封面的文件夹也存在
+	if err := os.MkdirAll(coverSavePathDir, 0755); err != nil {
+		resp := new(video.PublishVideoResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  errno.FileDirCreateErr.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	coverSavePath := filepath.Join(coverSavePathDir, coverFilename)
+
+	cmd := exec.Command("ffmpeg",
+		"-i", savePath,
+		"-ss", "00:00:01",
+		"-vframes", "1",
+		coverSavePath,
+	)
+
+	if err := cmd.Run(); err != nil {
+		resp := new(video.PublishVideoResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  errno.FileCoverCreateErr.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	currentCoverURL := constants.DefaultURL + "covers/" + filename + "#t=0.1"
+
+	// 获取当前用户上传的视频的标题和描述
+	var currentTitle string
+	var currentDescription string
+	if req.Title == nil || *req.Title == "" {
+		currentTitle = currentUserID.(string) + currentVideoURL + "_video"
+	} else {
+		currentTitle = *req.Title
+	}
+
+	if req.Description == nil || *req.Description == "" {
+		currentDescription = currentUserID.(string) + currentVideoURL + "_video_description"
+	} else {
+		currentDescription = *req.Description
+	}
+
+	// 调用服务，创建视频
+	VideoService := video_service.NewVideoService(ctx)
+	err = VideoService.CreateVideo(currentUserID.(string), currentVideoURL, currentCoverURL, currentTitle, currentDescription, &req)
+
 	resp := new(video.PublishVideoResponse)
+
+	if err != nil {
+		e := errno.ConvertErr(err)
+
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  e.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	resp.Base = &common.BaseResponse{
+		Code: fmt.Sprintf("%d", errno.Success.ErrCode), // 10000
+		Msg:  errno.Success.ErrMsg,                     // "success"
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -49,7 +275,12 @@ func PopularVideo(ctx context.Context, c *app.RequestContext) {
 	var req video.PopularVideoRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		resp := new(video.PopularVideoResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  err.Error(),
+		}
+		c.JSON(consts.StatusOK, resp)
 		return
 	}
 

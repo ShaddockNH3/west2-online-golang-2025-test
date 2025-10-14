@@ -13,6 +13,9 @@ const (
 
 const (
 	MySQLDefaultDSN = "gorm:gorm@tcp(127.0.0.1:9910)/gorm?charset=utf8mb4&parseTime=True&loc=Local"
+
+	RedisAddr     = "localhost:18003"
+	RedisPassword = "shenmidazhi"
 )
 
 const (
@@ -26,4 +29,8 @@ const (
 	Host             = "http://172.28.172.13:8888"
 	DefaultURL       = Host + "/static/"
 	DefaultAvatarURL = Host + "/static/avatars/default_avatar.jpg"
+)
+
+const (
+	PopularVideosSuffix = ":popular_videos"
 )

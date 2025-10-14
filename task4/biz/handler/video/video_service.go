@@ -286,9 +286,9 @@ func ListVideo(ctx context.Context, c *app.RequestContext) {
 
 	packed := pack.Videos(videos)
 	items := make([]*common.VideoItems, len(packed))
-    for i := range packed {
-        items[i] = &packed[i]
-    }
+	for i := range packed {
+		items[i] = &packed[i]
+	}
 
 	// 返回响应
 	resp := new(video.ListVideoResponse)
@@ -320,7 +320,35 @@ func PopularVideo(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
+	VideoService := video_service.NewVideoService(ctx)
+	videos, err := VideoService.PopularVideos(&req)
+
+	if err != nil {
+		resp := new(video.PopularVideoResponse)
+		e := errno.ConvertErr(err)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  e.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	packed := pack.Videos(videos)
+	items := make([]*common.VideoItems, len(packed))
+	for i := range packed {
+		items[i] = &packed[i]
+	}
+
+	// 返回响应
 	resp := new(video.PopularVideoResponse)
+	resp.Base = &common.BaseResponse{
+		Code: fmt.Sprintf("%d", errno.Success.ErrCode), // 10000
+		Msg:  errno.Success.ErrMsg,                     // "success"
+	}
+	resp.Data = &common.VideoDataForPopularResponse{
+		Items: items,
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -357,9 +385,9 @@ func SearchVideo(ctx context.Context, c *app.RequestContext) {
 
 	packed := pack.Videos(videos)
 	items := make([]*common.VideoItems, len(packed))
-    for i := range packed {
-        items[i] = &packed[i]
-    }
+	for i := range packed {
+		items[i] = &packed[i]
+	}
 
 	// 返回响应
 	resp := new(video.SearchVideoResponse)

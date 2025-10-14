@@ -60,3 +60,22 @@ func (s *VideoService) SearchVideos(req *video.SearchVideoRequest) ([]db.VideoIt
 	}
 	return videos, total, nil
 }
+
+func (s *VideoService) PopularVideos(req *video.PopularVideoRequest) ([]db.VideoItems, error) {
+	var currentPage int64
+	var pageSize int64
+
+	if req.PageNum == nil || *req.PageNum <= 0 {
+		currentPage = 1
+	}
+
+	if req.PageSize == nil || *req.PageSize <= 0 {
+		pageSize = 10
+	}
+
+	videos, err := db.PopularVideos(currentPage, pageSize)
+	if err != nil {
+		return nil, err
+	}
+	return videos, nil
+}

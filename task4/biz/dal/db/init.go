@@ -1,7 +1,7 @@
 package db
 
 import (
-	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/pkg/configs/constants"
+	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/pkg/constants"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	gormopentracing "gorm.io/plugin/opentracing"

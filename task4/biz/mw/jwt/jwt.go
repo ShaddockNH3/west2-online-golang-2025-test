@@ -8,7 +8,7 @@ import (
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/dal/db"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/model/common"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/model/user"
-	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/pkg/configs/constants"
+	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/pkg/constants"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/pkg/errno"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/pkg/utils"
 	"github.com/cloudwego/hertz/pkg/app"

@@ -10,5 +10,5 @@ import (
 // customizeRegister registers customize routers.
 func customizedRegister(r *server.Hertz) {
 	r.GET("/ping", handler.Ping)
-	r.Static("/static", "./uploads")
+	r.Static("/static", "./data")
 }

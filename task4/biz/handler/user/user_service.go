@@ -15,7 +15,7 @@ import (
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/model/common"
 	user "github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/model/user"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/service/user_service"
-	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/pkg/configs/constants"
+	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/pkg/constants"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/pkg/errno"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
@@ -257,11 +257,11 @@ func AvatarUploadUser(ctx context.Context, c *app.RequestContext) {
 	}
 
 	// 保存文件到本地
-	// 需要确保有 ./uploads/avatars 目录
+	// 需要确保有 ./data/avatars 目录
 	_, currentFilePath, _, _ := runtime.Caller(0)
 	projectRoot := ""
-	if idx := strings.LastIndex(currentFilePath, "task4"); idx != -1 {
-		projectRoot = currentFilePath[:idx+len("task4")]
+	if idx := strings.LastIndex(currentFilePath, "task4/pkg/"); idx != -1 {
+		projectRoot = currentFilePath[:idx+len("task4/pkg/")]
 	}
 	if projectRoot == "" {
 		resp := new(user.AvatarUploadUserResponse)
@@ -274,7 +274,7 @@ func AvatarUploadUser(ctx context.Context, c *app.RequestContext) {
 	}
 
 	filename := fmt.Sprintf("%s_%d_%s", currentUserID, time.Now().Unix(), fileHeader.Filename)
-	savePathDir := filepath.Join(projectRoot, "uploads", "avatars")
+	savePathDir := filepath.Join(projectRoot, "data", "avatars")
 
 	if err := os.MkdirAll(savePathDir, 0755); err != nil {
 		resp := new(user.AvatarUploadUserResponse)

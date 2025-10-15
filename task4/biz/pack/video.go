@@ -19,6 +19,9 @@ func Video(model db.VideoItems) *common.VideoItems {
 		deleteAtStr = model.DeletedAt.Time.Format("2006-01-02 15:04:05")
 	}
 
+	CreateAt := model.CreatedAt.Format("2006-01-02 15:04:05")
+	UpdateAt := model.UpdatedAt.Format("2006-01-02 15:04:05")
+
 	return &common.VideoItems{
 		ID:           model.ID,
 		UserID:       model.UserID,
@@ -29,8 +32,8 @@ func Video(model db.VideoItems) *common.VideoItems {
 		VisitCount:   model.VisitCount,
 		LikeCount:    model.LikeCount,
 		CommentCount: model.CommentCount,
-		CreateAt:     model.CreatedAt,
-		UpdateAt:     model.UpdatedAt,
+		CreateAt:     CreateAt,
+		UpdateAt:     UpdateAt,
 		DeleteAt:     deleteAtStr,
 	}
 }

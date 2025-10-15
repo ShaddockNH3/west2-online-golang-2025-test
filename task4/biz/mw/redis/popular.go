@@ -41,3 +41,15 @@ func getHotIDs(rdb *redis.Client, key string, start, end int64) ([]string, error
 	}
 	return result, nil
 }
+
+func AddOrUpdatePopularVideo(videoID string, score float64) error {
+	// Key: 统一的排行榜名字 constants.PopularVideosSuffix
+	// Member: 视频的ID
+	// Score: 视频的热度分数
+	err := rdbPopular.ZAdd(constants.PopularVideosSuffix, &redis.Z{
+		Score:  score,
+		Member: videoID,
+	}).Err()
+
+	return err
+}

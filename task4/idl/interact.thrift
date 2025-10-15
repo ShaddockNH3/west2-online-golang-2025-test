@@ -12,7 +12,7 @@ enum ActionLikeType{
 struct ActionLikeRequest{
     1: optional string video_id (api.form="video_id", api.vd="(len($)==0 || len($) > 0 && len($) < 100)")
     2: optional string comment_id (api.form="comment_id", api.vd="((len($)==0 || len($) > 0 && len($) < 100)")
-    3: optional ActionLikeType action_type (api.form="action_type", api.vd="$ in [1,2]")
+    3: optional ActionLikeType action_type (api.form="action_type", api.vd="(len($) == 0) || ($ in [1,2])")
 }
 
 struct ActionLikeResponse{
@@ -21,8 +21,8 @@ struct ActionLikeResponse{
 
 struct ListLikeRequest{
     1: optional string user_id (api.query="user_id", api.vd="((len($)==0 || len($) > 0 && len($) < 100)")
-    2: optional i64 page_size (api.query="page_size", api.vd="( $ > 0 && $ < 100 )")
-    3: optional i64 page_num (api.query="page_num", api.vd="( $ > 0 )")
+    2: optional i64 page_size (api.query="page_size", api.vd="(len($) == 0) || ( $ > 0 && $ < 100 )")
+    3: optional i64 page_num (api.query="page_num", api.vd="(len($) == 0) || ( $ > 0 )")
 }
 
 struct ListLikeResponse{
@@ -34,8 +34,8 @@ struct ListLikeResponse{
 
 struct PublishCommentRequest{
     1: optional string video_id (api.form="video_id", api.vd="((len($)==0 || len($) > 0 && len($) < 100)")
-    2: optional string comment_id (api.form="comment_id", api.vd="(len($) > 0 && len($) < 100)")
-    3: optional string content (api.form="content", api.vd="(len($) > 0 && len($) < 100)")
+    2: optional string comment_id (api.form="comment_id", api.vd="((len($)==0 || len($) > 0 && len($) < 100)")
+    3: optional string content (api.form="content", api.vd="((len($)==0 || len($) > 0 && len($) < 100)")
 }
 
 struct PublishCommentResponse{
@@ -45,8 +45,8 @@ struct PublishCommentResponse{
 struct ListCommentRequest{
     1: optional string video_id (api.query="video_id", api.vd="((len($)==0 || len($) > 0 && len($) < 100)")
     2: optional string comment_id (api.query="comment_id", api.vd="((len($)==0 || len($) > 0 && len($) < 100)")
-    3: optional i64 page_size (api.query="page_size", api.vd="( $ > 0 && $ < 100 )")
-    4: optional i64 page_num (api.query="page_num", api.vd="( $ > 0 )")
+    3: optional i64 page_size (api.query="page_size", api.vd="(len($) == 0) || ( $ > 0 && $ < 100 )")
+    4: optional i64 page_num (api.query="page_num", api.vd="(len($) == 0) || ( $ > 0 )")
 }
 
 struct ListCommentResponse{

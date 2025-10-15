@@ -15,7 +15,7 @@ struct SocialResponse{
 // 关注操作
 struct ActionRelationRequest{
     1: optional string to_user_id (api.form="user_id", api.vd="(len($)==0 || len($) > 0 && len($) < 100)")
-    2: optional ActionRelationType action_type (api.form="action_type", api.vd="$ in [0,1]")
+    2: optional ActionRelationType action_type (api.form="action_type", api.vd="(len($)==0 || ($ in [0,1])")
 }
 
 struct ActionRelationResponse{
@@ -26,23 +26,23 @@ struct ActionRelationResponse{
 
 struct ListFollowingRequest{
     1: string user_id (api.query="user_id", api.vd="(len($) > 0 && len($) < 100)")
-    2: optional i64 page_num (api.query="page_num", api.vd="( $ > 0 )")
-    3: optional i64 page_size (api.query="page_size", api.vd="( $ > 0 && $ < 100 )")
+    2: optional i64 page_num (api.query="page_num", api.vd="(len($)==0 || ( $ > 0 )")
+    3: optional i64 page_size (api.query="page_size", api.vd="(len($)==0 || ( $ > 0 && $ < 100 )")
 }
 
 // 粉丝列表
 
 struct ListFollowerRequest{
     1: string user_id (api.query="user_id", api.vd="(len($) > 0 && len($) < 100)")
-    2: optional i64 page_num (api.query="page_num", api.vd="( $ > 0 )")
-    3: optional i64 page_size (api.query="page_size", api.vd="( $ > 0 && $ < 100 )")
+    2: optional i64 page_num (api.query="page_num", api.vd="(len($)==0 || ( $ > 0 )")
+    3: optional i64 page_size (api.query="page_size", api.vd="(len($)==0 || ( $ > 0 && $ < 100 )")
 }
 
 // 好友列表
 
 struct ListFriendsRequest{
-    1: optional i64 page_num (api.query="page_num", api.vd="( $ > 0 )")
-    2: optional i64 page_size (api.query="page_size", api.vd="( $ > 0 && $ < 100 )")
+    1: optional i64 page_num (api.query="page_num", api.vd="(len($)==0 || ( $ > 0 )")
+    2: optional i64 page_size (api.query="page_size", api.vd="(len($)==0 || ( $ > 0 && $ < 100 )")
 }
 
 service SocialService {

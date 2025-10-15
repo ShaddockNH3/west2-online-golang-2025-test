@@ -1,6 +1,9 @@
 package db
 
 import (
+	"time"
+
+	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/model/video"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/mw/redis"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/pkg/constants"
 	"gorm.io/gorm"
@@ -16,8 +19,8 @@ type VideoItems struct {
 	VisitCount   int64          // visit_count
 	LikeCount    int64          // like_count
 	CommentCount int64          // comment_count
-	CreatedAt    string         // create_at
-	UpdatedAt    string         // update_at
+	CreatedAt    time.Time      // create_at
+	UpdatedAt    time.Time      // update_at
 	DeletedAt    gorm.DeletedAt `gorm:"index"`
 }
 
@@ -35,53 +38,56 @@ func UpdateVisitCount(videoID string, count int64) error {
 
 func QueryVideoByTitle(title string) (*VideoItems, error) {
 	var video VideoItems
-	if err := DB.Where("title = ?", title).First(&video).Error; err != nil {
+	tx := DB.Model(&VideoItems{})
+	if err := tx.Where("title = ?", title).First(&video).Error; err != nil {
 		return nil, err
 	}
 	return &video, nil
 }
 
 func QueryVideosByID(userID string, page, pageSize int64) ([]VideoItems, int64, error) {
-	var total int64
-	if err := DB.Count(&total).Error; err != nil {
-		return nil, 0, err
-	}
-
 	var videos []VideoItems
-	if err := DB.Where("user_id = ?", userID).Find(&videos).Error; err != nil {
+	var total int64
+	tx := DB.Model(&VideoItems{}).Where("user_id = ?", userID)
+	if err := tx.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
-	if err := DB.Limit(int(pageSize)).Offset(int(pageSize * (page - 1))).Find(&videos).Error; err != nil {
+	if err := tx.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	if err := tx.Limit(int(pageSize)).Offset(int(pageSize * (page - 1))).Find(&videos).Error; err != nil {
 		return nil, 0, err
 	}
 
 	return videos, total, nil
 }
 
-func QueryVideosByKeyword(keyword string, page, pageSize int64, from_date, to_date *int64, username *string) ([]VideoItems, int64, error) {
+func QueryVideosByKeyword(req *video.SearchVideoRequest) ([]VideoItems, int64, error) {
 	var err error
 	tx := DB.Model(&VideoItems{})
 
-	if keyword != "" {
-		tx = tx.Where(tx.Or("name like ?", "%"+keyword+"%").
-			Or("introduce like ?", "%"+keyword+"%"))
+	if req.Keyword != "" {
+		tx = tx.Where("title LIKE ? OR description LIKE ?", "%"+req.Keyword+"%", "%"+req.Keyword+"%")
 	}
 
-	if from_date != nil {
-		if err = tx.Where("created_at >= ?", *from_date).Error; err != nil {
+	if req.FromDate != nil {
+		fromDateAsTime := time.Unix(*req.FromDate, 0)
+		if err = tx.Where("created_at >= ?", fromDateAsTime).Error; err != nil {
 			return nil, 0, err
 		}
 	}
 
-	if to_date != nil {
-		if err = tx.Where("created_at <= ?", *to_date).Error; err != nil {
+	if req.ToDate != nil {
+		toDateAsTime := time.Unix(*req.ToDate, 0)
+		if err = tx.Where("created_at <= ?", toDateAsTime).Error; err != nil {
 			return nil, 0, err
 		}
 	}
 
-	if username != nil {
-		user, err := QueryUserByUsername(*username)
+	if req.Username != nil {
+		user, err := QueryUserByUsername(*req.Username)
 		if err != nil {
 			return nil, 0, err
 		}
@@ -100,7 +106,7 @@ func QueryVideosByKeyword(keyword string, page, pageSize int64, from_date, to_da
 
 	// 页数
 	queryChain := tx
-	if err := queryChain.Limit(int(pageSize)).Offset(int(pageSize * (page - 1))).Find(&videos).Error; err != nil {
+	if err := queryChain.Model(&VideoItems{}).Limit(int(req.PageSize)).Offset(int(req.PageSize * (req.PageNum - 1))).Find(&videos).Error; err != nil {
 		return nil, 0, err
 	}
 
@@ -121,8 +127,9 @@ func QueryVideosByKeyword(keyword string, page, pageSize int64, from_date, to_da
 	go func() {
 		for _, video := range videos {
 			newVisitCount := video.VisitCount + 1
-			if redis.CheckRdbPopular(video.ID) { // 已存在，更新
-				redis.AddRdbPopular(video.ID, newVisitCount)
+			err := redis.AddOrUpdatePopularVideo(video.ID, float64(newVisitCount))
+			if err != nil {
+				// return nil, 0, err
 			}
 		}
 	}()

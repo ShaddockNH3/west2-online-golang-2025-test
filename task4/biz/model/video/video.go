@@ -795,8 +795,8 @@ func (p *ListVideoResponse) String() string {
 }
 
 type PopularVideoRequest struct {
-	PageNum  *int64 `thrift:"page_num,1,optional" json:"page_num,omitempty" query:"page_num" vd:"$>=0"`
-	PageSize *int64 `thrift:"page_size,2,optional" json:"page_size,omitempty" query:"page_size" vd:"$>=0"`
+	PageNum  *int64 `thrift:"page_num,1,optional" json:"page_num,omitempty" query:"page_num" vd:"(len($) == 0) || ($>=0)"`
+	PageSize *int64 `thrift:"page_size,2,optional" json:"page_size,omitempty" query:"page_size" vd:"(len($) == 0) || ($>=0)"`
 }
 
 func NewPopularVideoRequest() *PopularVideoRequest {
@@ -1201,11 +1201,11 @@ func (p *PopularVideoResponse) String() string {
 }
 
 type SearchVideoRequest struct {
-	Keyword  string  `thrift:"keyword,1" form:"user_id" json:"keyword" vd:"(len($) > 0 && len($) < 100)"`
+	Keyword  string  `thrift:"keyword,1" form:"keyword" json:"keyword" vd:"(len($) >= 0 && len($) < 100)"`
 	PageNum  int64   `thrift:"page_num,2" form:"page_num" json:"page_num" vd:"$>=0"`
 	PageSize int64   `thrift:"page_size,3" form:"page_size" json:"page_size" vd:"$>=0"`
-	FromDate *int64  `thrift:"from_date,4,optional" form:"from_date" json:"from_date,omitempty" vd:"$>=0"`
-	ToDate   *int64  `thrift:"to_date,5,optional" form:"to_date" json:"to_date,omitempty" vd:"$>=0"`
+	FromDate *int64  `thrift:"from_date,4,optional" form:"from_date" json:"from_date,omitempty" vd:"(len($) == 0) || ($>=0)"`
+	ToDate   *int64  `thrift:"to_date,5,optional" form:"to_date" json:"to_date,omitempty" vd:"(len($) == 0) || ($>=0)"`
 	Username *string `thrift:"username,6,optional" form:"username" json:"username,omitempty" vd:"(len($) == 0) || (len($) > 0 && len($) < 100)"`
 }
 

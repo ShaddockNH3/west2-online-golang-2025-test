@@ -2,10 +2,11 @@ package db
 
 import (
 	"errors"
+	"time"
 
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/pkg/constants"
 	"github.com/google/uuid"
-	"gorm.io/gorm"
+	"gorm.io/gorm"	
 )
 
 type LikeItems struct {
@@ -15,8 +16,8 @@ type LikeItems struct {
 	LikeableID   string `gorm:"index"` // 被点赞对象视频ID或评论ID
 	LikeableType string `gorm:"index"` // 被点赞对象的类型 "video" 或 "comment"
 
-	CreatedAt string         // create_at
-	UpdatedAt string         // update_at
+	CreatedAt time.Time         // create_at
+	UpdatedAt time.Time         // update_at
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
 
@@ -28,8 +29,8 @@ type CommentItems struct {
 	LikeCount  int64
 	ChildCount int64
 	Content    string
-	CreateAt   string
-	UpdateAt   string
+	CreateAt   time.Time
+	UpdateAt   time.Time
 	DeletedAt  gorm.DeletedAt `gorm:"index"`
 }
 

@@ -2,6 +2,7 @@ package db
 
 import (
 	"errors"
+	"time"
 
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/model/common"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/pkg/constants"
@@ -13,7 +14,7 @@ type SocialItems struct {
 	ID         string `gorm:"primaryKey;type:varchar(100)"`
 	FollowerID string // 关注者ID
 	FollowedID string // 被关注者ID
-	CreatedAt  string
+	CreatedAt  time.Time
 	DeletedAt  gorm.DeletedAt `gorm:"index"`
 }
 

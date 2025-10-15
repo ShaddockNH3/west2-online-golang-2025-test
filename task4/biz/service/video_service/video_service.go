@@ -7,6 +7,7 @@ import (
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/model/video"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/pkg/errno"
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type VideoService struct {
@@ -18,12 +19,14 @@ func NewVideoService(ctx context.Context) *VideoService {
 }
 
 func (s *VideoService) CreateVideo(UserID string, VideoURL string, CoverURL string, Title string, Description string, req *video.PublishVideoRequest) error {
-	video, err := db.QueryVideoByTitle(Title)
-	if err != nil {
-		return err
-	}
-	if video != nil {
+	_, err := db.QueryVideoByTitle(Title)
+
+	if err == nil {
 		return errno.VideoAlreadyExistErr
+	}
+
+	if err != gorm.ErrRecordNotFound {
+		return err
 	}
 
 	newVideo := &db.VideoItems{
@@ -54,7 +57,7 @@ func (s *VideoService) ListVideos(req *video.ListVideoRequest) ([]db.VideoItems,
 }
 
 func (s *VideoService) SearchVideos(req *video.SearchVideoRequest) ([]db.VideoItems, int64, error) {
-	videos, total, err := db.QueryVideosByKeyword(req.Keyword, req.PageNum, req.PageSize, req.FromDate, req.ToDate, req.Username)
+	videos, total, err := db.QueryVideosByKeyword(req)
 	if err != nil {
 		return nil, 0, err
 	}

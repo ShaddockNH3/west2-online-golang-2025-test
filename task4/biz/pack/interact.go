@@ -25,6 +25,9 @@ func Like(model db.LikeItems) *common.LikeVideoDTO {
 		deleteAtStr = model.DeletedAt.Time.Format("2006-01-02 15:04:05")
 	}
 
+	CreateAt := model.CreatedAt.Format("2006-01-02 15:04:05")
+	UpdateAt := model.UpdatedAt.Format("2006-01-02 15:04:05")
+
 	return &common.LikeVideoDTO{
 		ID:           model.ID,
 		UserID:       model.UserID,
@@ -35,8 +38,8 @@ func Like(model db.LikeItems) *common.LikeVideoDTO {
 		VisitCount:   video.VisitCount,
 		LikeCount:    video.LikeCount,
 		CommentCount: video.CommentCount,
-		CreatedAt:    model.CreatedAt,
-		UpdatedAt:    model.UpdatedAt,
+		CreatedAt:    CreateAt,
+		UpdatedAt:    UpdateAt,
 		DeletedAt:    deleteAtStr,
 	}
 }
@@ -56,6 +59,9 @@ func Comment(model db.CommentItems) *common.CommentItems {
 		deleteAtStr = model.DeletedAt.Time.Format("2006-01-02 15:04:05")
 	}
 
+	CreateAt := model.CreateAt.Format("2006-01-02 15:04:05")
+	UpdateAt := model.UpdateAt.Format("2006-01-02 15:04:05")
+
 	return &common.CommentItems{
 		ID:         model.ID,
 		UserID:     model.UserId,
@@ -64,8 +70,8 @@ func Comment(model db.CommentItems) *common.CommentItems {
 		LikeCount:  model.LikeCount,
 		ChildCount: model.ChildCount,
 		Content:    model.Content,
-		CreateAt:   model.CreateAt,
-		UpdateAt:   model.UpdateAt,
+		CreateAt:   CreateAt,
+		UpdateAt:   UpdateAt,
 		DeleteAt:   deleteAtStr,
 	}
 }

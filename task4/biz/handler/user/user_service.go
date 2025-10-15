@@ -260,8 +260,8 @@ func AvatarUploadUser(ctx context.Context, c *app.RequestContext) {
 	// 需要确保有 ./data/avatars 目录
 	_, currentFilePath, _, _ := runtime.Caller(0)
 	projectRoot := ""
-	if idx := strings.LastIndex(currentFilePath, "task4/pkg/"); idx != -1 {
-		projectRoot = currentFilePath[:idx+len("task4/pkg/")]
+	if idx := strings.LastIndex(currentFilePath, "task4"); idx != -1 {
+		projectRoot = currentFilePath[:idx+len("task4")]
 	}
 	if projectRoot == "" {
 		resp := new(user.AvatarUploadUserResponse)
@@ -274,7 +274,7 @@ func AvatarUploadUser(ctx context.Context, c *app.RequestContext) {
 	}
 
 	filename := fmt.Sprintf("%s_%d_%s", currentUserID, time.Now().Unix(), fileHeader.Filename)
-	savePathDir := filepath.Join(projectRoot, "data", "avatars")
+	savePathDir := filepath.Join(projectRoot, "pkg", "data", "avatars")
 
 	if err := os.MkdirAll(savePathDir, 0755); err != nil {
 		resp := new(user.AvatarUploadUserResponse)

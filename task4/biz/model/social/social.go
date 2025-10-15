@@ -254,7 +254,7 @@ func (p *SocialResponse) String() string {
 // 关注操作
 type ActionRelationRequest struct {
 	ToUserID   *string             `thrift:"to_user_id,1,optional" form:"user_id" json:"to_user_id,omitempty" vd:"(len($)==0 || len($) > 0 && len($) < 100)"`
-	ActionType *ActionRelationType `thrift:"action_type,2,optional,ActionRelationType" form:"action_type" json:"action_type,omitempty" vd:"$ in [0,1]"`
+	ActionType *ActionRelationType `thrift:"action_type,2,optional,ActionRelationType" form:"action_type" json:"action_type,omitempty" vd:"(len($)==0 || ($ in [0,1])"`
 }
 
 func NewActionRelationRequest() *ActionRelationRequest {
@@ -610,8 +610,8 @@ func (p *ActionRelationResponse) String() string {
 // 关注列表
 type ListFollowingRequest struct {
 	UserID   string `thrift:"user_id,1" json:"user_id" query:"user_id" vd:"(len($) > 0 && len($) < 100)"`
-	PageNum  *int64 `thrift:"page_num,2,optional" json:"page_num,omitempty" query:"page_num" vd:"( $ > 0 )"`
-	PageSize *int64 `thrift:"page_size,3,optional" json:"page_size,omitempty" query:"page_size" vd:"( $ > 0 && $ < 100 )"`
+	PageNum  *int64 `thrift:"page_num,2,optional" json:"page_num,omitempty" query:"page_num" vd:"(len($)==0 || ( $ > 0 )"`
+	PageSize *int64 `thrift:"page_size,3,optional" json:"page_size,omitempty" query:"page_size" vd:"(len($)==0 || ( $ > 0 && $ < 100 )"`
 }
 
 func NewListFollowingRequest() *ListFollowingRequest {
@@ -865,8 +865,8 @@ func (p *ListFollowingRequest) String() string {
 // 粉丝列表
 type ListFollowerRequest struct {
 	UserID   string `thrift:"user_id,1" json:"user_id" query:"user_id" vd:"(len($) > 0 && len($) < 100)"`
-	PageNum  *int64 `thrift:"page_num,2,optional" json:"page_num,omitempty" query:"page_num" vd:"( $ > 0 )"`
-	PageSize *int64 `thrift:"page_size,3,optional" json:"page_size,omitempty" query:"page_size" vd:"( $ > 0 && $ < 100 )"`
+	PageNum  *int64 `thrift:"page_num,2,optional" json:"page_num,omitempty" query:"page_num" vd:"(len($)==0 || ( $ > 0 )"`
+	PageSize *int64 `thrift:"page_size,3,optional" json:"page_size,omitempty" query:"page_size" vd:"(len($)==0 || ( $ > 0 && $ < 100 )"`
 }
 
 func NewListFollowerRequest() *ListFollowerRequest {
@@ -1119,8 +1119,8 @@ func (p *ListFollowerRequest) String() string {
 
 // 好友列表
 type ListFriendsRequest struct {
-	PageNum  *int64 `thrift:"page_num,1,optional" json:"page_num,omitempty" query:"page_num" vd:"( $ > 0 )"`
-	PageSize *int64 `thrift:"page_size,2,optional" json:"page_size,omitempty" query:"page_size" vd:"( $ > 0 && $ < 100 )"`
+	PageNum  *int64 `thrift:"page_num,1,optional" json:"page_num,omitempty" query:"page_num" vd:"(len($)==0 || ( $ > 0 )"`
+	PageSize *int64 `thrift:"page_size,2,optional" json:"page_size,omitempty" query:"page_size" vd:"(len($)==0 || ( $ > 0 && $ < 100 )"`
 }
 
 func NewListFriendsRequest() *ListFriendsRequest {

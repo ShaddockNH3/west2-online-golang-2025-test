@@ -220,7 +220,7 @@ func DeleteComment(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req interact.DeleteCommentRequest
 	err = c.BindAndValidate(&req)
-		if err != nil {
+	if err != nil {
 		resp := new(interact.DeleteCommentResponse)
 		resp.Base = &common.BaseResponse{
 			Code: "-1",

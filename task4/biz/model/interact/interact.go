@@ -55,8 +55,8 @@ func (p *ActionLikeType) Value() (driver.Value, error) {
 }
 
 type ActionLikeRequest struct {
-	VideoID    *string         `thrift:"video_id,1,optional" form:"video_id" json:"video_id,omitempty" vd:"(len($) > 0 && len($) < 100)"`
-	CommentID  *string         `thrift:"comment_id,2,optional" form:"comment_id" json:"comment_id,omitempty" vd:"(len($) > 0 && len($) < 100)"`
+	VideoID    *string         `thrift:"video_id,1,optional" form:"video_id" json:"video_id,omitempty" vd:"(len($)==0 || len($) > 0 && len($) < 100)"`
+	CommentID  *string         `thrift:"comment_id,2,optional" form:"comment_id" json:"comment_id,omitempty" vd:"((len($)==0 || len($) > 0 && len($) < 100)"`
 	ActionType *ActionLikeType `thrift:"action_type,3,optional,ActionLikeType" form:"action_type" json:"action_type,omitempty" vd:"$ in [1,2]"`
 }
 
@@ -467,7 +467,7 @@ func (p *ActionLikeResponse) String() string {
 }
 
 type ListLikeRequest struct {
-	UserID   *string `thrift:"user_id,1,optional" json:"user_id,omitempty" query:"user_id" vd:"(len($) > 0 && len($) < 100)"`
+	UserID   *string `thrift:"user_id,1,optional" json:"user_id,omitempty" query:"user_id" vd:"((len($)==0 || len($) > 0 && len($) < 100)"`
 	PageSize *int64  `thrift:"page_size,2,optional" json:"page_size,omitempty" query:"page_size" vd:"( $ > 0 && $ < 100 )"`
 	PageNum  *int64  `thrift:"page_num,3,optional" json:"page_num,omitempty" query:"page_num" vd:"( $ > 0 )"`
 }
@@ -732,8 +732,8 @@ func (p *ListLikeRequest) String() string {
 }
 
 type ListLikeResponse struct {
-	Base *common.BaseResponse                `thrift:"base,1" form:"base" json:"base" query:"base"`
-	Data *common.VideoDataForPopularResponse `thrift:"data,2" form:"data" json:"data" query:"data"`
+	Base *common.BaseResponse     `thrift:"base,1" form:"base" json:"base" query:"base"`
+	Data *common.LikeListResponse `thrift:"data,2" form:"data" json:"data" query:"data"`
 }
 
 func NewListLikeResponse() *ListLikeResponse {
@@ -752,9 +752,9 @@ func (p *ListLikeResponse) GetBase() (v *common.BaseResponse) {
 	return p.Base
 }
 
-var ListLikeResponse_Data_DEFAULT *common.VideoDataForPopularResponse
+var ListLikeResponse_Data_DEFAULT *common.LikeListResponse
 
-func (p *ListLikeResponse) GetData() (v *common.VideoDataForPopularResponse) {
+func (p *ListLikeResponse) GetData() (v *common.LikeListResponse) {
 	if !p.IsSetData() {
 		return ListLikeResponse_Data_DEFAULT
 	}
@@ -847,7 +847,7 @@ func (p *ListLikeResponse) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 func (p *ListLikeResponse) ReadField2(iprot thrift.TProtocol) error {
-	_field := common.NewVideoDataForPopularResponse()
+	_field := common.NewLikeListResponse()
 	if err := _field.Read(iprot); err != nil {
 		return err
 	}
@@ -931,7 +931,7 @@ func (p *ListLikeResponse) String() string {
 
 // 评论操作
 type PublishCommentRequest struct {
-	VideoID   *string `thrift:"video_id,1,optional" form:"video_id" json:"video_id,omitempty" vd:"(len($) > 0 && len($) < 100)"`
+	VideoID   *string `thrift:"video_id,1,optional" form:"video_id" json:"video_id,omitempty" vd:"((len($)==0 || len($) > 0 && len($) < 100)"`
 	CommentID *string `thrift:"comment_id,2,optional" form:"comment_id" json:"comment_id,omitempty" vd:"(len($) > 0 && len($) < 100)"`
 	Content   *string `thrift:"content,3,optional" form:"content" json:"content,omitempty" vd:"(len($) > 0 && len($) < 100)"`
 }
@@ -1342,8 +1342,8 @@ func (p *PublishCommentResponse) String() string {
 }
 
 type ListCommentRequest struct {
-	VideoID   *string `thrift:"video_id,1,optional" json:"video_id,omitempty" query:"video_id" vd:"(len($) > 0 && len($) < 100)"`
-	CommentID *string `thrift:"comment_id,2,optional" json:"comment_id,omitempty" query:"comment_id" vd:"(len($) > 0 && len($) < 100)"`
+	VideoID   *string `thrift:"video_id,1,optional" json:"video_id,omitempty" query:"video_id" vd:"((len($)==0 || len($) > 0 && len($) < 100)"`
+	CommentID *string `thrift:"comment_id,2,optional" json:"comment_id,omitempty" query:"comment_id" vd:"((len($)==0 || len($) > 0 && len($) < 100)"`
 	PageSize  *int64  `thrift:"page_size,3,optional" json:"page_size,omitempty" query:"page_size" vd:"( $ > 0 && $ < 100 )"`
 	PageNum   *int64  `thrift:"page_num,4,optional" json:"page_num,omitempty" query:"page_num" vd:"( $ > 0 )"`
 }
@@ -1862,8 +1862,8 @@ func (p *ListCommentResponse) String() string {
 }
 
 type DeleteCommentRequest struct {
-	VideoID   *string `thrift:"video_id,1,optional" form:"video_id" json:"video_id,omitempty" vd:"(len($) > 0 && len($) < 100)"`
-	CommentID *string `thrift:"comment_id,2,optional" form:"comment_id" json:"comment_id,omitempty" vd:"(len($) > 0 && len($) < 100)"`
+	VideoID   *string `thrift:"video_id,1,optional" form:"video_id" json:"video_id,omitempty" vd:"((len($)==0 || len($) > 0 && len($) < 100)"`
+	CommentID *string `thrift:"comment_id,2,optional" form:"comment_id" json:"comment_id,omitempty" vd:"((len($)==0 || len($) > 0 && len($) < 100)"`
 }
 
 func NewDeleteCommentRequest() *DeleteCommentRequest {

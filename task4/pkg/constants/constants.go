@@ -21,8 +21,9 @@ const (
 const (
 	UserTableName    = "users"
 	VideosTableName  = "videos"
-	CommentTableName = "comments"
-	FollowsTableName = "follows"
+	LikesTableName   = "likes"
+	CommentsTableName = "comments"
+	FollowsTableName  = "follows"
 )
 
 const (

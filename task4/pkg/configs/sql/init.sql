@@ -39,6 +39,22 @@ CREATE TABLE `videos` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='视频表';
 
 -- ----------------------------
+-- Table structure for likes
+-- ----------------------------
+DROP TABLE IF EXISTS `likes`;
+CREATE TABLE `likes` (
+  `id` varchar(100) COLLATE utf8mb4_general_ci NOT NULL COMMENT '点赞ID (UUID)',
+  `user_id` varchar(100) COLLATE utf8mb4_general_ci NOT NULL COMMENT '点赞用户ID',
+  `likeable_id` varchar(100) COLLATE utf8mb4_general_ci NOT NULL COMMENT '被点赞对象ID (视频ID或评论ID)',
+  `likeable_type` enum('video','comment') COLLATE utf8mb4_general_ci NOT NULL COMMENT '被点赞对象类型 (video: 视频, comment: 评论)',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted_at` timestamp NULL DEFAULT NULL COMMENT '删除时间 (软删除)',
+  PRIMARY KEY (`id`),
+  KEY `idx_user_id` (`user_id`) USING BTREE COMMENT '点赞用户ID索引'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='点赞表';
+
+-- ----------------------------
 -- Table structure for comments
 -- ----------------------------
 DROP TABLE IF EXISTS `comments`;

@@ -5,12 +5,14 @@ package main
 import (
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/dal/db"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/mw/jwt"
+	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/mw/redis"
 	"github.com/cloudwego/hertz/pkg/app/server"
 )
 
 func main() {
 	db.Init()
 	jwt.InitJwt()
+	redis.InitRedis()
 
 	h := server.New(
 		server.WithMaxRequestBodySize(20 * 1024 * 1024), // 20MB

@@ -16,7 +16,7 @@ func Likes(models []db.LikeItems) []*common.LikeVideoDTO {
 func Like(model db.LikeItems) *common.LikeVideoDTO {
 	var deleteAtStr string
 
-	video, err := db.QueryVideosByUserIDLike(model.LikeableID)
+	video, err := db.GetVideosByIDLike(model.LikeableID)
 	if err != nil {
 		return &common.LikeVideoDTO{}
 	}
@@ -38,5 +38,34 @@ func Like(model db.LikeItems) *common.LikeVideoDTO {
 		CreatedAt:    model.CreatedAt,
 		UpdatedAt:    model.UpdatedAt,
 		DeletedAt:    deleteAtStr,
+	}
+}
+
+func Comments(models []db.CommentItems) []*common.CommentItems {
+	comments := make([]*common.CommentItems, 0, len(models))
+	for _, m := range models {
+		comments = append(comments, Comment(m))
+	}
+	return comments
+}
+
+func Comment(model db.CommentItems) *common.CommentItems {
+	var deleteAtStr string
+
+	if model.DeletedAt.Valid {
+		deleteAtStr = model.DeletedAt.Time.Format("2006-01-02 15:04:05")
+	}
+
+	return &common.CommentItems{
+		ID:         model.ID,
+		UserID:     model.UserId,
+		VideoID:    model.VideoId,
+		ParentID:   model.ParentId,
+		LikeCount:  model.LikeCount,
+		ChildCount: model.ChildCount,
+		Content:    model.Content,
+		CreateAt:   model.CreateAt,
+		UpdateAt:   model.UpdateAt,
+		DeleteAt:   deleteAtStr,
 	}
 }

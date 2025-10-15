@@ -3225,8 +3225,8 @@ type CommentItems struct {
 	UserID     string `thrift:"user_id,2" form:"user_id" json:"user_id" query:"user_id"`
 	VideoID    string `thrift:"video_id,3" form:"video_id" json:"video_id" query:"video_id"`
 	ParentID   string `thrift:"parent_id,4" form:"parent_id" json:"parent_id" query:"parent_id"`
-	LikeCount  string `thrift:"like_count,5" form:"like_count" json:"like_count" query:"like_count"`
-	ChildCount string `thrift:"child_count,6" form:"child_count" json:"child_count" query:"child_count"`
+	LikeCount  int64  `thrift:"like_count,5" form:"like_count" json:"like_count" query:"like_count"`
+	ChildCount int64  `thrift:"child_count,6" form:"child_count" json:"child_count" query:"child_count"`
 	Content    string `thrift:"content,7" form:"content" json:"content" query:"content"`
 	CreateAt   string `thrift:"create_at,8" form:"create_at" json:"create_at" query:"create_at"`
 	UpdateAt   string `thrift:"update_at,9" form:"update_at" json:"update_at" query:"update_at"`
@@ -3256,11 +3256,11 @@ func (p *CommentItems) GetParentID() (v string) {
 	return p.ParentID
 }
 
-func (p *CommentItems) GetLikeCount() (v string) {
+func (p *CommentItems) GetLikeCount() (v int64) {
 	return p.LikeCount
 }
 
-func (p *CommentItems) GetChildCount() (v string) {
+func (p *CommentItems) GetChildCount() (v int64) {
 	return p.ChildCount
 }
 
@@ -3345,7 +3345,7 @@ func (p *CommentItems) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 5:
-			if fieldTypeId == thrift.STRING {
+			if fieldTypeId == thrift.I64 {
 				if err = p.ReadField5(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -3353,7 +3353,7 @@ func (p *CommentItems) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 6:
-			if fieldTypeId == thrift.STRING {
+			if fieldTypeId == thrift.I64 {
 				if err = p.ReadField6(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -3467,8 +3467,8 @@ func (p *CommentItems) ReadField4(iprot thrift.TProtocol) error {
 }
 func (p *CommentItems) ReadField5(iprot thrift.TProtocol) error {
 
-	var _field string
-	if v, err := iprot.ReadString(); err != nil {
+	var _field int64
+	if v, err := iprot.ReadI64(); err != nil {
 		return err
 	} else {
 		_field = v
@@ -3478,8 +3478,8 @@ func (p *CommentItems) ReadField5(iprot thrift.TProtocol) error {
 }
 func (p *CommentItems) ReadField6(iprot thrift.TProtocol) error {
 
-	var _field string
-	if v, err := iprot.ReadString(); err != nil {
+	var _field int64
+	if v, err := iprot.ReadI64(); err != nil {
 		return err
 	} else {
 		_field = v
@@ -3665,10 +3665,10 @@ WriteFieldEndError:
 }
 
 func (p *CommentItems) writeField5(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("like_count", thrift.STRING, 5); err != nil {
+	if err = oprot.WriteFieldBegin("like_count", thrift.I64, 5); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.LikeCount); err != nil {
+	if err := oprot.WriteI64(p.LikeCount); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -3682,10 +3682,10 @@ WriteFieldEndError:
 }
 
 func (p *CommentItems) writeField6(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("child_count", thrift.STRING, 6); err != nil {
+	if err = oprot.WriteFieldBegin("child_count", thrift.I64, 6); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.ChildCount); err != nil {
+	if err := oprot.WriteI64(p.ChildCount); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {

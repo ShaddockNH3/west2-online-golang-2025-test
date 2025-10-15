@@ -88,8 +88,8 @@ struct CommentItems{
     2: string user_id
     3: string video_id
     4: string parent_id
-    5: string like_count
-    6: string child_count
+    5: i64 like_count
+    6: i64 child_count
     7: string content 
     8: string create_at
     9: string update_at

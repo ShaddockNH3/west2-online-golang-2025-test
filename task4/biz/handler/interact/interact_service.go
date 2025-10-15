@@ -99,6 +99,17 @@ func ListLike(ctx context.Context, c *app.RequestContext) {
 
 	resp := new(interact.ListLikeResponse)
 
+	if err != nil {
+		e := errno.ConvertErr(err)
+
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  e.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
 	resp.Base = &common.BaseResponse{
 		Code: fmt.Sprintf("%d", errno.Success.ErrCode), // 10000
 		Msg:  errno.Success.ErrMsg,                     // "success"
@@ -117,11 +128,45 @@ func PublishComment(ctx context.Context, c *app.RequestContext) {
 	var req interact.PublishCommentRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		resp := new(interact.PublishCommentResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  err.Error(),
+		}
+		c.JSON(consts.StatusOK, resp)
 		return
 	}
 
+	currentUserID, exists := c.Get(constants.ContextCurrentUserKey)
+	if !exists {
+		resp := new(interact.PublishCommentResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  errno.UnableToRetrieveUserInfoErr.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	interactService := interact_service.NewInteractService(ctx)
+	err = interactService.PublishComment(currentUserID.(string), &req)
+
 	resp := new(interact.PublishCommentResponse)
+
+	if err != nil {
+		e := errno.ConvertErr(err)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  e.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	resp.Base = &common.BaseResponse{
+		Code: fmt.Sprintf("%d", errno.Success.ErrCode), // 10000
+		Msg:  errno.Success.ErrMsg,                     // "success"
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -133,11 +178,38 @@ func ListComment(ctx context.Context, c *app.RequestContext) {
 	var req interact.ListCommentRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		resp := new(interact.ListCommentResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  err.Error(),
+		}
+		c.JSON(consts.StatusOK, resp)
 		return
 	}
 
+	interactService := interact_service.NewInteractService(ctx)
+	comments, err := interactService.ListComment(&req)
+
 	resp := new(interact.ListCommentResponse)
+
+	if err != nil {
+		e := errno.ConvertErr(err)
+
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  e.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	resp.Base = &common.BaseResponse{
+		Code: fmt.Sprintf("%d", errno.Success.ErrCode), // 10000
+		Msg:  errno.Success.ErrMsg,                     // "success"
+	}
+	resp.Data = &common.CommentDataForListResponse{
+		Items: pack.Comments(comments),
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -148,12 +220,35 @@ func DeleteComment(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req interact.DeleteCommentRequest
 	err = c.BindAndValidate(&req)
-	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		if err != nil {
+		resp := new(interact.DeleteCommentResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  err.Error(),
+		}
+		c.JSON(consts.StatusOK, resp)
 		return
 	}
 
+	interactService := interact_service.NewInteractService(ctx)
+	err = interactService.DeleteComment(&req)
+
 	resp := new(interact.DeleteCommentResponse)
+
+	if err != nil {
+		e := errno.ConvertErr(err)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  e.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	resp.Base = &common.BaseResponse{
+		Code: fmt.Sprintf("%d", errno.Success.ErrCode), // 10000
+		Msg:  errno.Success.ErrMsg,                     // "success"
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }

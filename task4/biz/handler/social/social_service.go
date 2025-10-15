@@ -4,8 +4,13 @@ package social
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/model/common"
 	social "github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/model/social"
+	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/service/social_service"
+	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/pkg/constants"
+	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/pkg/errno"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 )
@@ -17,11 +22,46 @@ func ActionRelation(ctx context.Context, c *app.RequestContext) {
 	var req social.ActionRelationRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		resp := new(social.ActionRelationResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  err.Error(),
+		}
+		c.JSON(consts.StatusOK, resp)
 		return
 	}
 
+	currentUserID, exists := c.Get(constants.ContextCurrentUserKey)
+	if !exists {
+		resp := new(social.ActionRelationResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  errno.UnableToRetrieveUserInfoErr.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	socialService := social_service.NewSocialService(ctx)
+	err = socialService.ActionRelation(currentUserID.(string), &req)
+
 	resp := new(social.ActionRelationResponse)
+
+	if err != nil {
+		e := errno.ConvertErr(err)
+
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  e.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	resp.Base = &common.BaseResponse{
+		Code: fmt.Sprintf("%d", errno.Success.ErrCode), // 10000
+		Msg:  errno.Success.ErrMsg,                     // "success"
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -33,11 +73,39 @@ func ListFollowing(ctx context.Context, c *app.RequestContext) {
 	var req social.ListFollowingRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		resp := new(social.SocialResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  err.Error(),
+		}
+		c.JSON(consts.StatusOK, resp)
 		return
 	}
 
+	socialService := social_service.NewSocialService(ctx)
+	social_list, err := socialService.GetFollowList(&req)
+
 	resp := new(social.SocialResponse)
+
+	if err != nil {
+		e := errno.ConvertErr(err)
+
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  e.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	resp.Base = &common.BaseResponse{
+		Code: fmt.Sprintf("%d", errno.Success.ErrCode), // 10000
+		Msg:  errno.Success.ErrMsg,                     // "success"
+	}
+	resp.Data = &common.SocialDataForListResponse{
+		Items: social_list,
+		Total: int64(len(social_list)),
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -49,11 +117,39 @@ func ListFollower(ctx context.Context, c *app.RequestContext) {
 	var req social.ListFollowerRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		resp := new(social.SocialResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  err.Error(),
+		}
+		c.JSON(consts.StatusOK, resp)
 		return
 	}
 
+	socialService := social_service.NewSocialService(ctx)
+	social_list, err := socialService.GetFollowerList(&req)
+
 	resp := new(social.SocialResponse)
+
+	if err != nil {
+		e := errno.ConvertErr(err)
+
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  e.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	resp.Base = &common.BaseResponse{
+		Code: fmt.Sprintf("%d", errno.Success.ErrCode), // 10000
+		Msg:  errno.Success.ErrMsg,                     // "success"
+	}
+	resp.Data = &common.SocialDataForListResponse{
+		Items: social_list,
+		Total: int64(len(social_list)),
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -65,11 +161,50 @@ func ListFriends(ctx context.Context, c *app.RequestContext) {
 	var req social.ListFriendsRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		resp := new(social.SocialResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  err.Error(),
+		}
+		c.JSON(consts.StatusOK, resp)
 		return
 	}
 
+	currentUserID, exists := c.Get(constants.ContextCurrentUserKey)
+	if !exists {
+		resp := new(social.ActionRelationResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  errno.UnableToRetrieveUserInfoErr.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	socialService := social_service.NewSocialService(ctx)
+	social_list, err := socialService.GetFriendList(currentUserID.(string), &req)
+
 	resp := new(social.SocialResponse)
+
+	if err != nil {
+		e := errno.ConvertErr(err)
+
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  e.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	resp.Base = &common.BaseResponse{
+		Code: fmt.Sprintf("%d", errno.Success.ErrCode), // 10000
+		Msg:  errno.Success.ErrMsg,                     // "success"
+	}
+	resp.Data = &common.SocialDataForListResponse{
+		Items: social_list,
+		Total: int64(len(social_list)),
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }

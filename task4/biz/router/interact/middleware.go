@@ -3,6 +3,9 @@
 package interact
 
 import (
+	"context"
+
+	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/mw/jwt"
 	"github.com/cloudwego/hertz/pkg/app"
 )
 
@@ -22,18 +25,24 @@ func _commentMw() []app.HandlerFunc {
 }
 
 func _deletecommentMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	return []app.HandlerFunc{
+		TokenTransferMiddleware(),
+		jwt.JwtMiddleware.MiddlewareFunc(),
+	}
 }
 
 func _listcommentMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	return []app.HandlerFunc{
+		TokenTransferMiddleware(),
+		jwt.JwtMiddleware.MiddlewareFunc(),
+	}
 }
 
 func _publishcommentMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	return []app.HandlerFunc{
+		TokenTransferMiddleware(),
+		jwt.JwtMiddleware.MiddlewareFunc(),
+	}
 }
 
 func _likeMw() []app.HandlerFunc {
@@ -42,11 +51,27 @@ func _likeMw() []app.HandlerFunc {
 }
 
 func _actionlikeMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	return []app.HandlerFunc{
+		TokenTransferMiddleware(),
+		jwt.JwtMiddleware.MiddlewareFunc(),
+	}
 }
 
 func _listlikeMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	return []app.HandlerFunc{
+		TokenTransferMiddleware(),
+		jwt.JwtMiddleware.MiddlewareFunc(),
+	}
+}
+
+func TokenTransferMiddleware() app.HandlerFunc {
+	return func(c context.Context, ctx *app.RequestContext) {
+		accessToken := string(ctx.Request.Header.Peek("Access-Token"))
+
+		if accessToken != "" {
+			ctx.Request.Header.Set("Authorization", "Bearer "+accessToken)
+		}
+
+		ctx.Next(c)
+	}
 }

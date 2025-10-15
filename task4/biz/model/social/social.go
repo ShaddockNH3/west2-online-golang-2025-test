@@ -253,7 +253,7 @@ func (p *SocialResponse) String() string {
 
 // 关注操作
 type ActionRelationRequest struct {
-	ToUserID   *string             `thrift:"to_user_id,1,optional" form:"user_id" json:"to_user_id,omitempty" vd:"(len($) > 0 && len($) < 100)"`
+	ToUserID   *string             `thrift:"to_user_id,1,optional" form:"user_id" json:"to_user_id,omitempty" vd:"(len($)==0 || len($) > 0 && len($) < 100)"`
 	ActionType *ActionRelationType `thrift:"action_type,2,optional,ActionRelationType" form:"action_type" json:"action_type,omitempty" vd:"$ in [0,1]"`
 }
 

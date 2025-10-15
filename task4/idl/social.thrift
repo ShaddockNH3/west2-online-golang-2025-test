@@ -14,7 +14,7 @@ struct SocialResponse{
 
 // 关注操作
 struct ActionRelationRequest{
-    1: optional string to_user_id (api.form="user_id", api.vd="(len($) > 0 && len($) < 100)")
+    1: optional string to_user_id (api.form="user_id", api.vd="(len($)==0 || len($) > 0 && len($) < 100)")
     2: optional ActionRelationType action_type (api.form="action_type", api.vd="$ in [0,1]")
 }
 

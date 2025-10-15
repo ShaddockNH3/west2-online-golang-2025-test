@@ -3936,9 +3936,18 @@ func (p *CommentDataForListResponse) String() string {
 
 // social
 type SocialItems struct {
-	ID       string `thrift:"id,1" form:"id" json:"id" query:"id"`
-	UserID   string `thrift:"user_id,2" form:"user_id" json:"user_id" query:"user_id"`
-	Username string `thrift:"username,3" form:"username" json:"username" query:"username"`
+	// 这里指的是关注关系id
+	ID string `thrift:"id,1" form:"id" json:"id" query:"id"`
+	// 关注者的用户ID
+	FollowerID string `thrift:"follower_id,2" form:"follower_id" json:"follower_id" query:"follower_id"`
+	// 被关注者的用户ID
+	FollowedID string `thrift:"followed_id,3" form:"followed_id" json:"followed_id" query:"followed_id"`
+	// 创建时间
+	CreatedAt string `thrift:"created_at,4" form:"created_at" json:"created_at" query:"created_at"`
+	// 更新时间
+	UpdatedAt string `thrift:"updated_at,5" form:"updated_at" json:"updated_at" query:"updated_at"`
+	// 软删除标记
+	DeletedAt string `thrift:"deleted_at,6" form:"deleted_at" json:"deleted_at" query:"deleted_at"`
 }
 
 func NewSocialItems() *SocialItems {
@@ -3952,21 +3961,388 @@ func (p *SocialItems) GetID() (v string) {
 	return p.ID
 }
 
-func (p *SocialItems) GetUserID() (v string) {
-	return p.UserID
+func (p *SocialItems) GetFollowerID() (v string) {
+	return p.FollowerID
 }
 
-func (p *SocialItems) GetUsername() (v string) {
-	return p.Username
+func (p *SocialItems) GetFollowedID() (v string) {
+	return p.FollowedID
+}
+
+func (p *SocialItems) GetCreatedAt() (v string) {
+	return p.CreatedAt
+}
+
+func (p *SocialItems) GetUpdatedAt() (v string) {
+	return p.UpdatedAt
+}
+
+func (p *SocialItems) GetDeletedAt() (v string) {
+	return p.DeletedAt
 }
 
 var fieldIDToName_SocialItems = map[int16]string{
 	1: "id",
-	2: "user_id",
-	3: "username",
+	2: "follower_id",
+	3: "followed_id",
+	4: "created_at",
+	5: "updated_at",
+	6: "deleted_at",
 }
 
 func (p *SocialItems) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 2:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 3:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField3(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 4:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField4(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 5:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField5(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 6:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField6(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_SocialItems[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *SocialItems) ReadField1(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.ID = _field
+	return nil
+}
+func (p *SocialItems) ReadField2(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.FollowerID = _field
+	return nil
+}
+func (p *SocialItems) ReadField3(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.FollowedID = _field
+	return nil
+}
+func (p *SocialItems) ReadField4(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.CreatedAt = _field
+	return nil
+}
+func (p *SocialItems) ReadField5(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.UpdatedAt = _field
+	return nil
+}
+func (p *SocialItems) ReadField6(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.DeletedAt = _field
+	return nil
+}
+
+func (p *SocialItems) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("SocialItems"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+		if err = p.writeField3(oprot); err != nil {
+			fieldId = 3
+			goto WriteFieldError
+		}
+		if err = p.writeField4(oprot); err != nil {
+			fieldId = 4
+			goto WriteFieldError
+		}
+		if err = p.writeField5(oprot); err != nil {
+			fieldId = 5
+			goto WriteFieldError
+		}
+		if err = p.writeField6(oprot); err != nil {
+			fieldId = 6
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *SocialItems) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("id", thrift.STRING, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.ID); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *SocialItems) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("follower_id", thrift.STRING, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.FollowerID); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *SocialItems) writeField3(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("followed_id", thrift.STRING, 3); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.FollowedID); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
+}
+
+func (p *SocialItems) writeField4(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("created_at", thrift.STRING, 4); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.CreatedAt); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
+}
+
+func (p *SocialItems) writeField5(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("updated_at", thrift.STRING, 5); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.UpdatedAt); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 5 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
+}
+
+func (p *SocialItems) writeField6(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("deleted_at", thrift.STRING, 6); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.DeletedAt); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 6 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 6 end error: ", p), err)
+}
+
+func (p *SocialItems) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("SocialItems(%+v)", *p)
+
+}
+
+type SocialDTO struct {
+	ID        string `thrift:"id,1" form:"id" json:"id" query:"id"`
+	Username  string `thrift:"username,2" form:"username" json:"username" query:"username"`
+	AvatarURL string `thrift:"avatar_url,3" form:"avatar_url" json:"avatar_url" query:"avatar_url"`
+}
+
+func NewSocialDTO() *SocialDTO {
+	return &SocialDTO{}
+}
+
+func (p *SocialDTO) InitDefault() {
+}
+
+func (p *SocialDTO) GetID() (v string) {
+	return p.ID
+}
+
+func (p *SocialDTO) GetUsername() (v string) {
+	return p.Username
+}
+
+func (p *SocialDTO) GetAvatarURL() (v string) {
+	return p.AvatarURL
+}
+
+var fieldIDToName_SocialDTO = map[int16]string{
+	1: "id",
+	2: "username",
+	3: "avatar_url",
+}
+
+func (p *SocialDTO) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -4028,7 +4404,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_SocialItems[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_SocialDTO[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -4038,7 +4414,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *SocialItems) ReadField1(iprot thrift.TProtocol) error {
+func (p *SocialDTO) ReadField1(iprot thrift.TProtocol) error {
 
 	var _field string
 	if v, err := iprot.ReadString(); err != nil {
@@ -4049,18 +4425,7 @@ func (p *SocialItems) ReadField1(iprot thrift.TProtocol) error {
 	p.ID = _field
 	return nil
 }
-func (p *SocialItems) ReadField2(iprot thrift.TProtocol) error {
-
-	var _field string
-	if v, err := iprot.ReadString(); err != nil {
-		return err
-	} else {
-		_field = v
-	}
-	p.UserID = _field
-	return nil
-}
-func (p *SocialItems) ReadField3(iprot thrift.TProtocol) error {
+func (p *SocialDTO) ReadField2(iprot thrift.TProtocol) error {
 
 	var _field string
 	if v, err := iprot.ReadString(); err != nil {
@@ -4071,10 +4436,21 @@ func (p *SocialItems) ReadField3(iprot thrift.TProtocol) error {
 	p.Username = _field
 	return nil
 }
+func (p *SocialDTO) ReadField3(iprot thrift.TProtocol) error {
 
-func (p *SocialItems) Write(oprot thrift.TProtocol) (err error) {
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.AvatarURL = _field
+	return nil
+}
+
+func (p *SocialDTO) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("SocialItems"); err != nil {
+	if err = oprot.WriteStructBegin("SocialDTO"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -4108,7 +4484,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *SocialItems) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *SocialDTO) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("id", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -4125,11 +4501,11 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *SocialItems) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("user_id", thrift.STRING, 2); err != nil {
+func (p *SocialDTO) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("username", thrift.STRING, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.UserID); err != nil {
+	if err := oprot.WriteString(p.Username); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -4142,11 +4518,11 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *SocialItems) writeField3(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("username", thrift.STRING, 3); err != nil {
+func (p *SocialDTO) writeField3(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("avatar_url", thrift.STRING, 3); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.Username); err != nil {
+	if err := oprot.WriteString(p.AvatarURL); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -4159,17 +4535,17 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
 
-func (p *SocialItems) String() string {
+func (p *SocialDTO) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("SocialItems(%+v)", *p)
+	return fmt.Sprintf("SocialDTO(%+v)", *p)
 
 }
 
 type SocialDataForListResponse struct {
-	Items []*SocialItems `thrift:"items,1,default,list<SocialItems>" form:"items" json:"items" query:"items"`
-	Total int64          `thrift:"total,2" form:"total" json:"total" query:"total"`
+	Items []*SocialDTO `thrift:"items,1,default,list<SocialDTO>" form:"items" json:"items" query:"items"`
+	Total int64        `thrift:"total,2" form:"total" json:"total" query:"total"`
 }
 
 func NewSocialDataForListResponse() *SocialDataForListResponse {
@@ -4179,7 +4555,7 @@ func NewSocialDataForListResponse() *SocialDataForListResponse {
 func (p *SocialDataForListResponse) InitDefault() {
 }
 
-func (p *SocialDataForListResponse) GetItems() (v []*SocialItems) {
+func (p *SocialDataForListResponse) GetItems() (v []*SocialDTO) {
 	return p.Items
 }
 
@@ -4261,8 +4637,8 @@ func (p *SocialDataForListResponse) ReadField1(iprot thrift.TProtocol) error {
 	if err != nil {
 		return err
 	}
-	_field := make([]*SocialItems, 0, size)
-	values := make([]SocialItems, size)
+	_field := make([]*SocialDTO, 0, size)
+	values := make([]SocialDTO, size)
 	for i := 0; i < size; i++ {
 		_elem := &values[i]
 		_elem.InitDefault()

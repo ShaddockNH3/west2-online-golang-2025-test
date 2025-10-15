@@ -79,17 +79,17 @@ CREATE TABLE `comments` (
 -- ----------------------------
 DROP TABLE IF EXISTS `follows`;
 CREATE TABLE `follows` (
-  `id` varchar(100) COLLATE utf8mb4_general_ci NOT NULL COMMENT '关系ID (UUID)',
-  `user_id` varchar(100) COLLATE utf8mb4_general_ci NOT NULL COMMENT '被关注用户ID',
-  `follower_id` varchar(100) COLLATE utf8mb4_general_ci NOT NULL COMMENT '关注用户ID (粉丝ID)',
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `deleted_at` timestamp NULL DEFAULT NULL COMMENT '删除时间 (软删除)',
+  `id`          varchar(100) NOT NULL COMMENT '关注关系ID (UUID)',
+  `follower_id` varchar(100) NOT NULL COMMENT '关注者的用户ID (比如''我''的ID)',
+  `followed_id` varchar(100) NOT NULL COMMENT '被关注者的用户ID (比如''对方''的ID)',
+  `created_at`  datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at`  datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted_at`  datetime     DEFAULT NULL COMMENT '软删除标记',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uniq_user_follower` (`user_id`,`follower_id`) USING BTREE COMMENT '关注关系唯一索引',
-  KEY `idx_user_id` (`user_id`) USING BTREE,
-  KEY `idx_follower_id` (`follower_id`) USING BTREE
+  UNIQUE KEY `uniq_follow_pair` (`follower_id`, `followed_id`),
+  KEY `idx_follower` (`follower_id`),
+  KEY `idx_followed` (`followed_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='关注关系表';
 
 
 SET FOREIGN_KEY_CHECKS = 1;
-

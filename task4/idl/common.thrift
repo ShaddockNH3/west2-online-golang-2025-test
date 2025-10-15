@@ -103,12 +103,21 @@ struct CommentDataForListResponse{
 // social
 
 struct SocialItems{
+    1: string id // 这里指的是关注关系id
+    2: string follower_id // 关注者的用户ID
+    3: string followed_id // 被关注者的用户ID
+    4: string created_at // 创建时间
+    5: string updated_at // 更新时间
+    6: string deleted_at // 软删除标记
+}
+
+struct SocialDTO{
     1: string id
-    2: string user_id
-    3: string username
+    2: string username
+    3: string avatar_url
 }
 
 struct SocialDataForListResponse{
-    1: list<SocialItems> items
+    1: list<SocialDTO> items
     2: i64 total
 }

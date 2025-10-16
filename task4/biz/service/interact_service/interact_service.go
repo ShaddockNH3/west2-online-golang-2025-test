@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/dal/db"
+	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/model/common"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/model/interact"
 	"github.com/google/uuid"
 )
@@ -22,10 +23,6 @@ func (s *InteractService) ActionLike(userID string, req *interact.ActionLikeRequ
 
 	if req.CommentID == nil && req.VideoID == nil {
 		return errors.New("comment_id and video_id cannot both be nil")
-	}
-
-	if *req.CommentID == "" && *req.VideoID == "" {
-		return errors.New("comment_id and video_id cannot both be empty")
 	}
 
 	if req.CommentID != nil && req.VideoID != nil {
@@ -57,7 +54,7 @@ func (s *InteractService) ActionLike(userID string, req *interact.ActionLikeRequ
 	return nil
 }
 
-func (s *InteractService) ListLike(userID string, req *interact.ListLikeRequest) ([]db.LikeItems, error) {
+func (s *InteractService) ListLike(userID string, req *interact.ListLikeRequest) (*[]common.LikeVideoDTO, error) {
 	var err error
 	var currentPageSize, currentPageNum int64
 
@@ -73,7 +70,7 @@ func (s *InteractService) ListLike(userID string, req *interact.ListLikeRequest)
 		currentPageSize = *req.PageSize
 	}
 
-	likes, err := db.QueryVideosByUserID(userID, currentPageSize, currentPageNum)
+	likes, err := db.QueryVideosByUserID(userID, currentPageNum, currentPageSize)
 	if err != nil {
 		return nil, err
 	}
@@ -87,10 +84,6 @@ func (s *InteractService) PublishComment(userID string, req *interact.PublishCom
 
 	if req.VideoID == nil && req.CommentID == nil {
 		return errors.New("video_id and comment_id cannot both be nil")
-	}
-
-	if *req.VideoID == "" && *req.CommentID == "" {
-		return errors.New("video_id and comment_id cannot both be empty")
 	}
 
 	if req.VideoID != nil && req.CommentID != nil {
@@ -135,10 +128,6 @@ func (s *InteractService) ListComment(req *interact.ListCommentRequest) ([]db.Co
 		return nil, errors.New("video_id and comment_id cannot both be nil")
 	}
 
-	if *req.VideoID == "" && *req.CommentID == "" {
-		return nil, errors.New("video_id and comment_id cannot both be empty")
-	}
-
 	if req.VideoID != nil && req.CommentID != nil {
 		return nil, errors.New("video_id and comment_id cannot both be set")
 	}
@@ -159,7 +148,7 @@ func (s *InteractService) ListComment(req *interact.ListCommentRequest) ([]db.Co
 	var id string
 	var comments []db.CommentItems
 
-	if req.VideoID != nil && *req.VideoID != "" {
+	if req.VideoID != nil {
 		id = *req.VideoID
 		comments, err = db.QueryCommentsByVideoID(id, currentPageSize, currentPageNum)
 	} else if req.CommentID != nil && *req.CommentID != "" {

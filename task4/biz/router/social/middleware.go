@@ -20,10 +20,8 @@ func _v1Mw() []app.HandlerFunc {
 }
 
 func _followerMw() []app.HandlerFunc {
-	return []app.HandlerFunc{
-		TokenTransferMiddleware(),
-		jwt.JwtMiddleware.MiddlewareFunc(),
-	}
+	// your code...
+	return nil
 }
 
 func _listfollowerMw() []app.HandlerFunc {
@@ -59,8 +57,10 @@ func _relationMw() []app.HandlerFunc {
 }
 
 func _actionrelationMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	return []app.HandlerFunc{
+		TokenTransferMiddleware(),
+		jwt.JwtMiddleware.MiddlewareFunc(),
+	}
 }
 
 func TokenTransferMiddleware() app.HandlerFunc {

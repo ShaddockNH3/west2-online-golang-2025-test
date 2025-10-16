@@ -83,19 +83,26 @@ func ListLike(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	currentUserID, exists := c.Get(constants.ContextCurrentUserKey)
-	if !exists {
-		resp := new(interact.ListLikeResponse)
-		resp.Base = &common.BaseResponse{
-			Code: "-1",
-			Msg:  errno.UnableToRetrieveUserInfoErr.ErrMsg,
+	var currentUserID string
+
+	if req.UserID != nil {
+		currentUserID = *req.UserID
+	} else {
+		currentID, exists := c.Get(constants.ContextCurrentUserKey)
+		if !exists {
+			resp := new(interact.ListLikeResponse)
+			resp.Base = &common.BaseResponse{
+				Code: "-1",
+				Msg:  errno.UnableToRetrieveUserInfoErr.ErrMsg,
+			}
+			c.JSON(consts.StatusOK, resp)
+			return
 		}
-		c.JSON(consts.StatusOK, resp)
-		return
+		currentUserID = currentID.(string)
 	}
 
 	interactService := interact_service.NewInteractService(ctx)
-	likes, err := interactService.ListLike(currentUserID.(string), &req)
+	likes, err := interactService.ListLike(currentUserID, &req)
 
 	resp := new(interact.ListLikeResponse)
 
@@ -110,12 +117,23 @@ func ListLike(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
+	var items []*common.LikeVideoDTO
+	if likes != nil {
+		vals := *likes
+		items = make([]*common.LikeVideoDTO, len(vals))
+		for i := range vals {
+			items[i] = &vals[i]
+		}
+	} else {
+		items = []*common.LikeVideoDTO{}
+	}
+
 	resp.Base = &common.BaseResponse{
 		Code: fmt.Sprintf("%d", errno.Success.ErrCode), // 10000
 		Msg:  errno.Success.ErrMsg,                     // "success"
 	}
 	resp.Data = &common.LikeListResponse{
-		Items: pack.Likes(likes),
+		Items: items,
 	}
 
 	c.JSON(consts.StatusOK, resp)

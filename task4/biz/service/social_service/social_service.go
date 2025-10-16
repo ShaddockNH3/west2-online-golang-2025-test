@@ -19,7 +19,7 @@ func NewSocialService(ctx context.Context) *SocialService {
 func (s *SocialService) ActionRelation(userID string, req *social.ActionRelationRequest) error {
 	var err error
 
-	err = db.UpdateRelation(userID, *req.ToUserID, int64(*req.ActionType))
+	err = db.UpdateRelation(userID, req.ToUserID, req.ActionType)
 	if err != nil {
 		return err
 	}
@@ -80,12 +80,12 @@ func (s *SocialService) GetFriendList(userID string, req *social.ListFriendsRequ
 	// 设置页面参数
 	if req.PageNum == nil || *req.PageNum <= 0 {
 		currentPageNum = 1
-	}else {
+	} else {
 		currentPageNum = *req.PageNum
 	}
 	if req.PageSize == nil || *req.PageSize <= 0 {
 		currentPageSize = 10
-	}else {
+	} else {
 		currentPageSize = *req.PageSize
 	}
 

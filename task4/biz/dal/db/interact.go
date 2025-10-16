@@ -4,9 +4,10 @@ import (
 	"errors"
 	"time"
 
+	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/model/common"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/pkg/constants"
 	"github.com/google/uuid"
-	"gorm.io/gorm"	
+	"gorm.io/gorm"
 )
 
 type LikeItems struct {
@@ -16,8 +17,8 @@ type LikeItems struct {
 	LikeableID   string `gorm:"index"` // 被点赞对象视频ID或评论ID
 	LikeableType string `gorm:"index"` // 被点赞对象的类型 "video" 或 "comment"
 
-	CreatedAt time.Time         // create_at
-	UpdatedAt time.Time         // update_at
+	CreatedAt time.Time      // create_at
+	UpdatedAt time.Time      // update_at
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
 
@@ -94,7 +95,10 @@ func UpdateLike(likeableID, likeableType, userID string, likeType int64) error {
 	if err != nil && err == gorm.ErrRecordNotFound {
 		if likeType == 1 { // 想点赞
 			// 创建一个新的
-			return CreateLike(likeableID, likeableType, userID)
+			err = CreateLike(likeableID, likeableType, userID)
+			if err != nil {
+				return err
+			}
 		}
 		if likeType == 2 { // 想取消赞
 			// 本来就没有，不需要操作
@@ -114,7 +118,10 @@ func UpdateLike(likeableID, likeableType, userID string, likeType int64) error {
 		}
 		if likeType == 2 { // 想取消赞
 			// 软删除
-			return DB.Where("id = ?", likeRecord.ID).Delete(&LikeItems{}).Error
+			err = DB.Where("id = ?", likeRecord.ID).Delete(&LikeItems{}).Error
+			if err != nil {
+				return err
+			}
 		}
 	}
 
@@ -122,7 +129,10 @@ func UpdateLike(likeableID, likeableType, userID string, likeType int64) error {
 	if likeRecord.DeletedAt.Valid {
 		if likeType == 1 {
 			// 把 deleted_at 变回 null
-			return DB.Unscoped().Model(&LikeItems{}).Where("id = ?", likeRecord.ID).Update("deleted_at", nil).Error
+			err = DB.Unscoped().Model(&LikeItems{}).Where("id = ?", likeRecord.ID).Update("deleted_at", nil).Error
+			if err != nil {
+				return err
+			}
 		}
 		if likeType == 2 { // 想取消赞
 			return errors.New("not liked yet")
@@ -169,26 +179,55 @@ func UpdateLike(likeableID, likeableType, userID string, likeType int64) error {
 	return nil
 }
 
-func QueryVideosByUserID(userID string, page, pageSize int64) ([]LikeItems, error) {
-	var likes []LikeItems
-	if err := DB.Where("user_id = ?", userID).Find(&likes).Error; err != nil {
+func QueryVideosByUserID(userID string, page, pageSize int64) (*[]common.LikeVideoDTO, error) {
+	var videos []VideoItems
+
+	tx := DB.Debug().Model(&VideoItems{}).
+		Joins("INNER JOIN likes ON likes.likeable_id = videos.id").
+		Where("likes.user_id = ? AND likes.likeable_type = ?", userID, "video").
+		Order("likes.created_at DESC").
+		Limit(int(pageSize)).
+		Offset(int(pageSize * (page - 1))).
+		Find(&videos)
+
+	if err := tx.Error; err != nil {
 		return nil, err
 	}
 
-	if err := DB.Limit(int(pageSize)).Offset(int(pageSize * (page - 1))).Find(&likes).Error; err != nil {
-		return nil, err
+	likeVideoDTOs := make([]common.LikeVideoDTO, 0, len(videos))
+	for _, video := range videos {
+		var deleteAtStr string
+		if video.DeletedAt.Valid {
+			deleteAtStr = video.DeletedAt.Time.Format("2006-01-02 15:04:05")
+		}
+
+		likeVideoDTOs = append(likeVideoDTOs, common.LikeVideoDTO{
+			ID:           video.ID,
+			UserID:       video.UserID,
+			VideoURL:     video.VideoURL,
+			CoverURL:     video.CoverURL,
+			Title:        video.Title,
+			Description:  video.Description,
+			VisitCount:   video.VisitCount,
+			LikeCount:    video.LikeCount,
+			CommentCount: video.CommentCount,
+			CreatedAt:    video.CreatedAt.Format("2006-01-02 15:04:05"),
+			UpdatedAt:    video.UpdatedAt.Format("2006-01-02 15:04:05"),
+			DeletedAt:    deleteAtStr,
+		})
 	}
 
-	return likes, nil
+	return &likeVideoDTOs, nil
 }
 
 func QueryCommentsByCommentID(commentID string, page, pageSize int64) ([]CommentItems, error) {
 	var comments []CommentItems
-	if err := DB.Where("parent_id = ?", commentID).Find(&comments).Error; err != nil {
+	tx := DB.Where("parent_id = ?", commentID).Find(&comments)
+	if err := tx.Error; err != nil {
 		return nil, err
 	}
 
-	if err := DB.Limit(int(pageSize)).Offset(int(pageSize * (page - 1))).Find(&comments).Error; err != nil {
+	if err := tx.Limit(int(pageSize)).Offset(int(pageSize * (page - 1))).Find(&comments).Error; err != nil {
 		return nil, err
 	}
 
@@ -197,11 +236,12 @@ func QueryCommentsByCommentID(commentID string, page, pageSize int64) ([]Comment
 
 func QueryCommentsByVideoID(videoID string, page, pageSize int64) ([]CommentItems, error) {
 	var comments []CommentItems
-	if err := DB.Where("video_id = ?", videoID).Find(&comments).Error; err != nil {
+	tx := DB.Where("video_id = ?", videoID).Find(&comments)
+	if err := tx.Error; err != nil {
 		return nil, err
 	}
 
-	if err := DB.Limit(int(pageSize)).Offset(int(pageSize * (page - 1))).Find(&comments).Error; err != nil {
+	if err := tx.Limit(int(pageSize)).Offset(int(pageSize * (page - 1))).Find(&comments).Error; err != nil {
 		return nil, err
 	}
 
@@ -255,11 +295,11 @@ func DeleteCommentByCommentID(commentID string) error {
 }
 
 func DeleteCommentByVideoID(videoID string) error {
-	video,err:=GetVideosByIDLike(videoID)
+	video, err := GetVideosByIDLike(videoID)
 	if err != nil {
 		return err
 	}
-	if video.CommentCount>0{
+	if video.CommentCount > 0 {
 		if err := DB.Model(&VideoItems{}).Where("id = ?", videoID).Update("comment_count", 0).Error; err != nil {
 			return err
 		}

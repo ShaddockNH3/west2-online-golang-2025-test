@@ -42,6 +42,16 @@ func ActionRelation(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
+	if currentUserID.(string) == req.ToUserID {
+		resp := new(social.ActionRelationResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  "cannot follow yourself",
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
 	socialService := social_service.NewSocialService(ctx)
 	err = socialService.ActionRelation(currentUserID.(string), &req)
 

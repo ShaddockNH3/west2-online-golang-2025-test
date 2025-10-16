@@ -4,54 +4,10 @@ package social
 
 import (
 	"context"
-	"database/sql"
-	"database/sql/driver"
 	"fmt"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/model/common"
 	"github.com/apache/thrift/lib/go/thrift"
 )
-
-type ActionRelationType int64
-
-const (
-	ActionRelationType_FOLLOW   ActionRelationType = 0
-	ActionRelationType_UNFOLLOW ActionRelationType = 1
-)
-
-func (p ActionRelationType) String() string {
-	switch p {
-	case ActionRelationType_FOLLOW:
-		return "FOLLOW"
-	case ActionRelationType_UNFOLLOW:
-		return "UNFOLLOW"
-	}
-	return "<UNSET>"
-}
-
-func ActionRelationTypeFromString(s string) (ActionRelationType, error) {
-	switch s {
-	case "FOLLOW":
-		return ActionRelationType_FOLLOW, nil
-	case "UNFOLLOW":
-		return ActionRelationType_UNFOLLOW, nil
-	}
-	return ActionRelationType(0), fmt.Errorf("not a valid ActionRelationType string")
-}
-
-func ActionRelationTypePtr(v ActionRelationType) *ActionRelationType { return &v }
-func (p *ActionRelationType) Scan(value interface{}) (err error) {
-	var result sql.NullInt64
-	err = result.Scan(value)
-	*p = ActionRelationType(result.Int64)
-	return
-}
-
-func (p *ActionRelationType) Value() (driver.Value, error) {
-	if p == nil {
-		return nil, nil
-	}
-	return int64(*p), nil
-}
 
 type SocialResponse struct {
 	Base *common.BaseResponse              `thrift:"base,1" form:"base" json:"base" query:"base"`
@@ -253,8 +209,8 @@ func (p *SocialResponse) String() string {
 
 // 关注操作
 type ActionRelationRequest struct {
-	ToUserID   *string             `thrift:"to_user_id,1,optional" form:"user_id" json:"to_user_id,omitempty" vd:"(len($)==0 || len($) > 0 && len($) < 100)"`
-	ActionType *ActionRelationType `thrift:"action_type,2,optional,ActionRelationType" form:"action_type" json:"action_type,omitempty" vd:"(len($)==0 || ($ in [0,1])"`
+	ToUserID   string `thrift:"to_user_id,1" form:"to_user_id" json:"to_user_id" vd:"len($) > 0 && len($) < 100"`
+	ActionType int64  `thrift:"action_type,2" form:"action_type" json:"action_type" vd:"$==0 || $==1"`
 }
 
 func NewActionRelationRequest() *ActionRelationRequest {
@@ -264,35 +220,17 @@ func NewActionRelationRequest() *ActionRelationRequest {
 func (p *ActionRelationRequest) InitDefault() {
 }
 
-var ActionRelationRequest_ToUserID_DEFAULT string
-
 func (p *ActionRelationRequest) GetToUserID() (v string) {
-	if !p.IsSetToUserID() {
-		return ActionRelationRequest_ToUserID_DEFAULT
-	}
-	return *p.ToUserID
+	return p.ToUserID
 }
 
-var ActionRelationRequest_ActionType_DEFAULT ActionRelationType
-
-func (p *ActionRelationRequest) GetActionType() (v ActionRelationType) {
-	if !p.IsSetActionType() {
-		return ActionRelationRequest_ActionType_DEFAULT
-	}
-	return *p.ActionType
+func (p *ActionRelationRequest) GetActionType() (v int64) {
+	return p.ActionType
 }
 
 var fieldIDToName_ActionRelationRequest = map[int16]string{
 	1: "to_user_id",
 	2: "action_type",
-}
-
-func (p *ActionRelationRequest) IsSetToUserID() bool {
-	return p.ToUserID != nil
-}
-
-func (p *ActionRelationRequest) IsSetActionType() bool {
-	return p.ActionType != nil
 }
 
 func (p *ActionRelationRequest) Read(iprot thrift.TProtocol) (err error) {
@@ -323,7 +261,7 @@ func (p *ActionRelationRequest) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 2:
-			if fieldTypeId == thrift.I32 {
+			if fieldTypeId == thrift.I64 {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -361,23 +299,22 @@ ReadStructEndError:
 
 func (p *ActionRelationRequest) ReadField1(iprot thrift.TProtocol) error {
 
-	var _field *string
+	var _field string
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		_field = &v
+		_field = v
 	}
 	p.ToUserID = _field
 	return nil
 }
 func (p *ActionRelationRequest) ReadField2(iprot thrift.TProtocol) error {
 
-	var _field *ActionRelationType
-	if v, err := iprot.ReadI32(); err != nil {
+	var _field int64
+	if v, err := iprot.ReadI64(); err != nil {
 		return err
 	} else {
-		tmp := ActionRelationType(v)
-		_field = &tmp
+		_field = v
 	}
 	p.ActionType = _field
 	return nil
@@ -416,16 +353,14 @@ WriteStructEndError:
 }
 
 func (p *ActionRelationRequest) writeField1(oprot thrift.TProtocol) (err error) {
-	if p.IsSetToUserID() {
-		if err = oprot.WriteFieldBegin("to_user_id", thrift.STRING, 1); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.ToUserID); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("to_user_id", thrift.STRING, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.ToUserID); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -435,16 +370,14 @@ WriteFieldEndError:
 }
 
 func (p *ActionRelationRequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if p.IsSetActionType() {
-		if err = oprot.WriteFieldBegin("action_type", thrift.I32, 2); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteI32(int32(*p.ActionType)); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("action_type", thrift.I64, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.ActionType); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -610,8 +543,8 @@ func (p *ActionRelationResponse) String() string {
 // 关注列表
 type ListFollowingRequest struct {
 	UserID   string `thrift:"user_id,1" json:"user_id" query:"user_id" vd:"(len($) > 0 && len($) < 100)"`
-	PageNum  *int64 `thrift:"page_num,2,optional" json:"page_num,omitempty" query:"page_num" vd:"(len($)==0 || ( $ > 0 )"`
-	PageSize *int64 `thrift:"page_size,3,optional" json:"page_size,omitempty" query:"page_size" vd:"(len($)==0 || ( $ > 0 && $ < 100 )"`
+	PageNum  *int64 `thrift:"page_num,2,optional" json:"page_num,omitempty" query:"page_num" vd:"(len($) == 0) || ($>=0)"`
+	PageSize *int64 `thrift:"page_size,3,optional" json:"page_size,omitempty" query:"page_size" vd:"(len($) == 0) || ($>=0)"`
 }
 
 func NewListFollowingRequest() *ListFollowingRequest {
@@ -865,8 +798,8 @@ func (p *ListFollowingRequest) String() string {
 // 粉丝列表
 type ListFollowerRequest struct {
 	UserID   string `thrift:"user_id,1" json:"user_id" query:"user_id" vd:"(len($) > 0 && len($) < 100)"`
-	PageNum  *int64 `thrift:"page_num,2,optional" json:"page_num,omitempty" query:"page_num" vd:"(len($)==0 || ( $ > 0 )"`
-	PageSize *int64 `thrift:"page_size,3,optional" json:"page_size,omitempty" query:"page_size" vd:"(len($)==0 || ( $ > 0 && $ < 100 )"`
+	PageNum  *int64 `thrift:"page_num,2,optional" json:"page_num,omitempty" query:"page_num" vd:"(len($) == 0) || ($>=0)"`
+	PageSize *int64 `thrift:"page_size,3,optional" json:"page_size,omitempty" query:"page_size" vd:"(len($) == 0) || ($>=0)"`
 }
 
 func NewListFollowerRequest() *ListFollowerRequest {
@@ -1119,8 +1052,8 @@ func (p *ListFollowerRequest) String() string {
 
 // 好友列表
 type ListFriendsRequest struct {
-	PageNum  *int64 `thrift:"page_num,1,optional" json:"page_num,omitempty" query:"page_num" vd:"(len($)==0 || ( $ > 0 )"`
-	PageSize *int64 `thrift:"page_size,2,optional" json:"page_size,omitempty" query:"page_size" vd:"(len($)==0 || ( $ > 0 && $ < 100 )"`
+	PageNum  *int64 `thrift:"page_num,1,optional" json:"page_num,omitempty" query:"page_num" vd:"(len($) == 0) || ($>=0)"`
+	PageSize *int64 `thrift:"page_size,2,optional" json:"page_size,omitempty" query:"page_size" vd:"(len($) == 0) || ($>=0)"`
 }
 
 func NewListFriendsRequest() *ListFriendsRequest {

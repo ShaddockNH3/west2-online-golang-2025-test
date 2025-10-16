@@ -14,3 +14,41 @@ services:
       MYSQL_PASSWORD: gorm
       MYSQL_ROOT_PASSWORD: "root"
       TZ: Asia/Shanghai
+    restart: always
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 10s
+      retries: 3
+
+  redis:
+    image: 'redis:7'
+    container_name: 'task4_gorm_redis'
+    ports:
+      - "9911:6379"
+    volumes:
+      # 本地的配置文件，映射到 Redis
+      - ./pkg/configs/redis/redis.conf:/usr/local/etc/redis/redis.conf
+      # 存放 Redis 的数据
+      - ./pkg/data/redis/:/data
+    environment:
+      TZ: Asia/Shanghai
+    command: redis-server /usr/local/etc/redis/redis.conf
+    restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "shenmidazhi", "ping"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+
+  task4_tiktok_app:
+    build: .
+    container_name: 'task4_tiktok_app'
+    ports:
+      - "8080:8888"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: always

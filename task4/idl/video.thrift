@@ -4,8 +4,8 @@ namespace go video
 
 struct PublishVideoRequest{   
     // 1: optional file data (api.form="data")
-    2: optional string title (api.form="title", api.vd="(len($) > 0 && len($) < 100)")
-    3: optional string description (api.form="description", api.vd="(len($) > 0 && len($) < 100)")
+    2: optional string title (api.form="title", api.vd="(len($) == 0) || (len($) > 0 && len($) < 100)")
+    3: optional string description (api.form="description", api.vd="((len($) == 0) || (len($) > 0 && len($) < 100))")
 }
 
 struct PublishVideoResponse{
@@ -24,8 +24,8 @@ struct ListVideoResponse{
 }
 
 struct PopularVideoRequest{
-    1: optional i64 page_num (api.query="page_num", api.vd="$>=0")
-    2: optional i64 page_size (api.query="page_size", api.vd="$>=0")
+    1: optional i64 page_num (api.query="page_num", api.vd="(len($) == 0) || ($>=0)")
+    2: optional i64 page_size (api.query="page_size", api.vd="(len($) == 0) || ($>=0)")
 }
 
 struct PopularVideoResponse{
@@ -34,12 +34,12 @@ struct PopularVideoResponse{
 }
 
 struct SearchVideoRequest{
-    1: string keyword (api.form="user_id", api.vd="(len($) > 0 && len($) < 100)")
+    1: string keyword (api.form="keyword", api.vd="(len($) >= 0 && len($) < 100)")
     2: i64 page_num (api.form="page_num", api.vd="$>=0")
     3: i64 page_size (api.form="page_size", api.vd="$>=0")
-    4: optional i64 from_date (api.form="from_date", api.vd="$>=0")
-    5: optional i64 to_date (api.form="to_date", api.vd="$>=0")
-    6: optional string username (api.form="username", api.vd="(len($) > 0 && len($) < 100)")
+    4: optional i64 from_date (api.form="from_date", api.vd="(len($) == 0) || ($>=0)")
+    5: optional i64 to_date (api.form="to_date", api.vd="(len($) == 0) || ($>=0)")
+    6: optional string username (api.form="username", api.vd="(len($) == 0) || (len($) > 0 && len($) < 100)")
 }
 
 struct SearchVideoResponse{

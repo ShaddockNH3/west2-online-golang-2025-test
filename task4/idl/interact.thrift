@@ -3,16 +3,12 @@ include "common.thrift"
 namespace go interact
 
 // 点赞操作
-
-enum ActionLikeType{
-    THUMBSUP=1
-    CANCELTHUMBSUP=2
-}
+// 点赞是1，取消点赞是2
 
 struct ActionLikeRequest{
-    1: optional string video_id (api.form="video_id", api.vd="(len($) > 0 && len($) < 100)")
-    2: optional string comment_id (api.form="comment_id", api.vd="(len($) > 0 && len($) < 100)")
-    3: optional ActionLikeType action_type (api.form="action_type", api.vd="$ in [1,2]")
+    1: optional string video_id (api.form="video_id", api.vd="(len($)==0 || len($) > 0 && len($) < 100)")
+    2: optional string comment_id (api.form="comment_id", api.vd="(len($)==0) || (len($) > 0 && len($) < 100)")
+    3: optional i64 action_type (api.form="action_type", api.vd="(len($) == 0) || ($ in [1,2])")
 }
 
 struct ActionLikeResponse{
@@ -20,22 +16,22 @@ struct ActionLikeResponse{
 }
 
 struct ListLikeRequest{
-    1: optional string user_id (api.query="user_id", api.vd="(len($) > 0 && len($) < 100)")
-    2: optional i64 page_size (api.query="page_size", api.vd="( $ > 0 && $ < 100 )")
-    3: optional i64 page_num (api.query="page_num", api.vd="( $ > 0 )")
+    1: optional string user_id (api.query="user_id", api.vd="(len($)==0) || (len($) > 0 && len($) < 100)")
+    2: optional i64 page_size (api.query="page_size", api.vd="(len($) == 0) || ( $ > 0 && $ < 100 )")
+    3: optional i64 page_num (api.query="page_num", api.vd="(len($) == 0) || ( $ > 0 )")
 }
 
 struct ListLikeResponse{
     1: common.BaseResponse base
-    2: common.VideoDataForPopularResponse data
+    2: common.LikeListResponse data
 }
 
 // 评论操作
 
 struct PublishCommentRequest{
-    1: optional string video_id (api.form="video_id", api.vd="(len($) > 0 && len($) < 100)")
-    2: optional string comment_id (api.form="comment_id", api.vd="(len($) > 0 && len($) < 100)")
-    3: optional string content (api.form="content", api.vd="(len($) > 0 && len($) < 100)")
+    1: optional string video_id (api.form="video_id", api.vd="(len($)==0) || (len($) > 0 && len($) < 100)")
+    2: optional string comment_id (api.form="comment_id", api.vd="(len($)==0) || (len($) > 0 && len($) < 100)")
+    3: optional string content (api.form="content", api.vd="(len($)==0) || (len($) > 0 && len($) < 100)")
 }
 
 struct PublishCommentResponse{
@@ -43,10 +39,10 @@ struct PublishCommentResponse{
 }
 
 struct ListCommentRequest{
-    1: optional string video_id (api.query="video_id", api.vd="(len($) > 0 && len($) < 100)")
-    2: optional string comment_id (api.query="comment_id", api.vd="(len($) > 0 && len($) < 100)")
-    3: optional i64 page_size (api.query="page_size", api.vd="( $ > 0 && $ < 100 )")
-    4: optional i64 page_num (api.query="page_num", api.vd="( $ > 0 )")
+    1: optional string video_id (api.query="video_id", api.vd="(len($)==0) || (len($) > 0 && len($) < 100)")
+    2: optional string comment_id (api.query="comment_id", api.vd="(len($)==0) || (len($) > 0 && len($) < 100)")
+    3: optional i64 page_size (api.query="page_size", api.vd="(len($) == 0) || ( $ > 0 && $ < 100 )")
+    4: optional i64 page_num (api.query="page_num", api.vd="(len($) == 0) || ( $ > 0 )")
 }
 
 struct ListCommentResponse{
@@ -55,8 +51,8 @@ struct ListCommentResponse{
 }
 
 struct DeleteCommentRequest{
-    1: optional string video_id (api.form="video_id", api.vd="(len($) > 0 && len($) < 100)")
-    2: optional string comment_id (api.form="comment_id", api.vd="(len($) > 0 && len($) < 100)")
+    1: optional string video_id (api.form="video_id", api.vd="(len($)==0) || (len($) > 0 && len($) < 100)")
+    2: optional string comment_id (api.form="comment_id", api.vd="(len($)==0) || (len($) > 0 && len($) < 100)")
 }
 
 struct DeleteCommentResponse{

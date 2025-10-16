@@ -52,18 +52,48 @@ struct VideoDataForListResponse{
 }
 
 // interact
+struct LikeItems{
+    1: string id // 这里指的是点赞记录id
+    2: string user_id // 这里指的是点赞用户
+    
+    3: string LikeableID   // 被点赞对象视频ID或评论ID
+	4: string LikeableType   // 被点赞对象的类型 "video" 或 "comment"
+
+    5: string create_at
+    6: string update_at
+    7: string delete_at
+}
+
+struct LikeVideoDTO { 
+	1: string ID           
+	2: string UserID       
+	3: string VideoURL     
+	4: string CoverURL     
+	5: string Title        
+	6: string Description
+	7: i64 VisitCount
+	8: i64 LikeCount   
+	9: i64 CommentCount  
+	10: string CreatedAt
+	11: string UpdatedAt
+	12: string DeletedAt   
+}
+
+struct LikeListResponse{
+    1: list<LikeVideoDTO> items
+}
 
 struct CommentItems{
     1: string id
     2: string user_id
     3: string video_id
     4: string parent_id
-    5: string like_count
-    6: string child_count
+    5: i64 like_count
+    6: i64 child_count
     7: string content 
-    8: string create_at
-    9: string update_at
-    10: string delete_at
+    8: string created_at
+    9: string updated_at
+    10: string deleted_at
 }
 
 struct CommentDataForListResponse{
@@ -73,12 +103,21 @@ struct CommentDataForListResponse{
 // social
 
 struct SocialItems{
+    1: string id // 这里指的是关注关系id
+    2: string follower_id // 关注者的用户ID
+    3: string followed_id // 被关注者的用户ID
+    4: string created_at // 创建时间
+    5: string updated_at // 更新时间
+    6: string deleted_at // 软删除标记
+}
+
+struct SocialDTO{
     1: string id
-    2: string user_id
-    3: string username
+    2: string username
+    3: string avatar_url
 }
 
 struct SocialDataForListResponse{
-    1: list<SocialItems> items
+    1: list<SocialDTO> items
     2: i64 total
 }

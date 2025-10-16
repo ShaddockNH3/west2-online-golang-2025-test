@@ -32,10 +32,8 @@ func _deletecommentMw() []app.HandlerFunc {
 }
 
 func _listcommentMw() []app.HandlerFunc {
-	return []app.HandlerFunc{
-		TokenTransferMiddleware(),
-		jwt.JwtMiddleware.MiddlewareFunc(),
-	}
+	// your code...
+	return nil
 }
 
 func _publishcommentMw() []app.HandlerFunc {

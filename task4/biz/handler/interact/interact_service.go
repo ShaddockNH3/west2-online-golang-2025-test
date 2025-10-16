@@ -248,8 +248,19 @@ func DeleteComment(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
+	currentUserID, exists := c.Get(constants.ContextCurrentUserKey)
+	if !exists {
+		resp := new(interact.PublishCommentResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  errno.UnableToRetrieveUserInfoErr.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
 	interactService := interact_service.NewInteractService(ctx)
-	err = interactService.DeleteComment(&req)
+	err = interactService.DeleteComment(currentUserID.(string), &req)
 
 	resp := new(interact.DeleteCommentResponse)
 

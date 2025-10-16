@@ -91,9 +91,9 @@ struct CommentItems{
     5: i64 like_count
     6: i64 child_count
     7: string content 
-    8: string create_at
-    9: string update_at
-    10: string delete_at
+    8: string created_at
+    9: string updated_at
+    10: string deleted_at
 }
 
 struct CommentDataForListResponse{

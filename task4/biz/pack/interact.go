@@ -20,8 +20,8 @@ func Comment(model db.CommentItems) *common.CommentItems {
 		deleteAtStr = model.DeletedAt.Time.Format("2006-01-02 15:04:05")
 	}
 
-	CreateAt := model.CreateAt.Format("2006-01-02 15:04:05")
-	UpdateAt := model.UpdateAt.Format("2006-01-02 15:04:05")
+	CreatedAt := model.CreatedAt.Format("2006-01-02 15:04:05")
+	UpdatedAt := model.UpdatedAt.Format("2006-01-02 15:04:05")
 
 	return &common.CommentItems{
 		ID:         model.ID,
@@ -31,8 +31,8 @@ func Comment(model db.CommentItems) *common.CommentItems {
 		LikeCount:  model.LikeCount,
 		ChildCount: model.ChildCount,
 		Content:    model.Content,
-		CreateAt:   CreateAt,
-		UpdateAt:   UpdateAt,
-		DeleteAt:   deleteAtStr,
+		CreatedAt:   CreatedAt,
+		UpdatedAt:   UpdatedAt,
+		DeletedAt:   deleteAtStr,
 	}
 }

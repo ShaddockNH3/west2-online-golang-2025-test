@@ -150,10 +150,10 @@ func (s *InteractService) ListComment(req *interact.ListCommentRequest) ([]db.Co
 
 	if req.VideoID != nil {
 		id = *req.VideoID
-		comments, err = db.QueryCommentsByVideoID(id, currentPageSize, currentPageNum)
+		comments, err = db.QueryCommentsByVideoID(id, currentPageNum, currentPageSize)
 	} else if req.CommentID != nil && *req.CommentID != "" {
 		id = *req.CommentID
-		comments, err = db.QueryCommentsByCommentID(id, currentPageSize, currentPageNum)
+		comments, err = db.QueryCommentsByCommentID(id, currentPageNum, currentPageSize)
 	}
 
 	if err != nil {
@@ -163,29 +163,33 @@ func (s *InteractService) ListComment(req *interact.ListCommentRequest) ([]db.Co
 	return comments, nil
 }
 
-func (s *InteractService) DeleteComment(req *interact.DeleteCommentRequest) error {
-	var err error
-
-	if req.CommentID == nil || req.VideoID == nil {
-		return errors.New("comment_id and video_id cannot be empty")
-	}
-
-	if *req.CommentID == "" || *req.VideoID == "" {
-		return errors.New("comment_id and video_id cannot be empty")
-	}
+func (s *InteractService) DeleteComment(userID string, req *interact.DeleteCommentRequest) error {
+	if (req.CommentID == nil || *req.CommentID == "") && (req.VideoID == nil || *req.VideoID == "") {
+        return errors.New("comment_id and video_id cannot be empty")
+    }
 
 	var curr_id string
-	if *req.CommentID != "" {
+	if req.CommentID != nil && *req.CommentID != "" {
 		curr_id = *req.CommentID
-		err = db.DeleteCommentByCommentID(curr_id)
-	} else {
+		curr_user_id, err := db.GetUserIdByID(curr_id)
+		if err != nil {
+			return err
+		}
+		if curr_user_id != userID {
+			return errors.New("you are not the author of this comment")
+		}
+
+	    return db.DeleteCommentByCommentID(curr_id)
+	} else if req.VideoID != nil && *req.VideoID != ""{
 		curr_id = *req.VideoID
-		err = db.DeleteCommentByVideoID(curr_id)
+		curr_user_id, err := db.GetUserIdByID(curr_id)
+		if err != nil {
+			return err
+		}
+		if curr_user_id != userID {
+			return errors.New("you are not the author of this video comment")
+		}
+		return db.DeleteCommentByVideoID(curr_id)
 	}
-
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return errors.New("unexpected error")
 }

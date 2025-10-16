@@ -3228,9 +3228,9 @@ type CommentItems struct {
 	LikeCount  int64  `thrift:"like_count,5" form:"like_count" json:"like_count" query:"like_count"`
 	ChildCount int64  `thrift:"child_count,6" form:"child_count" json:"child_count" query:"child_count"`
 	Content    string `thrift:"content,7" form:"content" json:"content" query:"content"`
-	CreateAt   string `thrift:"create_at,8" form:"create_at" json:"create_at" query:"create_at"`
-	UpdateAt   string `thrift:"update_at,9" form:"update_at" json:"update_at" query:"update_at"`
-	DeleteAt   string `thrift:"delete_at,10" form:"delete_at" json:"delete_at" query:"delete_at"`
+	CreatedAt  string `thrift:"created_at,8" form:"created_at" json:"created_at" query:"created_at"`
+	UpdatedAt  string `thrift:"updated_at,9" form:"updated_at" json:"updated_at" query:"updated_at"`
+	DeletedAt  string `thrift:"deleted_at,10" form:"deleted_at" json:"deleted_at" query:"deleted_at"`
 }
 
 func NewCommentItems() *CommentItems {
@@ -3268,16 +3268,16 @@ func (p *CommentItems) GetContent() (v string) {
 	return p.Content
 }
 
-func (p *CommentItems) GetCreateAt() (v string) {
-	return p.CreateAt
+func (p *CommentItems) GetCreatedAt() (v string) {
+	return p.CreatedAt
 }
 
-func (p *CommentItems) GetUpdateAt() (v string) {
-	return p.UpdateAt
+func (p *CommentItems) GetUpdatedAt() (v string) {
+	return p.UpdatedAt
 }
 
-func (p *CommentItems) GetDeleteAt() (v string) {
-	return p.DeleteAt
+func (p *CommentItems) GetDeletedAt() (v string) {
+	return p.DeletedAt
 }
 
 var fieldIDToName_CommentItems = map[int16]string{
@@ -3288,9 +3288,9 @@ var fieldIDToName_CommentItems = map[int16]string{
 	5:  "like_count",
 	6:  "child_count",
 	7:  "content",
-	8:  "create_at",
-	9:  "update_at",
-	10: "delete_at",
+	8:  "created_at",
+	9:  "updated_at",
+	10: "deleted_at",
 }
 
 func (p *CommentItems) Read(iprot thrift.TProtocol) (err error) {
@@ -3506,7 +3506,7 @@ func (p *CommentItems) ReadField8(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.CreateAt = _field
+	p.CreatedAt = _field
 	return nil
 }
 func (p *CommentItems) ReadField9(iprot thrift.TProtocol) error {
@@ -3517,7 +3517,7 @@ func (p *CommentItems) ReadField9(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.UpdateAt = _field
+	p.UpdatedAt = _field
 	return nil
 }
 func (p *CommentItems) ReadField10(iprot thrift.TProtocol) error {
@@ -3528,7 +3528,7 @@ func (p *CommentItems) ReadField10(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.DeleteAt = _field
+	p.DeletedAt = _field
 	return nil
 }
 
@@ -3716,10 +3716,10 @@ WriteFieldEndError:
 }
 
 func (p *CommentItems) writeField8(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("create_at", thrift.STRING, 8); err != nil {
+	if err = oprot.WriteFieldBegin("created_at", thrift.STRING, 8); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.CreateAt); err != nil {
+	if err := oprot.WriteString(p.CreatedAt); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -3733,10 +3733,10 @@ WriteFieldEndError:
 }
 
 func (p *CommentItems) writeField9(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("update_at", thrift.STRING, 9); err != nil {
+	if err = oprot.WriteFieldBegin("updated_at", thrift.STRING, 9); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.UpdateAt); err != nil {
+	if err := oprot.WriteString(p.UpdatedAt); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -3750,10 +3750,10 @@ WriteFieldEndError:
 }
 
 func (p *CommentItems) writeField10(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("delete_at", thrift.STRING, 10); err != nil {
+	if err = oprot.WriteFieldBegin("deleted_at", thrift.STRING, 10); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.DeleteAt); err != nil {
+	if err := oprot.WriteString(p.DeletedAt); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {

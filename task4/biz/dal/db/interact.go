@@ -17,8 +17,8 @@ type LikeItems struct {
 	LikeableID   string `gorm:"index"` // 被点赞对象视频ID或评论ID
 	LikeableType string `gorm:"index"` // 被点赞对象的类型 "video" 或 "comment"
 
-	CreatedAt time.Time      // create_at
-	UpdatedAt time.Time      // update_at
+	CreatedAt time.Time      // created_at
+	UpdatedAt time.Time      // updated_at
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
 
@@ -30,8 +30,8 @@ type CommentItems struct {
 	LikeCount  int64
 	ChildCount int64
 	Content    string
-	CreateAt   time.Time
-	UpdateAt   time.Time
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
 	DeletedAt  gorm.DeletedAt `gorm:"index"`
 }
 
@@ -222,12 +222,13 @@ func QueryVideosByUserID(userID string, page, pageSize int64) (*[]common.LikeVid
 
 func QueryCommentsByCommentID(commentID string, page, pageSize int64) ([]CommentItems, error) {
 	var comments []CommentItems
-	tx := DB.Where("parent_id = ?", commentID).Find(&comments)
-	if err := tx.Error; err != nil {
-		return nil, err
-	}
 
-	if err := tx.Limit(int(pageSize)).Offset(int(pageSize * (page - 1))).Find(&comments).Error; err != nil {
+	err := DB.Where("parent_id = ?", commentID).
+		Limit(int(pageSize)).
+		Offset(int(pageSize * (page - 1))).
+		Find(&comments).Error
+
+	if err != nil {
 		return nil, err
 	}
 
@@ -236,12 +237,13 @@ func QueryCommentsByCommentID(commentID string, page, pageSize int64) ([]Comment
 
 func QueryCommentsByVideoID(videoID string, page, pageSize int64) ([]CommentItems, error) {
 	var comments []CommentItems
-	tx := DB.Where("video_id = ?", videoID).Find(&comments)
-	if err := tx.Error; err != nil {
-		return nil, err
-	}
 
-	if err := tx.Limit(int(pageSize)).Offset(int(pageSize * (page - 1))).Find(&comments).Error; err != nil {
+	err := DB.Where("video_id = ?", videoID).
+		Limit(int(pageSize)).
+		Offset(int(pageSize * (page - 1))).
+		Find(&comments).Error
+
+	if err != nil {
 		return nil, err
 	}
 
@@ -273,6 +275,14 @@ func GetVideosByCommentID(commentID string) (string, error) {
 		return "", err
 	}
 	return comment.VideoId, nil
+}
+
+func GetUserIdByID(ID string) (string, error) {
+	var comment CommentItems
+	if err := DB.Where("id = ?", ID).First(&comment).Error; err != nil {
+		return "", err
+	}
+	return comment.UserId, nil
 }
 
 func DeleteCommentByCommentID(commentID string) error {

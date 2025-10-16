@@ -1,12 +1,14 @@
 # west2-online-golang-2025-test
 
+> 2025.07 - future
+
 ## task1
 
-task1在其他仓库，很久之前写的，写的非常乱，未来有机会再移过来~~（搬史）~~
+task1是很久之前写的，写的非常乱，而且对于 go routine 相关的理解不足
 
 ## task2
 
-task2也已经是蛮久之前写的了，也写得很乱，而且代码用了很多AI，b站爬虫不写了，python模拟浏览器搞定，go爬虫主要核心在于并行，py即便是httpx也只是并发。
+task2 也已经是蛮久之前写的了，也写得很乱，而且代码用了很多AI，b站爬虫不写了， python 模拟浏览器搞定， go 爬虫主要核心在于并行， py 即便是 httpx 也只是并发。
 
 fzu_go文件我主要的失误在于锁的问题，向表内写入的时候没有进行锁的约束，从而导致报错
 
@@ -19,3 +21,7 @@ task3目前已经实现所有基本功能，完成三个bonus，详见[task3](ht
 ## task4
 
 task4目前完成最低限度的17个接口的编写，并且完成所有的注意事项
+
+## algorithm
+
+[go algorithm](https://github.com/ShaddockNH3/algorithm-study/tree/main/0_go(%E4%BB%A3%E7%A0%81%E9%9A%8F%E6%83%B3%E5%BD%95))

@@ -8,7 +8,7 @@ const (
 	AccessTokenTimeout    = 2 * time.Hour
 	RefreshTokenTimeout   = 7 * 24 * time.Hour
 	JwtIdentityKey        = "user_id"
-	ContextCurrentUserKey = "current_user_id"
+	ContextCurrentUserKey = "user_id"
 )
 
 const (

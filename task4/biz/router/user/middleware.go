@@ -3,8 +3,6 @@
 package user
 
 import (
-	"context"
-
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/mw/jwt"
 	"github.com/cloudwego/hertz/pkg/app"
 )
@@ -26,15 +24,13 @@ func _userMw() []app.HandlerFunc {
 
 func _infouserMw() []app.HandlerFunc {
 	return []app.HandlerFunc{
-		TokenTransferMiddleware(),
-		jwt.JwtMiddleware.MiddlewareFunc(),
+		jwt.AccessTokenJwtMiddleware.MiddlewareFunc(),
 	}
 }
 
 func _loginuserMw() []app.HandlerFunc {
-	return []app.HandlerFunc{
-		jwt.JwtMiddleware.LoginHandler,
-	}
+	// your code...
+	return nil
 }
 
 func _registeruserMw() []app.HandlerFunc {
@@ -49,19 +45,6 @@ func _avatarMw() []app.HandlerFunc {
 
 func _avataruploaduserMw() []app.HandlerFunc {
 	return []app.HandlerFunc{
-		TokenTransferMiddleware(),
-		jwt.JwtMiddleware.MiddlewareFunc(),
-	}
-}
-
-func TokenTransferMiddleware() app.HandlerFunc {
-	return func(c context.Context, ctx *app.RequestContext) {
-		accessToken := string(ctx.Request.Header.Peek("Access-Token"))
-
-		if accessToken != "" {
-			ctx.Request.Header.Set("Authorization", "Bearer "+accessToken)
-		}
-
-		ctx.Next(c)
+		jwt.AccessTokenJwtMiddleware.MiddlewareFunc(),
 	}
 }

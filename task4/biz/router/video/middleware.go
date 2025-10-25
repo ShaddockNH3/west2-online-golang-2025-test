@@ -3,8 +3,6 @@
 package video
 
 import (
-	"context"
-
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/mw/jwt"
 	"github.com/cloudwego/hertz/pkg/app"
 )
@@ -51,8 +49,7 @@ func _publishMw() []app.HandlerFunc {
 
 func _publishvideoMw() []app.HandlerFunc {
 	return []app.HandlerFunc{
-		TokenTransferMiddleware(),
-		jwt.JwtMiddleware.MiddlewareFunc(),
+		jwt.AccessTokenJwtMiddleware.MiddlewareFunc(),
 	}
 }
 
@@ -64,16 +61,4 @@ func _searchMw() []app.HandlerFunc {
 func _searchvideoMw() []app.HandlerFunc {
 	// your code...
 	return nil
-}
-
-func TokenTransferMiddleware() app.HandlerFunc {
-	return func(c context.Context, ctx *app.RequestContext) {
-		accessToken := string(ctx.Request.Header.Peek("Access-Token"))
-
-		if accessToken != "" {
-			ctx.Request.Header.Set("Authorization", "Bearer "+accessToken)
-		}
-
-		ctx.Next(c)
-	}
 }

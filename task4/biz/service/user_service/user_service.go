@@ -7,6 +7,7 @@ import (
 
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/dal/db"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/model/user"
+	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/mw/jwt"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/pkg/constants"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/pkg/errno"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/pkg/utils"
@@ -49,6 +50,42 @@ func (s *UserService) RegisterUser(req *user.RegisterUserRequest) error {
 	}
 
 	return nil
+}
+
+func (s *UserService) LoginUser(req *user.LoginUserRequest) (*db.User, string, string, error) {
+	var err error
+
+	user, err := db.QueryUserByUsername(req.Username)
+	if err != nil {
+		return nil, "", "", err
+	}
+	if user == nil {
+		return nil, "", "", errno.UserNotExistErr
+	}
+
+	// password验证
+	currentUser, err := db.QueryUserByUsername(req.Username)
+	if err != nil {
+		return nil, "", "", err
+	}
+	if currentUser == nil {
+		return nil, "", "", errno.UserNotExistErr
+	}
+
+	if !utils.VerifyPassword(req.Password, currentUser.Password) {
+		return nil, "", "", errno.PasswordIsNotVerified
+	}
+
+	accessToken, _, err := jwt.AccessTokenJwtMiddleware.TokenGenerator(user)
+	if err != nil {
+		return nil, "", "", err
+	}
+	refreshToken, _, err := jwt.RefreshTokenJwtMiddleware.TokenGenerator(user)
+	if err != nil {
+		return nil, "", "", err
+	}
+
+	return user, accessToken, refreshToken, nil
 }
 
 func (s *UserService) InfoUser(userID string, req *user.InfoUserRequest) (*db.User, error) {

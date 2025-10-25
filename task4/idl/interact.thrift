@@ -5,10 +5,15 @@ namespace go interact
 // 点赞操作
 // 点赞是1，取消点赞是2
 
+enum ActionTypeLike{
+    LIKE = 1,
+    UNLIKE = 2,
+}
+
 struct ActionLikeRequest{
     1: optional string video_id (api.form="video_id", api.vd="(len($)==0 || len($) > 0 && len($) < 100)")
     2: optional string comment_id (api.form="comment_id", api.vd="(len($)==0) || (len($) > 0 && len($) < 100)")
-    3: optional i64 action_type (api.form="action_type", api.vd="(len($) == 0) || ($ in [1,2])")
+    3: optional ActionTypeLike action_type (api.form="action_type", api.vd="$ in [1, 2]")
 }
 
 struct ActionLikeResponse{

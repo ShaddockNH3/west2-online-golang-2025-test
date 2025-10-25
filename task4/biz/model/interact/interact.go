@@ -4,6 +4,8 @@ package interact
 
 import (
 	"context"
+	"database/sql"
+	"database/sql/driver"
 	"fmt"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/model/common"
 	"github.com/apache/thrift/lib/go/thrift"
@@ -11,10 +13,52 @@ import (
 
 // 点赞操作
 // 点赞是1，取消点赞是2
+type ActionTypeLike int64
+
+const (
+	ActionTypeLike_LIKE   ActionTypeLike = 1
+	ActionTypeLike_UNLIKE ActionTypeLike = 2
+)
+
+func (p ActionTypeLike) String() string {
+	switch p {
+	case ActionTypeLike_LIKE:
+		return "LIKE"
+	case ActionTypeLike_UNLIKE:
+		return "UNLIKE"
+	}
+	return "<UNSET>"
+}
+
+func ActionTypeLikeFromString(s string) (ActionTypeLike, error) {
+	switch s {
+	case "LIKE":
+		return ActionTypeLike_LIKE, nil
+	case "UNLIKE":
+		return ActionTypeLike_UNLIKE, nil
+	}
+	return ActionTypeLike(0), fmt.Errorf("not a valid ActionTypeLike string")
+}
+
+func ActionTypeLikePtr(v ActionTypeLike) *ActionTypeLike { return &v }
+func (p *ActionTypeLike) Scan(value interface{}) (err error) {
+	var result sql.NullInt64
+	err = result.Scan(value)
+	*p = ActionTypeLike(result.Int64)
+	return
+}
+
+func (p *ActionTypeLike) Value() (driver.Value, error) {
+	if p == nil {
+		return nil, nil
+	}
+	return int64(*p), nil
+}
+
 type ActionLikeRequest struct {
-	VideoID    *string `thrift:"video_id,1,optional" form:"video_id" json:"video_id,omitempty" vd:"(len($)==0 || len($) > 0 && len($) < 100)"`
-	CommentID  *string `thrift:"comment_id,2,optional" form:"comment_id" json:"comment_id,omitempty" vd:"(len($)==0) || (len($) > 0 && len($) < 100)"`
-	ActionType *int64  `thrift:"action_type,3,optional" form:"action_type" json:"action_type,omitempty" vd:"(len($) == 0) || ($ in [1,2])"`
+	VideoID    *string         `thrift:"video_id,1,optional" form:"video_id" json:"video_id,omitempty" vd:"(len($)==0 || len($) > 0 && len($) < 100)"`
+	CommentID  *string         `thrift:"comment_id,2,optional" form:"comment_id" json:"comment_id,omitempty" vd:"(len($)==0) || (len($) > 0 && len($) < 100)"`
+	ActionType *ActionTypeLike `thrift:"action_type,3,optional,ActionTypeLike" form:"action_type" json:"action_type,omitempty" vd:"$ in [1, 2]"`
 }
 
 func NewActionLikeRequest() *ActionLikeRequest {
@@ -42,9 +86,9 @@ func (p *ActionLikeRequest) GetCommentID() (v string) {
 	return *p.CommentID
 }
 
-var ActionLikeRequest_ActionType_DEFAULT int64
+var ActionLikeRequest_ActionType_DEFAULT ActionTypeLike
 
-func (p *ActionLikeRequest) GetActionType() (v int64) {
+func (p *ActionLikeRequest) GetActionType() (v ActionTypeLike) {
 	if !p.IsSetActionType() {
 		return ActionLikeRequest_ActionType_DEFAULT
 	}
@@ -105,7 +149,7 @@ func (p *ActionLikeRequest) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 3:
-			if fieldTypeId == thrift.I64 {
+			if fieldTypeId == thrift.I32 {
 				if err = p.ReadField3(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -165,11 +209,12 @@ func (p *ActionLikeRequest) ReadField2(iprot thrift.TProtocol) error {
 }
 func (p *ActionLikeRequest) ReadField3(iprot thrift.TProtocol) error {
 
-	var _field *int64
-	if v, err := iprot.ReadI64(); err != nil {
+	var _field *ActionTypeLike
+	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
-		_field = &v
+		tmp := ActionTypeLike(v)
+		_field = &tmp
 	}
 	p.ActionType = _field
 	return nil
@@ -251,10 +296,10 @@ WriteFieldEndError:
 
 func (p *ActionLikeRequest) writeField3(oprot thrift.TProtocol) (err error) {
 	if p.IsSetActionType() {
-		if err = oprot.WriteFieldBegin("action_type", thrift.I64, 3); err != nil {
+		if err = oprot.WriteFieldBegin("action_type", thrift.I32, 3); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteI64(*p.ActionType); err != nil {
+		if err := oprot.WriteI32(int32(*p.ActionType)); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {

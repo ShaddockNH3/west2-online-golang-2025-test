@@ -34,7 +34,7 @@ func (s *InteractService) ActionLike(userID string, req *interact.ActionLikeRequ
 	var likeType int64
 
 	if req.ActionType == nil {
-		likeType = 1
+		likeType = int64(interact.ActionTypeLike_LIKE)
 	} else {
 		likeType = int64(*req.ActionType)
 	}

@@ -4,10 +4,56 @@ package social
 
 import (
 	"context"
+	"database/sql"
+	"database/sql/driver"
 	"fmt"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/model/common"
 	"github.com/apache/thrift/lib/go/thrift"
 )
+
+// 关注操作
+// 关注是0，取消关注是1
+type ActionTypeRelation int64
+
+const (
+	ActionTypeRelation_FOLLOW   ActionTypeRelation = 0
+	ActionTypeRelation_UNFOLLOW ActionTypeRelation = 1
+)
+
+func (p ActionTypeRelation) String() string {
+	switch p {
+	case ActionTypeRelation_FOLLOW:
+		return "FOLLOW"
+	case ActionTypeRelation_UNFOLLOW:
+		return "UNFOLLOW"
+	}
+	return "<UNSET>"
+}
+
+func ActionTypeRelationFromString(s string) (ActionTypeRelation, error) {
+	switch s {
+	case "FOLLOW":
+		return ActionTypeRelation_FOLLOW, nil
+	case "UNFOLLOW":
+		return ActionTypeRelation_UNFOLLOW, nil
+	}
+	return ActionTypeRelation(0), fmt.Errorf("not a valid ActionTypeRelation string")
+}
+
+func ActionTypeRelationPtr(v ActionTypeRelation) *ActionTypeRelation { return &v }
+func (p *ActionTypeRelation) Scan(value interface{}) (err error) {
+	var result sql.NullInt64
+	err = result.Scan(value)
+	*p = ActionTypeRelation(result.Int64)
+	return
+}
+
+func (p *ActionTypeRelation) Value() (driver.Value, error) {
+	if p == nil {
+		return nil, nil
+	}
+	return int64(*p), nil
+}
 
 type SocialResponse struct {
 	Base *common.BaseResponse              `thrift:"base,1" form:"base" json:"base" query:"base"`
@@ -209,8 +255,8 @@ func (p *SocialResponse) String() string {
 
 // 关注操作
 type ActionRelationRequest struct {
-	ToUserID   string `thrift:"to_user_id,1" form:"to_user_id" json:"to_user_id" vd:"len($) > 0 && len($) < 100"`
-	ActionType int64  `thrift:"action_type,2" form:"action_type" json:"action_type" vd:"$==0 || $==1"`
+	ToUserID   string             `thrift:"to_user_id,1" form:"to_user_id" json:"to_user_id" vd:"len($) > 0 && len($) < 100"`
+	ActionType ActionTypeRelation `thrift:"action_type,2,default,ActionTypeRelation" form:"action_type" json:"action_type" vd:"$==0 || $==1"`
 }
 
 func NewActionRelationRequest() *ActionRelationRequest {
@@ -224,7 +270,7 @@ func (p *ActionRelationRequest) GetToUserID() (v string) {
 	return p.ToUserID
 }
 
-func (p *ActionRelationRequest) GetActionType() (v int64) {
+func (p *ActionRelationRequest) GetActionType() (v ActionTypeRelation) {
 	return p.ActionType
 }
 
@@ -261,7 +307,7 @@ func (p *ActionRelationRequest) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 2:
-			if fieldTypeId == thrift.I64 {
+			if fieldTypeId == thrift.I32 {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -310,11 +356,11 @@ func (p *ActionRelationRequest) ReadField1(iprot thrift.TProtocol) error {
 }
 func (p *ActionRelationRequest) ReadField2(iprot thrift.TProtocol) error {
 
-	var _field int64
-	if v, err := iprot.ReadI64(); err != nil {
+	var _field ActionTypeRelation
+	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
-		_field = v
+		_field = ActionTypeRelation(v)
 	}
 	p.ActionType = _field
 	return nil
@@ -370,10 +416,10 @@ WriteFieldEndError:
 }
 
 func (p *ActionRelationRequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("action_type", thrift.I64, 2); err != nil {
+	if err = oprot.WriteFieldBegin("action_type", thrift.I32, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI64(p.ActionType); err != nil {
+	if err := oprot.WriteI32(int32(p.ActionType)); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {

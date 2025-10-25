@@ -2,6 +2,14 @@ include "common.thrift"
 
 namespace go social
 
+// 关注操作
+// 关注是0，取消关注是1
+
+enum ActionTypeRelation{
+    FOLLOW = 0,
+    UNFOLLOW = 1,
+}
+
 struct SocialResponse{
     1: common.BaseResponse base
     2: common.SocialDataForListResponse data
@@ -10,7 +18,7 @@ struct SocialResponse{
 // 关注操作
 struct ActionRelationRequest{
     1: string to_user_id (api.form="to_user_id", api.vd="len($) > 0 && len($) < 100")
-    2: i64 action_type (api.form="action_type", api.vd="$==0 || $==1")
+    2: ActionTypeRelation action_type (api.form="action_type", api.vd="$==0 || $==1")
 }
 
 struct ActionRelationResponse{

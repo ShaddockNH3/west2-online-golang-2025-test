@@ -64,17 +64,58 @@ func RegisterUser(ctx context.Context, c *app.RequestContext) {
 // LoginUser .
 // @router /v1/user/login [POST]
 func LoginUser(ctx context.Context, c *app.RequestContext) {
-	// var err error
-	// var req user.LoginUserRequest
-	// err = c.BindAndValidate(&req)
-	// if err != nil {
-	// 	c.String(consts.StatusBadRequest, err.Error())
-	// 	return
-	// }
+	var err error
+	var req user.LoginUserRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		resp := new(user.LoginUserResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  err.Error(),
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
 
-	// resp := new(user.LoginUserResponse)
+	userService := user_service.NewUserService(ctx)
+	dbUser, accessToken, refreshToken, err := userService.LoginUser(&req)
 
-	// c.JSON(consts.StatusOK, resp)
+	c.Header("Access-Token", accessToken)
+	c.Header("Refresh-Token", refreshToken)
+
+	resp := new(user.LoginUserResponse)
+
+	if err != nil {
+		e := errno.ConvertErr(err)
+
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  e.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	resp.Base = &common.BaseResponse{
+		Code: fmt.Sprintf("%d", errno.Success.ErrCode), // 10000
+		Msg:  errno.Success.ErrMsg,                     // "success"
+	}
+
+	deleteAtStr := ""
+	if dbUser.DeletedAt.Valid {
+		deleteAtStr = dbUser.DeletedAt.Time.Format("2006-01-02 15:04:05")
+	}
+
+	resp.Data = &common.UserDataResponse{
+		ID:        dbUser.ID,
+		Username:  dbUser.Username,
+		AvatarURL: dbUser.AvatarUrl,
+		CreateAt:  dbUser.CreatedAt.Format("2006-01-02 15:04:05"),
+		UpdateAt:  dbUser.UpdatedAt.Format("2006-01-02 15:04:05"),
+		DeleteAt:  deleteAtStr,
+	}
+
+	c.JSON(consts.StatusOK, resp)
 }
 
 // InfoUser .

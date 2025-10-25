@@ -4,10 +4,12 @@ import (
 	"errors"
 	"time"
 
-	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/model/common"
-	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/pkg/constants"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+
+	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/model/common"
+	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/model/social"
+	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/pkg/constants"
 )
 
 type SocialItems struct {
@@ -30,7 +32,7 @@ func UpdateRelation(follower_id, followed_id string, action_type int64) error {
 	var err error
 	var social_relation SocialItems
 	// 先判断是否是合法操作
-	if action_type != 0 && action_type != 1 {
+	if action_type != int64(social.ActionTypeRelation_FOLLOW) && action_type != int64(social.ActionTypeRelation_UNFOLLOW) {
 		return errors.New("action_type error")
 	}
 
@@ -38,8 +40,8 @@ func UpdateRelation(follower_id, followed_id string, action_type int64) error {
 	err = DB.Unscoped().Where("follower_id = ? AND followed_id = ?", follower_id, followed_id).First(&social_relation).Error
 
 	// 数据库里完全没有这条记录
-	if err != nil && err == gorm.ErrRecordNotFound {
-		if action_type == 0 { // 想关注
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		if action_type == int64(social.ActionTypeRelation_FOLLOW) { // 想关注
 			// 创建一个新的
 			return CreateSocialItems(&SocialItems{
 				ID:         uuid.New().String(),
@@ -47,7 +49,7 @@ func UpdateRelation(follower_id, followed_id string, action_type int64) error {
 				FollowedID: followed_id,
 			})
 		}
-		if action_type == 1 { // 想取消关注
+		if action_type == int64(social.ActionTypeRelation_UNFOLLOW) { // 想取消关注
 			// 本来就没有，不需要操作
 			return errors.New("not followed yet")
 		}
@@ -60,10 +62,10 @@ func UpdateRelation(follower_id, followed_id string, action_type int64) error {
 
 	// 数据库里有记录，且没有被软删除
 	if !social_relation.DeletedAt.Valid {
-		if action_type == 0 { // 想关注
+		if action_type == int64(social.ActionTypeRelation_FOLLOW) { // 想关注
 			return errors.New("already followed")
 		}
-		if action_type == 1 { // 想取消关注
+		if action_type == int64(social.ActionTypeRelation_UNFOLLOW) { // 想取消关注
 			// 软删除
 			return DB.Where("id = ?", social_relation.ID).Delete(&SocialItems{}).Error
 		}
@@ -71,11 +73,11 @@ func UpdateRelation(follower_id, followed_id string, action_type int64) error {
 
 	// 是被“软删除”的记录
 	if social_relation.DeletedAt.Valid {
-		if action_type == 0 {
+		if action_type == int64(social.ActionTypeRelation_FOLLOW) {
 			// 把 deleted_at 变回 null
 			return DB.Unscoped().Model(&SocialItems{}).Where("id = ?", social_relation.ID).Update("deleted_at", nil).Error
 		}
-		if action_type == 1 { // 想取消关注
+		if action_type == int64(social.ActionTypeRelation_UNFOLLOW) { // 想取消关注
 			return errors.New("not followed yet")
 		}
 	}

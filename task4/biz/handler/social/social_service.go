@@ -52,8 +52,10 @@ func ActionRelation(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
+	currentActionTypeRelation := int64(req.ActionType)
+
 	socialService := social_service.NewSocialService(ctx)
-	err = socialService.ActionRelation(currentUserID.(string), &req)
+	err = socialService.ActionRelation(currentUserID.(string), currentActionTypeRelation, &req)
 
 	resp := new(social.ActionRelationResponse)
 

@@ -3,10 +3,11 @@ package db
 import (
 	"time"
 
+	"gorm.io/gorm"
+
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/model/video"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/mw/redis"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/pkg/constants"
-	"gorm.io/gorm"
 )
 
 type VideoItems struct {

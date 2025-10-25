@@ -4,10 +4,11 @@ import (
 	"context"
 	"errors"
 
+	"github.com/google/uuid"
+
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/dal/db"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/model/common"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/model/interact"
-	"github.com/google/uuid"
 )
 
 type InteractService struct {
@@ -33,7 +34,7 @@ func (s *InteractService) ActionLike(userID string, req *interact.ActionLikeRequ
 	var likeType int64
 
 	if req.ActionType == nil {
-		likeType = 1
+		likeType = int64(interact.ActionTypeLike_LIKE)
 	} else {
 		likeType = int64(*req.ActionType)
 	}
@@ -41,7 +42,6 @@ func (s *InteractService) ActionLike(userID string, req *interact.ActionLikeRequ
 	if req.CommentID != nil && *req.CommentID != "" {
 		likeableID = *req.CommentID
 		err = db.UpdateLike(likeableID, "comment", userID, likeType)
-
 	} else if req.VideoID != nil && *req.VideoID != "" {
 		likeableID = *req.VideoID
 		err = db.UpdateLike(likeableID, "video", userID, likeType)
@@ -165,8 +165,8 @@ func (s *InteractService) ListComment(req *interact.ListCommentRequest) ([]db.Co
 
 func (s *InteractService) DeleteComment(userID string, req *interact.DeleteCommentRequest) error {
 	if (req.CommentID == nil || *req.CommentID == "") && (req.VideoID == nil || *req.VideoID == "") {
-        return errors.New("comment_id and video_id cannot be empty")
-    }
+		return errors.New("comment_id and video_id cannot be empty")
+	}
 
 	var curr_id string
 	if req.CommentID != nil && *req.CommentID != "" {
@@ -179,8 +179,8 @@ func (s *InteractService) DeleteComment(userID string, req *interact.DeleteComme
 			return errors.New("you are not the author of this comment")
 		}
 
-	    return db.DeleteCommentByCommentID(curr_id)
-	} else if req.VideoID != nil && *req.VideoID != ""{
+		return db.DeleteCommentByCommentID(curr_id)
+	} else if req.VideoID != nil && *req.VideoID != "" {
 		curr_id = *req.VideoID
 		curr_user_id, err := db.GetUserIdByID(curr_id)
 		if err != nil {

@@ -17,15 +17,15 @@ const (
 	PasswordIsNotVerifiedErrCode    // 密码错误
 	UnableToRetrieveUserInfoErrCode // 无法获取用户信息
 
-	FileUploadErrCode // 文件上传错误
-	FileSaveErrCode   // 文件保存错误
-	UnableFindPathErrCode // 无法找到路径
-	FileOpenErrCode   // 文件打开错误
-	FileReadErrCode   // 文件读取错误
-	FileTypeErrCode   // 文件类型错误
-	FileSeekErrCode   // 文件大小错误
-	FileDirCreateErrCode // 文件目录创建错误
-	FileCoverCreateErrCode // 文件封面创建错误
+	FileUploadErrCode        // 文件上传错误
+	FileSaveErrCode          // 文件保存错误
+	UnableFindPathErrCode    // 无法找到路径
+	FileOpenErrCode          // 文件打开错误
+	FileReadErrCode          // 文件读取错误
+	FileTypeErrCode          // 文件类型错误
+	FileSeekErrCode          // 文件大小错误
+	FileDirCreateErrCode     // 文件目录创建错误
+	FileCoverCreateErrCode   // 文件封面创建错误
 	VideoAlreadyExistErrCode // 视频已存在
 )
 
@@ -74,15 +74,15 @@ var (
 	UnableToRetrieveUserInfoErr = NewErrNo(UnableToRetrieveUserInfoErrCode, "Unable to retrieve user information")
 
 	// File-related errors
-	FileUploadErr = NewErrNo(FileUploadErrCode, "File upload error")
-	FileSaveErr   = NewErrNo(FileSaveErrCode, "File save error")
-	UnableFindPathErr = NewErrNo(UnableFindPathErrCode, "Unable to find path")
-	FileOpenErr   = NewErrNo(FileOpenErrCode, "File open error")
-	FileReadErr   = NewErrNo(FileReadErrCode, "File read error")
-	FileTypeErr   = NewErrNo(FileTypeErrCode, "File type error")
-	FileSeekErr   = NewErrNo(FileSeekErrCode, "File size error")
-	FileDirCreateErr = NewErrNo(FileDirCreateErrCode, "File directory creation error")
-	FileCoverCreateErr = NewErrNo(FileCoverCreateErrCode, "File cover creation error")
+	FileUploadErr        = NewErrNo(FileUploadErrCode, "File upload error")
+	FileSaveErr          = NewErrNo(FileSaveErrCode, "File save error")
+	UnableFindPathErr    = NewErrNo(UnableFindPathErrCode, "Unable to find path")
+	FileOpenErr          = NewErrNo(FileOpenErrCode, "File open error")
+	FileReadErr          = NewErrNo(FileReadErrCode, "File read error")
+	FileTypeErr          = NewErrNo(FileTypeErrCode, "File type error")
+	FileSeekErr          = NewErrNo(FileSeekErrCode, "File size error")
+	FileDirCreateErr     = NewErrNo(FileDirCreateErrCode, "File directory creation error")
+	FileCoverCreateErr   = NewErrNo(FileCoverCreateErrCode, "File cover creation error")
 	VideoAlreadyExistErr = NewErrNo(VideoAlreadyExistErrCode, "Video already exists")
 )
 

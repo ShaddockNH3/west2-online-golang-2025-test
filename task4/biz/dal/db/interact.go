@@ -4,10 +4,11 @@ import (
 	"errors"
 	"time"
 
-	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/model/common"
-	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/pkg/constants"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+
+	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/model/common"
+	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/pkg/constants"
 )
 
 type LikeItems struct {
@@ -92,7 +93,7 @@ func UpdateLike(likeableID, likeableType, userID string, likeType int64) error {
 	err = DB.Unscoped().Where("likeable_id = ? AND user_id = ?", likeableID, userID).First(&likeRecord).Error
 
 	// 数据库里完全没有这条记录
-	if err != nil && err == gorm.ErrRecordNotFound {
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		if likeType == 1 { // 想点赞
 			// 创建一个新的
 			err = CreateLike(likeableID, likeableType, userID)

@@ -2,12 +2,14 @@ package video_service
 
 import (
 	"context"
+	"errors"
+
+	"github.com/google/uuid"
+	"gorm.io/gorm"
 
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/dal/db"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/model/video"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/pkg/errno"
-	"github.com/google/uuid"
-	"gorm.io/gorm"
 )
 
 type VideoService struct {
@@ -25,7 +27,7 @@ func (s *VideoService) CreateVideo(UserID string, VideoURL string, CoverURL stri
 		return errno.VideoAlreadyExistErr
 	}
 
-	if err != gorm.ErrRecordNotFound {
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		return err
 	}
 

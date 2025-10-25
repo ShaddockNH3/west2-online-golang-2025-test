@@ -16,10 +16,8 @@ func NewSocialService(ctx context.Context) *SocialService {
 	return &SocialService{ctx: ctx}
 }
 
-func (s *SocialService) ActionRelation(userID string, req *social.ActionRelationRequest) error {
-	var err error
-
-	err = db.UpdateRelation(userID, req.ToUserID, req.ActionType)
+func (s *SocialService) ActionRelation(userID string, currentActionTypeRelation int64, req *social.ActionRelationRequest) error {
+	var err error = db.UpdateRelation(userID, req.ToUserID, currentActionTypeRelation)
 	if err != nil {
 		return err
 	}

@@ -4,10 +4,11 @@ import (
 	"errors"
 	"time"
 
-	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/model/common"
-	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/pkg/constants"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+
+	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/model/common"
+	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/pkg/constants"
 )
 
 type SocialItems struct {
@@ -38,7 +39,7 @@ func UpdateRelation(follower_id, followed_id string, action_type int64) error {
 	err = DB.Unscoped().Where("follower_id = ? AND followed_id = ?", follower_id, followed_id).First(&social_relation).Error
 
 	// 数据库里完全没有这条记录
-	if err != nil && err == gorm.ErrRecordNotFound {
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		if action_type == 0 { // 想关注
 			// 创建一个新的
 			return CreateSocialItems(&SocialItems{

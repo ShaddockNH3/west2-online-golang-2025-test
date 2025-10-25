@@ -31,8 +31,8 @@ func Comment(model db.CommentItems) *common.CommentItems {
 		LikeCount:  model.LikeCount,
 		ChildCount: model.ChildCount,
 		Content:    model.Content,
-		CreatedAt:   CreatedAt,
-		UpdatedAt:   UpdatedAt,
-		DeletedAt:   deleteAtStr,
+		CreatedAt:  CreatedAt,
+		UpdatedAt:  UpdatedAt,
+		DeletedAt:  deleteAtStr,
 	}
 }

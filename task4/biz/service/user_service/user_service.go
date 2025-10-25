@@ -3,12 +3,13 @@ package user_service
 import (
 	"context"
 
+	"github.com/google/uuid"
+
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/dal/db"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/model/user"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/pkg/constants"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/pkg/errno"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/pkg/utils"
-	"github.com/google/uuid"
 )
 
 type UserService struct {
@@ -30,7 +31,7 @@ func (s *UserService) RegisterUser(req *user.RegisterUserRequest) error {
 		return errno.UserAlreadyExistErr
 	}
 
-	//password加密
+	// password加密
 	passwordHash, err := utils.Crypt(req.Password)
 	if err != nil {
 		return err

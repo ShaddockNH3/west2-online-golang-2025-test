@@ -36,6 +36,8 @@ const (
 )
 
 const (
-	PopularVideosSuffix = ":popular_videos"
-	MFAAuthSuffix       = ":mfa_auth"
+	PopularVideosSuffix   = ":popular_videos"
+	MFAAuthSuffix         = ":mfa_auth"
+	VideoLikeAuthSuffix   = ":video_like_auth"
+	CommentLikeAuthSuffix = ":comment_like_auth"
 )

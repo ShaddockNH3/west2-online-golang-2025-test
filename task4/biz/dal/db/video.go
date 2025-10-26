@@ -115,25 +115,9 @@ func QueryVideosByKeyword(req *video.SearchVideoRequest) ([]VideoItems, int64, e
 		return videos, total, nil
 	}
 
-	// 批量更新浏览量
-	videoIDs := make([]string, len(videos))
-	for i, v := range videos {
-		videoIDs[i] = v.ID
+	if err := UpdateVideoVisitCount(videos); err != nil {
+		return nil, 0, err
 	}
-	if err := DB.Model(&VideoItems{}).Where("id IN (?)", videoIDs).Update("visit_count", gorm.Expr("visit_count + 1")).Error; err != nil {
-		// return nil, 0, err
-	}
-
-	// 更新热门视频
-	go func() {
-		for _, video := range videos {
-			newVisitCount := video.VisitCount + 1
-			err := redis.AddOrUpdatePopularVideo(video.ID, float64(newVisitCount))
-			if err != nil {
-				// return nil, 0, err
-			}
-		}
-	}()
 
 	return videos, total, nil
 }
@@ -166,5 +150,33 @@ func FeedVideos(latestTime string) ([]VideoItems, error) {
 	if err := DB.Where("created_at < ?", latestTime).Order("created_at desc").Find(&videos).Error; err != nil {
 		return nil, err
 	}
+
+	if err := UpdateVideoVisitCount(videos); err != nil {
+		return nil, err
+	}
+	
 	return videos, nil
+}
+
+func UpdateVideoVisitCount(videos []VideoItems) error {
+	// 批量更新浏览量
+	videoIDs := make([]string, len(videos))
+	for i, v := range videos {
+		videoIDs[i] = v.ID
+	}
+	if err := DB.Model(&VideoItems{}).Where("id IN (?)", videoIDs).Update("visit_count", gorm.Expr("visit_count + 1")).Error; err != nil {
+		// return nil, 0, err
+	}
+
+	// 更新热门视频
+	go func() {
+		for _, video := range videos {
+			newVisitCount := video.VisitCount + 1
+			err := redis.AddOrUpdatePopularVideo(video.ID, float64(newVisitCount))
+			if err != nil {
+				// return nil, 0, err
+			}
+		}
+	}()
+	return nil
 }

@@ -5,21 +5,14 @@ package video
 import (
 	"context"
 	"fmt"
-	"net/http"
-	"os"
-	"os/exec"
-	"path/filepath"
-	"runtime"
-	"strings"
-	"time"
 
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/model/common"
-	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/model/user"
 	video "github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/model/video"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/pack"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/service/video_service"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/pkg/constants"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/pkg/errno"
+	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/pkg/utils"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 )
@@ -53,184 +46,40 @@ func PublishVideo(ctx context.Context, c *app.RequestContext) {
 	}
 
 	// 处理视频文件上传，并且处理封面生成
+	// 这部分的逻辑需要封装，并且重构为分布式
+	// 视频分布传输也是保存在本地先，而不是采用其他技术部署到云盘上
+	// 未来可以考虑使用对象存储服务，使用MinIO等
+	// 目前是需要一个函数返回——
+	// currentVideo,currentCover（文件本身，这里改成使用uuid在service层生成）
 
-	fileHeader, err := c.FormFile("data")
+	// 这个函数处理视频上传，返回视频本身，暂时还是保存在本地的单片上传
+	savePath, currentVideo, err := utils.UploadVideo(c, currentUserID.(string))
+
 	if err != nil {
 		resp := new(video.PublishVideoResponse)
 		resp.Base = &common.BaseResponse{
 			Code: "-1",
-			Msg:  errno.FileUploadErr.ErrMsg,
+			Msg:  err.Error(),
 		}
 		c.JSON(consts.StatusOK, resp)
 		return
 	}
 
-	if fileHeader == nil {
-		resp := new(video.PublishVideoResponse)
-		resp.Base = &common.BaseResponse{
-			Code: "-1",
-			Msg:  errno.FileUploadErr.ErrMsg,
-		}
-		c.JSON(consts.StatusOK, resp)
-		return
-	}
-
-	// 检查文件是否为视频
-	file, err := fileHeader.Open()
+	// 这个函数处理封面生成，返回封面的基本参数
+	coverFilename, coverSavePath, coverSize, err := utils.GenerateVideoCover(savePath, currentUserID.(string), currentVideo.Filename)
 	if err != nil {
 		resp := new(video.PublishVideoResponse)
 		resp.Base = &common.BaseResponse{
 			Code: "-1",
-			Msg:  errno.FileOpenErr.ErrMsg,
+			Msg:  err.Error(),
 		}
 		c.JSON(consts.StatusOK, resp)
 		return
-	}
-	defer file.Close()
-
-	buffer := make([]byte, 512)
-	_, err = file.Read(buffer)
-	if err != nil {
-		resp := new(video.PublishVideoResponse)
-		resp.Base = &common.BaseResponse{
-			Code: "-1",
-			Msg:  errno.FileReadErr.ErrMsg,
-		}
-		c.JSON(consts.StatusOK, resp)
-		return
-	}
-
-	contentType := http.DetectContentType(buffer)
-	allowedTypes := []string{"video/mp4", "video/quicktime", "video/webm", "video/x-msvideo"}
-	isAllowed := false
-	for _, t := range allowedTypes {
-		if contentType == t {
-			isAllowed = true
-			break
-		}
-	}
-
-	if !isAllowed {
-		resp := new(video.PublishVideoResponse)
-		resp.Base = &common.BaseResponse{
-			Code: "-1",
-			Msg:  errno.FileTypeErr.ErrMsg,
-		}
-		c.JSON(consts.StatusOK, resp)
-		return
-	}
-
-	_, err = file.Seek(0, 0)
-	if err != nil {
-		resp := new(video.PublishVideoResponse)
-		resp.Base = &common.BaseResponse{
-			Code: "-1",
-			Msg:  errno.FileSeekErr.ErrMsg,
-		}
-		c.JSON(consts.StatusOK, resp)
-		return
-	}
-
-	// 保存文件到本地
-	// 需要确保有 ./data/videos 目录
-	_, currentFilePath, _, _ := runtime.Caller(0)
-	projectRoot := ""
-	if idx := strings.LastIndex(currentFilePath, "task4"); idx != -1 {
-		projectRoot = currentFilePath[:idx+len("task4")]
-	}
-	if projectRoot == "" {
-		resp := new(user.AvatarUploadUserResponse)
-		resp.Base = &common.BaseResponse{
-			Code: "-1",
-			Msg:  errno.UnableFindPathErr.ErrMsg,
-		}
-		c.JSON(consts.StatusOK, resp)
-		return
-	}
-
-	// 创建文件名
-	filename := fmt.Sprintf("%s_%d_%s", currentUserID, time.Now().Unix(), fileHeader.Filename)
-	savePathDir := filepath.Join(projectRoot, "pkg", "data", "videos", currentUserID.(string))
-
-	if err := os.MkdirAll(savePathDir, 0755); err != nil {
-		resp := new(user.AvatarUploadUserResponse)
-		resp.Base = &common.BaseResponse{
-			Code: "-1",
-			Msg:  errno.FileDirCreateErr.ErrMsg,
-		}
-		c.JSON(consts.StatusOK, resp)
-		return
-	}
-
-	savePath := filepath.Join(savePathDir, filename)
-
-	if err = c.SaveUploadedFile(fileHeader, savePath); err != nil {
-		resp := new(user.AvatarUploadUserResponse)
-		resp.Base = &common.BaseResponse{
-			Code: "-1",
-			Msg:  errno.FileSaveErr.ErrMsg,
-		}
-		c.JSON(consts.StatusOK, resp)
-		return
-	}
-
-	currentVideoURL := constants.DefaultURL + "videos/" + filename
-
-	// 处理封面文件，默认为视频第一帧
-
-	coverFilename := strings.TrimSuffix(filename, filepath.Ext(filename)) + ".jpg"
-	coverSavePathDir := filepath.Join(projectRoot, "pkg", "data", "covers", currentUserID.(string))
-
-	// 确保存放封面的文件夹也存在
-	if err := os.MkdirAll(coverSavePathDir, 0755); err != nil {
-		resp := new(video.PublishVideoResponse)
-		resp.Base = &common.BaseResponse{
-			Code: "-1",
-			Msg:  errno.FileDirCreateErr.ErrMsg,
-		}
-		c.JSON(consts.StatusOK, resp)
-		return
-	}
-
-	coverSavePath := filepath.Join(coverSavePathDir, coverFilename)
-
-	cmd := exec.Command("ffmpeg",
-		"-i", savePath,
-		"-ss", "00:00:01",
-		"-vframes", "1",
-		coverSavePath,
-	)
-
-	if err := cmd.Run(); err != nil {
-		resp := new(video.PublishVideoResponse)
-		resp.Base = &common.BaseResponse{
-			Code: "-1",
-			Msg:  errno.FileCoverCreateErr.ErrMsg,
-		}
-		c.JSON(consts.StatusOK, resp)
-		return
-	}
-
-	currentCoverURL := constants.DefaultURL + "covers/" + filename + "#t=0.1"
-
-	// 获取当前用户上传的视频的标题和描述
-	var currentTitle string
-	var currentDescription string
-	if req.Title == nil || *req.Title == "" {
-		currentTitle = currentUserID.(string) + currentVideoURL + "_video"
-	} else {
-		currentTitle = *req.Title
-	}
-
-	if req.Description == nil || *req.Description == "" {
-		currentDescription = currentUserID.(string) + currentVideoURL + "_video_description"
-	} else {
-		currentDescription = *req.Description
 	}
 
 	// 调用服务，创建视频
 	VideoService := video_service.NewVideoService(ctx)
-	err = VideoService.CreateVideo(currentUserID.(string), currentVideoURL, currentCoverURL, currentTitle, currentDescription, &req)
+	err = VideoService.CreateVideo(currentUserID.(string), currentVideo, coverFilename, coverSavePath, coverSize, &req)
 
 	resp := new(video.PublishVideoResponse)
 

@@ -41,3 +41,16 @@ const (
 	VideoLikeAuthSuffix   = ":video_like_auth"
 	CommentLikeAuthSuffix = ":comment_like_auth"
 )
+
+// websocket
+const(
+	WebsocketAddr = "0.0.0.0:6666"
+	// 写入等待时间
+	WriteWait	= 10 * time.Second
+	// 读取等待时间
+	PongWait	= 60 * time.Second
+	// 心跳周期，应小于读取等待时间
+	PingPeriod	= (PongWait * 9) / 10
+	// max消息大小
+	MaxMessageSize	= 512
+)

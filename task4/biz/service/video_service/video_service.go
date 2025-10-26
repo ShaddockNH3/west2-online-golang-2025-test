@@ -3,6 +3,7 @@ package video_service
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -79,6 +80,21 @@ func (s *VideoService) PopularVideos(req *video.PopularVideoRequest) ([]db.Video
 	}
 
 	videos, err := db.PopularVideos(currentPage, pageSize)
+	if err != nil {
+		return nil, err
+	}
+	return videos, nil
+}
+
+func (s *VideoService) FeedVideos(req *video.FeedVideoRequest) ([]db.VideoItems, error) {
+	var lateTime string
+	if req.LatestTime == nil {
+		lateTime = time.Now().Format("2006-01-02 15:04:05")
+	} else {
+		lateTime = *req.LatestTime
+	}
+
+	videos, err := db.FeedVideos(lateTime)
 	if err != nil {
 		return nil, err
 	}

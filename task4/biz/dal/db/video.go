@@ -160,3 +160,11 @@ func PopularVideos(page, pageSize int64) ([]VideoItems, error) {
 
 	return videos, nil
 }
+
+func FeedVideos(latestTime string) ([]VideoItems, error) {
+	var videos []VideoItems
+	if err := DB.Where("created_at < ?", latestTime).Order("created_at desc").Find(&videos).Error; err != nil {
+		return nil, err
+	}
+	return videos, nil
+}

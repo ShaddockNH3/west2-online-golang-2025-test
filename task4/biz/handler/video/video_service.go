@@ -52,7 +52,7 @@ func PublishVideo(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	// 处理视频文件上传
+	// 处理视频文件上传，并且处理封面生成
 
 	fileHeader, err := c.FormFile("data")
 	if err != nil {
@@ -380,6 +380,48 @@ func SearchVideo(ctx context.Context, c *app.RequestContext) {
 	resp.Data = &common.VideoDataForListResponse{
 		Items: pack.Videos(videos),
 		Total: total,
+	}
+
+	c.JSON(consts.StatusOK, resp)
+}
+
+// FeedVideo .
+// @router /v1/video/feed/ [GET]
+func FeedVideo(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req video.FeedVideoRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		resp := new(video.FeedVideoResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  err.Error(),
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	VideoService := video_service.NewVideoService(ctx)
+	videos, err := VideoService.FeedVideos(&video.FeedVideoRequest{})
+
+	resp := new(video.FeedVideoResponse)
+
+	if err != nil {
+		e := errno.ConvertErr(err)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  e.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	resp.Base = &common.BaseResponse{
+		Code: fmt.Sprintf("%d", errno.Success.ErrCode), // 10000
+		Msg:  errno.Success.ErrMsg,                     // "success"
+	}
+	resp.Data = &common.VideoDataForPopularResponse{
+		Items: pack.Videos(videos),
 	}
 
 	c.JSON(consts.StatusOK, resp)

@@ -12,6 +12,16 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 )
 
+func CreateDirIfNotExist(dirPath string) error {
+	if _, err := os.Stat(dirPath); os.IsNotExist(err) {
+		err := os.MkdirAll(dirPath, 0755)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func UploadImage(c *app.RequestContext, currentUserID string) (*multipart.FileHeader, string, error) {
 	fileHeader, err := CheckImageFile(c)
 	if err != nil {

@@ -2,6 +2,15 @@ include "common.thrift"
 
 namespace go video
 
+struct FeedVideoRequest {
+    1: optional string latest_time (api.query="latest_time", api.vd="(len($) == 0) || (len($) > 0 && len($) < 100)")
+}
+
+struct FeedVideoResponse {
+    1: common.BaseResponse base
+    2: common.VideoDataForPopularResponse data
+}
+
 struct PublishVideoRequest{   
     // 1: optional file data (api.form="data")
     2: optional string title (api.form="title", api.vd="(len($) == 0) || (len($) > 0 && len($) < 100)")
@@ -48,6 +57,7 @@ struct SearchVideoResponse{
 }
 
 service VideoService {
+    FeedVideoResponse FeedVideo(1: FeedVideoRequest req) (api.get="/v1/video/feed/")
     PublishVideoResponse PublishVideo(1: PublishVideoRequest req) (api.post="/v1/video/publish/")
     ListVideoResponse ListVideo(1: ListVideoRequest req) (api.get="/v1/video/list/")
     PopularVideoResponse PopularVideo(1: PopularVideoRequest req) (api.get="/v1/video/popular/")

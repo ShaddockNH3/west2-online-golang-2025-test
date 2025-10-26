@@ -209,14 +209,14 @@ func (s *UserService) BindMFAAuth(userID string, req *user.BindMFAAuthRequest) e
 
 	// 应该是要实现加密逻辑的，但是得使用双向的加密，而不是使用bcrypt这种单向加密
 	// 但是目前先不实现了
-	
+
 	// mfaSecretHash, err := utils.Encrypt(mfaSecret)
 	// if err != nil {
 	// 	return err
 	// }
 
 	// 存储mfaSecret到数据库
-	err = db.DB.Model(&db.User{}).Where("id = ?", userID).Update("mfa_secret", mfaSecret).Error
+	err = db.UpdateMFASecret(userID, mfaSecret)
 	if err != nil {
 		return err
 	}

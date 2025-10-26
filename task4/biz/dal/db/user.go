@@ -71,3 +71,7 @@ func QueryImageByFilename(filename string) (string, error) {
 func UploadAvatar(user_id, avatar_url string) error {
 	return DB.Model(&User{}).Where("id = ?", user_id).Update("avatar_url", avatar_url).Error
 }
+
+func UpdateMFASecret(user_id, mfa_secret string) error {
+	return DB.Model(&User{}).Where("id = ?", user_id).Update("mfa_secret", mfa_secret).Error
+}

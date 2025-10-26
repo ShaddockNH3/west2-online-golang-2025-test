@@ -20,6 +20,14 @@ func Register(r *server.Hertz) {
 	{
 		_v1 := root.Group("/v1", _v1Mw()...)
 		{
+			_auth := _v1.Group("/auth", _authMw()...)
+			{
+				_mfa := _auth.Group("/mfa", _mfaMw()...)
+				_mfa.POST("/bind", append(_bindmfaauthMw(), user.BindMFAAuth)...)
+				_mfa.GET("/qrcode", append(_qrcodemfaauthMw(), user.QrcodeMFAAuth)...)
+			}
+		}
+		{
 			_user := _v1.Group("/user", _userMw()...)
 			_user.GET("/info", append(_infouserMw(), user.InfoUser)...)
 			_user.POST("/login", append(_loginuserMw(), user.LoginUser)...)
@@ -27,6 +35,10 @@ func Register(r *server.Hertz) {
 			{
 				_avatar := _user.Group("/avatar", _avatarMw()...)
 				_avatar.PUT("/upload", append(_avataruploaduserMw(), user.AvatarUploadUser)...)
+			}
+			{
+				_image := _user.Group("/image", _imageMw()...)
+				_image.POST("/search", append(_searchimageMw(), user.SearchImage)...)
 			}
 		}
 	}

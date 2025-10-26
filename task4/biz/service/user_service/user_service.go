@@ -2,6 +2,7 @@ package user_service
 
 import (
 	"context"
+	"mime/multipart"
 
 	"github.com/google/uuid"
 
@@ -103,10 +104,27 @@ func (s *UserService) InfoUser(userID string, req *user.InfoUserRequest) (*db.Us
 	return user, nil
 }
 
-func (s *UserService) AvatarUploadUser(user_id string, avatar_url string, req *user.AvatarUploadUserRequest) (*db.User, error) {
+func (s *UserService) AvatarUploadUser(user_id string, fileHeader *multipart.FileHeader, savePath string, req *user.AvatarUploadUserRequest) (*db.User, error) {
 	var err error
 
-	if err := db.UploadAvatar(user_id, avatar_url); err != nil {
+	newImageID := uuid.NewString()
+	AvatarURL := constants.DefaultURL + "avatars/" + newImageID
+
+	newImage := &db.Image{
+		ID:               newImageID,
+		UserID:           user_id,
+		URL:              AvatarURL,
+		OriginalFilename: fileHeader.Filename,
+		Filepath:         savePath,
+		Filesize:         fileHeader.Size,
+		MimeType:         fileHeader.Header.Get("Content-Type"),
+	}
+
+	if err = db.CreateImage(newImage); err != nil {
+		return nil, err
+	}
+
+	if err := db.UploadAvatar(user_id, AvatarURL); err != nil {
 		return nil, err
 	}
 
@@ -116,4 +134,15 @@ func (s *UserService) AvatarUploadUser(user_id string, avatar_url string, req *u
 	}
 
 	return updatedUser, nil
+}
+
+func (s *UserService) SearchImage(filename string, req *user.SearchImageRequest) (string, error) {
+	var err error
+
+	fileURL, err := db.QueryImageByFilename(filename)
+	if err != nil {
+		return "", err
+	}
+
+	return fileURL, nil
 }

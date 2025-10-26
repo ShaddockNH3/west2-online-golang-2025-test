@@ -48,3 +48,33 @@ func _avataruploaduserMw() []app.HandlerFunc {
 		jwt.AccessTokenJwtMiddleware.MiddlewareFunc(),
 	}
 }
+
+func _authMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _mfaMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _bindmfaauthMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _qrcodemfaauthMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _imageMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _searchimageMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

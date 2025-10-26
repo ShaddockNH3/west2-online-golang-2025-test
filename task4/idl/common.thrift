@@ -16,6 +16,7 @@ struct User{
     5: string create_at
     6: string update_at
     7: string delete_at
+    8: string mfa_secret // MFA 密钥，如果开启 MFA 则不为空
 }
 
 struct UserDataResponse{
@@ -27,6 +28,28 @@ struct UserDataResponse{
     6: string delete_at
 }
 
+// MFA
+struct QrcodeMFAAuthResponse{
+    1: string secret
+    2: string qrcode
+}
+
+// image
+
+struct Image{
+    1: string id // 唯一标识符
+    2: string user_id // 上传用户的ID
+    3: string url // 图片的URL地址
+    4: string original_filename // 原始文件名
+    5: string filepath // 文件存储路径
+    6: i64 filesize // 文件大小
+    7: string mime_type // 文件的MIME类型
+    8: string created_at // 创建时间
+    9: string updated_at // 更新时间
+    10: string deleted_at // 软删除标记
+}
+
+// Video
 struct VideoItems{
     1: string id
     2: string user_id

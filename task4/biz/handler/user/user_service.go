@@ -270,12 +270,51 @@ func QrcodeMFAAuth(ctx context.Context, c *app.RequestContext) {
 	var req user.QrcodeMFAAuthRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		resp := new(user.QrcodeMFAAuthResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  err.Error(),
+		}
+		c.JSON(consts.StatusOK, resp)
 		return
 	}
 
+	// 获取当前用户ID
+	currentUserID, exists := c.Get(constants.ContextCurrentUserKey)
+	if !exists {
+		resp := new(user.InfoUserResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  errno.UnableToRetrieveUserInfoErr.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	userService := user_service.NewUserService(ctx)
+	secret, qrcode, err := userService.QrcodeMFAAuth(currentUserID.(string), &req)
+
 	resp := new(user.QrcodeMFAAuthResponse)
 
+	if err != nil {
+		e := errno.ConvertErr(err)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  e.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	resp.Base = &common.BaseResponse{
+		Code: fmt.Sprintf("%d", errno.Success.ErrCode), // 10000
+		Msg:  errno.Success.ErrMsg,                     // "success"
+	}
+
+	resp.Data = &common.QrcodeMFAAuthResponse{
+		Secret: secret,
+		Qrcode: qrcode,
+	}
 	c.JSON(consts.StatusOK, resp)
 }
 
@@ -286,18 +325,52 @@ func BindMFAAuth(ctx context.Context, c *app.RequestContext) {
 	var req user.BindMFAAuthRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		resp := new(user.BindMFAAuthResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  err.Error(),
+		}
+		c.JSON(consts.StatusOK, resp)
 		return
 	}
 
+	// 获取当前用户ID
+	currentUserID, exists := c.Get(constants.ContextCurrentUserKey)
+	if !exists {
+		resp := new(user.InfoUserResponse)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  errno.UnableToRetrieveUserInfoErr.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	userService := user_service.NewUserService(ctx)
+	err = userService.BindMFAAuth(currentUserID.(string), &req)
+
 	resp := new(user.BindMFAAuthResponse)
+
+	if err != nil {
+		e := errno.ConvertErr(err)
+		resp.Base = &common.BaseResponse{
+			Code: "-1",
+			Msg:  e.ErrMsg,
+		}
+		c.JSON(consts.StatusOK, resp)
+		return
+	}
+
+	resp.Base = &common.BaseResponse{
+		Code: fmt.Sprintf("%d", errno.Success.ErrCode),
+		Msg:  errno.Success.ErrMsg,
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }
 
 // SearchImage .
 // @router /v1/user/image/search [POST]
-// 这个函数应该目前是只有搜索头像的功能的，需要下数据库查询url，查询时间戳后面的部分就行了
 func SearchImage(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req user.SearchImageRequest

@@ -9,8 +9,10 @@ import (
 )
 
 var (
-	expireTime = time.Hour * 1
-	rdbPopular *redis.Client
+	expireTime         = time.Hour * 1
+	mfaSetupExpireTime = 5 * time.Minute
+	rdbPopular         *redis.Client
+	rdbMFAAuth         *redis.Client
 )
 
 func InitRedis() {
@@ -18,5 +20,10 @@ func InitRedis() {
 		Addr:     constants.RedisAddr,
 		Password: constants.RedisPassword,
 		DB:       0,
+	})
+	rdbMFAAuth = redis.NewClient(&redis.Options{
+		Addr:     constants.RedisAddr,
+		Password: constants.RedisPassword,
+		DB:       1,
 	})
 }

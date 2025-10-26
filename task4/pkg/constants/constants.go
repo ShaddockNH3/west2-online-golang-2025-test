@@ -4,6 +4,7 @@ import "time"
 
 // Jwt
 const (
+	AppName               = "west-online-golang-2025-test-task4"
 	JwtSecretKey          = "task4-secret-key"
 	AccessTokenTimeout    = 2 * time.Hour
 	RefreshTokenTimeout   = 7 * 24 * time.Hour
@@ -36,4 +37,5 @@ const (
 
 const (
 	PopularVideosSuffix = ":popular_videos"
+	MFAAuthSuffix       = ":mfa_auth"
 )

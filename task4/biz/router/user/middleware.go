@@ -60,13 +60,15 @@ func _mfaMw() []app.HandlerFunc {
 }
 
 func _bindmfaauthMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	return []app.HandlerFunc{
+		jwt.AccessTokenJwtMiddleware.MiddlewareFunc(),
+	}
 }
 
 func _qrcodemfaauthMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	return []app.HandlerFunc{
+		jwt.AccessTokenJwtMiddleware.MiddlewareFunc(),
+	}
 }
 
 func _imageMw() []app.HandlerFunc {

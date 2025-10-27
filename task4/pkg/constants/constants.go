@@ -5,11 +5,16 @@ import "time"
 // Jwt
 const (
 	AppName               = "west-online-golang-2025-test-task4"
-	JwtSecretKey          = "task4-secret-key"
+	JwtSecretKey          = "task4-jwt-secret-key"
 	AccessTokenTimeout    = 2 * time.Hour
 	RefreshTokenTimeout   = 7 * 24 * time.Hour
 	JwtIdentityKey        = "user_id"
 	ContextCurrentUserKey = "user_id"
+)
+
+// MFA
+const (
+	MfaSecretKey = "86480212befaa02e32122bd55f35297054b4580025d5880a6247756091dbf6f1" // 后续应该置入环境变量
 )
 
 const (
@@ -43,14 +48,14 @@ const (
 )
 
 // websocket
-const(
+const (
 	WebsocketAddr = "0.0.0.0:6666"
 	// 写入等待时间
-	WriteWait	= 10 * time.Second
+	WriteWait = 10 * time.Second
 	// 读取等待时间
-	PongWait	= 60 * time.Second
+	PongWait = 60 * time.Second
 	// 心跳周期，应小于读取等待时间
-	PingPeriod	= (PongWait * 9) / 10
+	PingPeriod = (PongWait * 9) / 10
 	// max消息大小
-	MaxMessageSize	= 512
+	MaxMessageSize = 512
 )

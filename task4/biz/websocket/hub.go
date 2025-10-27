@@ -74,7 +74,7 @@ func (h *Hub) Run() {
 
 			switch clientMessage.MessageType {
 			case 0:
-				// 处理类型0的消息
+				// 处理类型0的消息，广播给所有人
 				for _, client := range h.clients {
 					select {
 					case client.send <- message.Data:
@@ -84,7 +84,15 @@ func (h *Hub) Run() {
 					}
 				}
 			case 1:
-				// 处理类型1的消息
+				// 处理类型1的消息，发送给特定用户私聊，鉴权和保存的逻辑先省略
+				if targetClient, ok := h.clients[clientMessage.TargetID]; ok {
+					select {
+					case targetClient.send <- message.Data:
+					default:
+						close(targetClient.send)
+						delete(h.clients, targetClient.UserID)
+					}
+				}
 
 			case 2:
 				// 处理类型2的消息

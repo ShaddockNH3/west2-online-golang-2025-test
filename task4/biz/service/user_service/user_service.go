@@ -66,12 +66,19 @@ func (s *UserService) LoginUser(req *user.LoginUserRequest) (*db.User, string, s
 		return nil, "", "", errno.UserNotExistErr
 	}
 
+	// 如果开启了mfa验证，则进行mfa验证
 	if user.MfaSecret != "" {
 		if req.Code == nil {
 			return nil, "", "", errno.MFACodeEmptyErr
 		}
+		// 解密mfaSecret
+		masterKey := []byte(constants.MfaSecretKey)
+		mfaSecret, err := utils.AESDecrypt(user.MfaSecret, masterKey)
+		if err != nil {
+			return nil, "", "", err
+		}
 		// mfa验证
-		isValid := totp.Validate(*req.Code, user.MfaSecret)
+		isValid := totp.Validate(*req.Code, mfaSecret)
 		if !isValid {
 			return nil, "", "", errno.MFAInvalidCodeErr
 		}
@@ -172,7 +179,7 @@ func (s *UserService) QrcodeMFAAuth(userID string, req *user.QrcodeMFAAuthReques
 
 	redis.SetMFASecretToCache(userID, mfaSecret)
 
-	return qrCodeURL, mfaSecret, nil
+	return mfaSecret, qrCodeURL, nil
 }
 
 func (s *UserService) BindMFAAuth(userID string, req *user.BindMFAAuthRequest) error {
@@ -207,16 +214,16 @@ func (s *UserService) BindMFAAuth(userID string, req *user.BindMFAAuthRequest) e
 		}
 	}
 
-	// 应该是要实现加密逻辑的，但是得使用双向的加密，而不是使用bcrypt这种单向加密
-	// 但是目前先不实现了
+	// 使用AES加密mfaSecret后存储到数据库
+	masterKey := []byte(constants.MfaSecretKey)
 
-	// mfaSecretHash, err := utils.Encrypt(mfaSecret)
-	// if err != nil {
-	// 	return err
-	// }
+	mfaSecretAES, err := utils.AESGCMEncrypt(mfaSecret, masterKey)
+	if err != nil {
+		return err
+	}
 
 	// 存储mfaSecret到数据库
-	err = db.UpdateMFASecret(userID, mfaSecret)
+	err = db.UpdateMFASecret(userID, mfaSecretAES)
 	if err != nil {
 		return err
 	}

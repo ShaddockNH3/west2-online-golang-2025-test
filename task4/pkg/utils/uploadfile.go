@@ -162,7 +162,7 @@ func UploadVideo(c *app.RequestContext, currentUserID string) (string, *multipar
 		return "", nil, err
 	}
 
-	savePath := filepath.Join(savePathDir, currentUserID+filename)
+	savePath := filepath.Join(savePathDir, currentUserID+"_"+filename)
 
 	if err = c.SaveUploadedFile(fileHeader, savePath); err != nil {
 		return "", nil, err

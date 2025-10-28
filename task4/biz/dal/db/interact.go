@@ -45,7 +45,7 @@ func (CommentItems) TableName() string {
 	return constants.CommentsTableName
 }
 
-func UpdateLike(userID, likeableType, likeableID string, likeAction int64) error {
+func UpdateLike(likeableID, likeableType, userID string, likeAction int64) error {
 	if likeableType != "video" && likeableType != "comment" {
 		return errors.New("invalid likeable type")
 	}

@@ -18,10 +18,10 @@ const (
 )
 
 const (
-	MySQLDefaultDSN = "gorm:gorm@tcp(127.0.0.1:9910)/gorm?charset=utf8mb4&parseTime=True&loc=Local"
-	// MySQLDefaultDSN = "gorm:gorm@tcp(mysql:3306)/gorm?charset=utf8mb4&parseTime=True&loc=Local"
-	RedisAddr = "127.0.0.1:9911"
-	// RedisAddr     = "redis:6379"
+	// MySQLDefaultDSN = "gorm:gorm@tcp(127.0.0.1:9910)/gorm?charset=utf8mb4&parseTime=True&loc=Local"
+	MySQLDefaultDSN = "gorm:gorm@tcp(mysql:3306)/gorm?charset=utf8mb4&parseTime=True&loc=Local"
+	// RedisAddr = "127.0.0.1:9911"
+	RedisAddr     = "redis:6379"
 	RedisPassword = "shenmidazhi"
 )
 
@@ -34,8 +34,8 @@ const (
 )
 
 const (
-	Host = "http://172.28.172.13:8888"
-	// Host             = "http://localhost:8080" // 根据实际情况修改为服务器地址和端口
+	// Host = "http://172.28.172.13:8888"
+	Host             = "http://localhost:8080" // 根据实际情况修改为服务器地址和端口
 	DefaultURL       = Host + "/static/"
 	DefaultAvatarURL = Host + "/static/avatars/default_avatar.jpg"
 )
@@ -45,17 +45,4 @@ const (
 	MFAAuthSuffix         = ":mfa_auth"
 	VideoLikeAuthSuffix   = ":video_like_auth"
 	CommentLikeAuthSuffix = ":comment_like_auth"
-)
-
-// websocket
-const (
-	WebsocketAddr = "0.0.0.0:6666"
-	// 写入等待时间
-	WriteWait = 10 * time.Second
-	// 读取等待时间
-	PongWait = 60 * time.Second
-	// 心跳周期，应小于读取等待时间
-	PingPeriod = (PongWait * 9) / 10
-	// max消息大小
-	MaxMessageSize = 512
 )

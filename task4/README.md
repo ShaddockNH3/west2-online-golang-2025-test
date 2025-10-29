@@ -1,453 +1,207 @@
-# Task4 - 丐版抖音 📝
+# Task4 - 简易短视频后端
 
-![Go Version](https://img.shields.io/badge/Go-1.23.5-blue.svg)
-![Hertz](https://img.shields.io/badge/Hertz-v0.10.2-brightgreen.svg)
-![Docker](https://img.shields.io/badge/Docker-Compose-2496ED.svg)
-![License](https://img.shields.io/badge/License-MIT-lightgrey.svg)
+基于 CloudWeGo Hertz 框架实现的短视频平台后端服务。
 
-基于 **CloudWeGo Hertz** 框架开发的轻量级短视频社交平台后端服务，实现了类抖音的核心功能。
+## 项目说明
 
-## 📖 项目说明
+完成了 West2-Online 大作品的基础要求，实现了用户、视频、互动和社交四个核心模块。
 
-- **项目要求**: [West2-Online 大作品文档](https://github.com/west2-online/learn-go/blob/main/docs/4-%E5%A4%A7%E4%BD%9C%E5%93%81.md)
-- **接口文档**: [West2-Online API 文档](https://doc.west2.online/)
-- **实现范围**: 完成了项目的最低要求，包含用户、视频、互动和社交四大核心模块
+## 主要功能
 
----
+### 基础功能
+- 用户注册登录、信息查询、头像上传
+- 视频发布、列表查询、热门推荐、关键词搜索
+- 点赞（视频/评论）、评论发布/查询/删除
+- 关注/取消关注、关注列表、粉丝列表、好友列表
 
-## ✨ 项目特色
+### 额外实现
+- **MFA 双因素认证**: 登录时支持 TOTP 验证，提高账户安全性
+- **Redis 缓存点赞**: 点赞操作先写入 Redis，提升响应速度
+- **视频流推荐**: 实现获取最新视频列表的接口
+- **以图搜图**: 基于文字描述搜索相关视频（暂未实现真正的图像识别）
 
-### 🎯 核心功能
+### 技术实现
+- JWT 身份认证
+- bcrypt 密码加密
+- Redis 热门排行榜和缓存
+- Docker Compose 一键部署
+- GORM + MySQL 数据持久化
 
-- **用户系统**: 用户注册、登录、信息查询、头像上传
-- **视频模块**: 视频发布、列表查询、热门视频推荐、关键词搜索
-- **互动功能**: 点赞（视频/评论）、评论发布/查询/删除
-- **社交网络**: 关注/取消关注、关注列表、粉丝列表、好友列表
 
-### � 技术亮点
-
-- **JWT 认证**: 基于 `hertz-contrib/jwt` 实现的身份验证和授权机制
-- **密码加密**: 使用 `bcrypt` 算法对用户密码进行安全加密
-- **热门推荐**: 基于 Redis ZSet 实现的视频热度排行榜
-- **文件存储**: 支持视频、封面、头像的本地文件上传与管理
-- **容器化部署**: 完整的 Docker Compose 编排，一键启动所有服务
-- **数据库设计**: 规范的表结构设计，支持软删除、索引优化
-
----
-
-## �📂 项目结构
+## 项目结构
 
 ```
 task4/
-├── biz/                          # 业务逻辑层
-│   ├── dal/                      # 数据访问层
-│   │   ├── db/                   # 数据库操作
-│   │   │   ├── init.go          # 数据库初始化 (GORM + MySQL)
-│   │   │   ├── user.go          # 用户表操作
-│   │   │   ├── video.go         # 视频表操作
-│   │   │   ├── interact.go      # 互动表操作 (点赞/评论)
-│   │   │   └── social.go        # 社交表操作 (关注关系)
-│   ├── handler/                  # HTTP 请求处理器
-│   │   ├── ping.go              # 健康检查
-│   │   ├── user/                # 用户模块处理器
-│   │   ├── video/               # 视频模块处理器
-│   │   ├── interact/            # 互动模块处理器
-│   │   └── social/              # 社交模块处理器
-│   ├── model/                    # 数据模型 (Thrift 生成)
-│   │   ├── common/              # 通用模型
-│   │   ├── user/                # 用户相关模型
-│   │   ├── video/               # 视频相关模型
-│   │   ├── interact/            # 互动相关模型
-│   │   └── social/              # 社交相关模型
-│   ├── mw/                       # 中间件
-│   │   ├── jwt/                 # JWT 认证中间件
-│   │   └── redis/               # Redis 缓存中间件
-│   ├── pack/                     # 数据封装层
-│   ├── router/                   # 路由注册
-│   └── service/                  # 业务逻辑服务层
-│       ├── user_service/        # 用户业务逻辑
-│       ├── video_service/       # 视频业务逻辑
-│       ├── interact_service/    # 互动业务逻辑
-│       └── social_service/      # 社交业务逻辑
-├── idl/                          # Thrift IDL 接口定义
-│   ├── common.thrift            # 通用数据结构
-│   ├── user.thrift              # 用户接口定义
-│   ├── video.thrift             # 视频接口定义
-│   ├── interact.thrift          # 互动接口定义
-│   └── social.thrift            # 社交接口定义
-├── pkg/                          # 工具包
-│   ├── configs/                 # 配置文件
-│   │   ├── sql/init.sql        # 数据库初始化脚本
-│   │   └── redis/redis.conf    # Redis 配置
-│   ├── constants/               # 常量定义
-│   ├── errno/                   # 错误码定义
-│   ├── utils/                   # 工具函数 (密码加密等)
-│   └── data/                    # 数据存储目录
-│       ├── avatars/             # 用户头像
-│       ├── covers/              # 视频封面
-│       └── videos/              # 视频文件
-├── script/                       # 脚本文件
-│   └── bootstrap.sh             # 启动脚本
-├── docker-compose.yml            # Docker Compose 配置
-├── Dockerfile                    # 应用容器构建文件
-├── go.mod                        # Go 模块依赖
-├── main.go                       # 程序入口
-├── router.go                     # 路由定义
-└── router_gen.go                 # 路由生成代码
+├── biz/                    # 业务逻辑层
+│   ├── dal/db/            # 数据库操作
+│   ├── handler/           # 请求处理器
+│   ├── model/             # 数据模型
+│   ├── mw/                # 中间件（JWT、Redis）
+│   ├── router/            # 路由注册
+│   └── service/           # 业务逻辑
+├── idl/                    # Thrift 接口定义
+├── pkg/                    # 工具和配置
+│   ├── configs/           # 配置文件和初始化脚本
+│   ├── constants/         # 常量定义
+│   ├── errno/             # 错误码
+│   └── data/              # 文件存储（头像、视频、封面）
+├── docker-compose.yml      # Docker 编排
+└── main.go                 # 入口文件
 ```
 
----
+## 技术栈
 
-## 🛠️ 技术栈
+- Go 1.23.5
+- Hertz（HTTP 框架）
+- GORM + MySQL（数据库）
+- Redis（缓存）
+- JWT（认证）
+- Docker & Docker Compose
 
-### 后端框架与库
 
-| 技术 | 版本 | 用途 |
-|------|------|------|
-| [Go](https://go.dev/) | 1.23.5 | 编程语言 |
-| [Hertz](https://github.com/cloudwego/hertz) | 0.10.2 | 高性能 HTTP 框架 |
-| [GORM](https://gorm.io/) | 1.31.0 | ORM 数据库操作 |
-| [MySQL](https://www.mysql.com/) | 8.0 | 关系型数据库 |
-| [Redis](https://redis.io/) | 7 | 缓存与排行榜 |
-| [JWT](https://github.com/golang-jwt/jwt) | 4.5.2 | 身份认证 |
-| [Thrift](https://thrift.apache.org/) | 0.13.0 | IDL 接口定义 |
-| [bcrypt](https://pkg.go.dev/golang.org/x/crypto/bcrypt) | - | 密码加密 |
-| [UUID](https://github.com/google/uuid) | 1.6.0 | 唯一标识符生成 |
+## 快速开始
 
-### 基础设施
-
-- **Docker**: 容器化部署
-- **Docker Compose**: 多容器编排
-- **健康检查**: MySQL 和 Redis 服务健康监控
-
----
-
-## 🚀 快速开始
-
-### 1. 环境准备
-
-确保已安装以下工具：
-
-- **Docker** (≥ 20.10)
-- **Docker Compose** (≥ 2.0)
-- **Go** (≥ 1.23.5) - 仅本地开发需要
-
-### 2. 克隆项目
+### 使用 Docker（推荐）
 
 ```bash
-git clone https://github.com/ShaddockNH3/west2-online-golang-2025-test.git
-cd west2-online-golang-2025-test/task4
-```
+# 1. 进入项目目录
+cd task4
 
-### 3. 使用 Docker Compose 启动（推荐）
-
-一键启动所有服务（MySQL + Redis + 应用）：
-
-```bash
+# 2. 启动所有服务
 docker-compose up --build
+
+# 3. 服务访问地址
+# 应用: http://localhost:8080
+# MySQL: localhost:9910
+# Redis: localhost:9911
 ```
 
-容器启动后：
-- **应用服务**: `http://localhost:8080`
-- **MySQL**: `localhost:9910` (用户名: `gorm`, 密码: `gorm`)
-- **Redis**: `localhost:9911` (密码: `shenmidazhi`)
-
-### 4. 本地开发启动
-
-如需本地开发调试：
+### 本地开发
 
 ```bash
-# 先启动 MySQL 和 Redis
+# 1. 启动数据库
 docker-compose up mysql redis -d
 
-# 修改配置文件中的数据库连接地址
-# pkg/constants/constants.go 中取消注释本地地址
+# 2. 修改配置
+# 编辑 pkg/constants/constants.go
+# 取消注释本地开发的配置项（127.0.0.1 相关）
 
-# 安装依赖
+# 3. 运行服务
 go mod download
-
-# 运行服务
 go run .
 ```
 
-本地服务启动后访问: `http://localhost:8888`
-
-### 5. 验证服务
+### 验证
 
 ```bash
-# 健康检查
 curl http://localhost:8080/ping
-
-# 预期返回
-{"message":"pong"}
+# 返回: {"message":"pong"}
 ```
 
----
 
-## 📡 API 接口
+## API 接口
 
 ### 用户模块
-
-| 方法 | 路径 | 说明 | 认证 |
-|------|------|------|------|
-| POST | `/v1/user/register` | 用户注册 | ❌ |
-| POST | `/v1/user/login` | 用户登录 | ❌ |
-| GET | `/v1/user/info` | 获取用户信息 | ✅ |
-| PUT | `/v1/user/avatar/upload` | 上传用户头像 | ✅ |
+- `POST /v1/user/register` - 用户注册
+- `POST /v1/user/login` - 用户登录（支持 MFA code 参数）
+- `GET /v1/user/info` - 获取用户信息
+- `PUT /v1/user/avatar/upload` - 上传用户头像
+- `GET /v1/auth/mfa/qrcode` - 获取 MFA 二维码（用于开启 MFA）
+- `POST /v1/auth/mfa/bind` - 绑定 MFA
+- `POST /v1/user/image/search` - 以图搜图（文字搜索）
 
 ### 视频模块
-
-| 方法 | 路径 | 说明 | 认证 |
-|------|------|------|------|
-| POST | `/v1/video/publish/` | 发布视频 | ✅ |
-| GET | `/v1/video/list/` | 获取用户视频列表 | ✅ |
-| GET | `/v1/video/popular/` | 获取热门视频 | ✅ |
-| POST | `/v1/video/search/` | 搜索视频 | ✅ |
+- `GET /v1/video/feed/` - 视频流（获取最新视频）
+- `POST /v1/video/publish/` - 发布视频
+- `GET /v1/video/list/` - 获取用户视频列表
+- `GET /v1/video/popular/` - 获取热门视频
+- `POST /v1/video/search/` - 搜索视频
 
 ### 互动模块
-
-| 方法 | 路径 | 说明 | 认证 |
-|------|------|------|------|
-| POST | `/v1/like/action` | 点赞/取消点赞 | ✅ |
-| GET | `/v1/like/list` | 获取点赞列表 | ✅ |
-| POST | `/v1/comment/publish` | 发布评论 | ✅ |
-| GET | `/v1/comment/list` | 获取评论列表 | ✅ |
-| DELETE | `/v1/comment/delete` | 删除评论 | ✅ |
+- `POST /v1/like/action` - 点赞/取消（支持 Redis 缓存）
+- `GET /v1/like/list` - 点赞列表
+- `POST /v1/comment/publish` - 发布评论
+- `GET /v1/comment/list` - 评论列表
+- `DELETE /v1/comment/delete` - 删除评论
 
 ### 社交模块
+- `POST /v1/relation/action` - 关注/取消关注
+- `GET /v1/following/list` - 关注列表
+- `GET /v1/follower/list` - 粉丝列表
+- `GET /v1/friends/list` - 好友列表
 
-| 方法 | 路径 | 说明 | 认证 |
-|------|------|------|------|
-| POST | `/v1/relation/action` | 关注/取消关注 | ✅ |
-| GET | `/v1/following/list` | 获取关注列表 | ✅ |
-| GET | `/v1/follower/list` | 获取粉丝列表 | ✅ |
-| GET | `/v1/friends/list` | 获取好友列表 | ✅ |
+大部分接口需要 JWT 认证（Header: `Authorization: Bearer <token>`）
 
-### 静态资源
+## 开发说明
 
-- **静态文件访问**: `http://localhost:8080/static/`
-  - 头像: `/static/avatars/`
-  - 封面: `/static/covers/`
-  - 视频: `/static/videos/`
+### 配置修改
 
----
+如果需要本地开发，主要修改 `pkg/constants/constants.go`：
 
-## 🗄️ 数据库设计
-
-### 核心表结构
-
-#### users - 用户表
-- `id`: 用户ID (UUID)
-- `username`: 用户名 (唯一)
-- `password`: 密码 (bcrypt加密)
-- `avatar_url`: 头像URL
-- 支持软删除
-
-#### videos - 视频表
-- `id`: 视频ID (UUID)
-- `user_id`: 作者ID
-- `video_url`: 视频URL
-- `cover_url`: 封面URL
-- `title`: 标题
-- `description`: 描述
-- `visit_count`: 播放次数
-- `like_count`: 点赞数
-- `comment_count`: 评论数
-
-#### likes - 点赞表
-- `id`: 点赞ID (UUID)
-- `user_id`: 点赞用户ID
-- `likeable_id`: 被点赞对象ID
-- `likeable_type`: 类型 (video/comment)
-
-#### comments - 评论表
-- `id`: 评论ID (UUID)
-- `user_id`: 评论用户ID
-- `video_id`: 视频ID
-- `parent_id`: 父评论ID (楼中楼)
-- `content`: 评论内容
-- `like_count`: 点赞数
-- `child_count`: 子评论数
-
-#### follows - 关注关系表
-- `id`: 关系ID (UUID)
-- `follower_id`: 关注者ID
-- `followed_id`: 被关注者ID
-- 唯一约束: `(follower_id, followed_id)`
-
----
-
-## 🔐 认证机制
-
-### JWT Token
-
-- **密钥**: `task4-secret-key`
-- **访问令牌有效期**: 2小时
-- **刷新令牌有效期**: 7天
-- **Token传递方式**: HTTP Header
-  ```
-  Authorization: Bearer <token>
-  ```
-
-### 受保护的路由
-
-除了用户注册和登录接口外，其他所有接口均需要携带有效的JWT Token。
-
----
-
-## 📊 热门推荐算法
-
-基于 **Redis ZSet** 实现的视频热度排行：
-
-- **热度分数**: 综合播放量、点赞数、评论数等指标
-- **实时更新**: 用户互动时动态更新热度分数
-- **高效查询**: O(log N) 时间复杂度获取Top K热门视频
-- **Redis Key**: `:popular_videos`
-
----
-
-## 🐳 Docker 配置说明
-
-### 服务编排
-
-- **MySQL**: 
-  - 端口映射: `9910:3306`
-  - 自动执行初始化SQL脚本
-  - 健康检查确保服务就绪
-
-- **Redis**: 
-  - 端口映射: `9911:6379`
-  - 使用自定义配置文件
-  - 数据持久化到本地目录
-
-- **应用服务**: 
-  - 端口映射: `8080:8888`
-  - 依赖MySQL和Redis健康检查通过后启动
-  - 多阶段构建优化镜像大小
-
----
-
-## 🔧 配置文件
-
-### 关键配置项
-
-**pkg/constants/constants.go**:
 ```go
-// JWT配置
-JwtSecretKey = "task4-secret-key"
-AccessTokenTimeout = 2 * time.Hour
-
-// 数据库配置 (容器内)
-MySQLDefaultDSN = "gorm:gorm@tcp(mysql:3306)/gorm?charset=utf8mb4&parseTime=True&loc=Local"
-
-// Redis配置 (容器内)
+// Docker 部署使用（默认）
+MySQLDefaultDSN = "gorm:gorm@tcp(mysql:3306)/gorm?..."
 RedisAddr = "redis:6379"
-RedisPassword = "shenmidazhi"
 
-// 服务地址
-Host = "http://localhost:8080"
+// 本地开发使用（取消注释）
+// MySQLDefaultDSN = "gorm:gorm@tcp(127.0.0.1:9910)/gorm?..."
+// RedisAddr = "127.0.0.1:9911"
 ```
 
-**本地开发时需修改为**:
-```go
-MySQLDefaultDSN = "gorm:gorm@tcp(127.0.0.1:9910)/gorm?..."
-RedisAddr = "127.0.0.1:9911"
-```
+### 新功能说明
 
----
+1. **MFA 验证**: 使用 TOTP 算法，密钥在 `constants.go` 中的 `MfaSecretKey`
+2. **Redis 缓存点赞**: 点赞数据先存入 Redis（key: `:video_like_auth` 和 `:comment_like_auth`）
+3. **视频流**: `/v1/video/feed/` 接口返回最新发布的视频列表
+4. **以图搜图**: 目前实现为文字搜索，图像识别功能待完善
 
-## 📝 开发说明
+### 数据库表
 
-### 代码生成
+- `users` - 用户信息
+- `videos` - 视频信息
+- `likes` - 点赞记录
+- `comments` - 评论
+- `follows` - 关注关系
 
-项目使用 Thrift IDL 定义接口，通过 Hertz 工具生成代码：
+初始化脚本在 `pkg/configs/sql/init.sql`
 
-```bash
-# 安装 hz 工具
-go install github.com/cloudwego/hertz/cmd/hz@latest
+## 未来计划（Task5）
 
-# 生成代码 (示例)
-hz update -idl idl/user.thrift
-```
+计划在下一个任务中进行以下优化和重构：
 
-### 添加新接口
+### 架构升级
+- **微服务化**: 使用 Kitex 重构为微服务架构
+- **服务注册与发现**: 接入 Etcd3 实现服务注册
+- **架构重构**: 优化当前的代码组织结构，提升可维护性
 
-1. 在 `idl/` 目录下定义 Thrift 接口
-2. 使用 `hz` 工具生成代码
-3. 在 `biz/service/` 实现业务逻辑
-4. 在 `biz/handler/` 添加处理器
-5. 在 `biz/router/` 注册路由
+### 功能增强
+- **WebSocket**: 实现实时通信功能
+- **聊天系统**: 
+  - 实现安全的聊天功能
+  - 优化聊天性能和并发处理
+- **文件上传优化**:
+  - 分片上传大文件
+  - 分布式存储方案
 
----
+### 性能优化
+- 并发性能优化
+- 数据库查询优化
+- 缓存策略优化
 
-## 🔍 调试与测试
+### 工程化
+- 引入 Git 工作流规范
+- 使用 golangci-lint 等工具优化代码质量
+- 完善单元测试覆盖
 
-### 查看容器日志
+## 注意事项
 
-```bash
-# 查看所有服务日志
-docker-compose logs -f
+1. Docker 部署时确保端口 8080、9910、9911 未被占用
+2. 首次启动需要等待 MySQL 初始化完成
+3. 上传的文件存储在 `pkg/data/` 目录
+4. 生产环境请修改 JWT 密钥和数据库密码
 
-# 查看特定服务日志
-docker-compose logs -f task4_tiktok_app
-docker-compose logs -f mysql
-docker-compose logs -f redis
-```
+## 参考
 
-### 停止服务
-
-```bash
-# 停止并删除容器
-docker-compose down
-
-# 停止并删除容器及数据卷
-docker-compose down -v
-```
-
----
-
-## 📌 注意事项
-
-1. **首次启动**: MySQL初始化需要一定时间，应用会等待数据库就绪
-2. **端口占用**: 确保本地端口 8080、9910、9911 未被占用
-3. **文件上传**: 上传的文件存储在 `pkg/data/` 目录下
-4. **密码安全**: 生产环境请修改默认的JWT密钥和数据库密码
-5. **最大请求体**: 应用支持最大20MB的文件上传
-
----
-
-## 🚧 已知限制
-
-- 仅实现了项目的最低要求功能
-- 文件存储使用本地文件系统，未集成对象存储服务
-- 未实现视频转码和压缩功能
-- 热门推荐算法较为简单，可优化为更复杂的推荐策略
-
----
-
-## 📚 参考资料
-
+- [West2-Online 大作品文档](https://github.com/west2-online/learn-go/blob/main/docs/4-%E5%A4%A7%E4%BD%9C%E5%93%81.md)
 - [CloudWeGo Hertz 文档](https://www.cloudwego.io/zh/docs/hertz/)
 - [GORM 文档](https://gorm.io/zh_CN/docs/)
-- [Docker Compose 文档](https://docs.docker.com/compose/)
-- [West2-Online 学习文档](https://doc.west2.online/)
-
----
-
-## 👤 作者
-
-**ShaddockNH3**
-- GitHub: [@ShaddockNH3](https://github.com/ShaddockNH3)
-- 项目仓库: [west2-online-golang-2025-test](https://github.com/ShaddockNH3/west2-online-golang-2025-test)
-
----
-
-## 📄 许可证
-
-本项目采用 MIT 许可证 - 详见 [LICENSE](../LICENSE) 文件
-
----
-
-<div align="center">
-  <sub>Built with ❤️ for West2-Online Golang 2025</sub>
-</div>

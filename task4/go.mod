@@ -8,9 +8,11 @@ require (
 	github.com/apache/thrift v0.22.0
 	github.com/cloudwego/hertz v0.10.2
 	github.com/go-redis/redis/v7 v7.4.1
-	github.com/golang-jwt/jwt/v4 v4.5.2
 	github.com/google/uuid v1.6.0
 	github.com/hertz-contrib/jwt v1.0.4
+	github.com/hertz-contrib/websocket v0.2.0
+	github.com/pquerna/otp v1.5.0
+	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
 	golang.org/x/crypto v0.31.0
 	gorm.io/driver/mysql v1.6.0
 	gorm.io/gorm v1.31.0
@@ -19,6 +21,7 @@ require (
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
+	github.com/boombuler/barcode v1.0.1-0.20190219062509-6c824513bacc // indirect
 	github.com/bytedance/gopkg v0.1.1 // indirect
 	github.com/bytedance/sonic v1.14.0 // indirect
 	github.com/bytedance/sonic/loader v0.3.0 // indirect
@@ -28,6 +31,7 @@ require (
 	github.com/elastic/pkcs8 v1.0.0 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/go-sql-driver/mysql v1.8.1 // indirect
+	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
 	github.com/golang/protobuf v1.5.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect

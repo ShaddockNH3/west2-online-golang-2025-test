@@ -13,9 +13,30 @@ CREATE TABLE `users` (
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `deleted_at` timestamp NULL DEFAULT NULL COMMENT '删除时间 (软删除)',
+  `mfa_secret` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'MFA 密钥',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uniq_username` (`username`) USING BTREE COMMENT '用户名唯一索引'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='用户表';
+
+-- ----------------------------
+-- Table structure for images
+-- ----------------------------
+
+DROP TABLE IF EXISTS `images`;
+CREATE TABLE `images` (
+  `id` varchar(100) COLLATE utf8mb4_general_ci NOT NULL COMMENT '图片ID (UUID)',
+  `user_id` varchar(100) COLLATE utf8mb4_general_ci NOT NULL COMMENT '上传用户ID',
+  `url` varchar(255) COLLATE utf8mb4_general_ci NOT NULL COMMENT '图片URL地址',
+  `original_filename` varchar(255) COLLATE utf8mb4_general_ci NOT NULL COMMENT '原始文件名',
+  `filepath` varchar(255) COLLATE utf8mb4_general_ci NOT NULL COMMENT '文件存储路径',
+  `filesize` bigint NOT NULL COMMENT '文件大小 (字节)',
+  `mime_type` varchar(100) COLLATE utf8mb4_general_ci NOT NULL COMMENT '文件MIME类型',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted_at` timestamp NULL DEFAULT NULL COMMENT '删除时间 (软删除)',
+  PRIMARY KEY (`id`),
+  KEY `idx_user_id` (`user_id`) USING BTREE COMMENT '上传用户ID索引'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='图片表';
 
 -- ----------------------------
 -- Table structure for videos

@@ -22,6 +22,10 @@ func Register(r *server.Hertz) {
 		{
 			_video := _v1.Group("/video", _videoMw()...)
 			{
+				_feed := _video.Group("/feed", _feedMw()...)
+				_feed.GET("/", append(_feedvideoMw(), video.FeedVideo)...)
+			}
+			{
 				_list := _video.Group("/list", _listMw()...)
 				_list.GET("/", append(_listvideoMw(), video.ListVideo)...)
 			}

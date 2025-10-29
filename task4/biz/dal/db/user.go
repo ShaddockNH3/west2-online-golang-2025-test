@@ -16,6 +16,20 @@ type User struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
+	MfaSecret string         `gorm:"type:varchar(255)"`
+}
+
+type Image struct {
+	ID               string `gorm:"primaryKey;type:varchar(100)"`
+	UserID           string
+	URL              string
+	OriginalFilename string
+	Filepath         string
+	Filesize         int64
+	MimeType         string
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
+	DeletedAt        gorm.DeletedAt `gorm:"index"`
 }
 
 func (User) TableName() string {
@@ -24,6 +38,10 @@ func (User) TableName() string {
 
 func CreateUser(user *User) error {
 	return DB.Create(user).Error
+}
+
+func CreateImage(image *Image) error {
+	return DB.Create(image).Error
 }
 
 func QueryUserByUsername(username string) (*User, error) {
@@ -42,6 +60,18 @@ func QueryUserByUserId(user_id string) (*User, error) {
 	return &user, nil
 }
 
+func QueryImageByFilename(filename string) (string, error) {
+	var image Image
+	if err := DB.Where("original_filename = ?", filename).First(&image).Error; err != nil {
+		return "", err
+	}
+	return image.URL, nil
+}
+
 func UploadAvatar(user_id, avatar_url string) error {
 	return DB.Model(&User{}).Where("id = ?", user_id).Update("avatar_url", avatar_url).Error
+}
+
+func UpdateMFASecret(user_id, mfa_secret string) error {
+	return DB.Model(&User{}).Where("id = ?", user_id).Update("mfa_secret", mfa_secret).Error
 }

@@ -2,14 +2,13 @@ package video_service
 
 import (
 	"context"
-	"errors"
+	"mime/multipart"
+	"time"
 
 	"github.com/google/uuid"
-	"gorm.io/gorm"
 
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/dal/db"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/model/video"
-	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/pkg/errno"
 )
 
 type VideoService struct {
@@ -20,24 +19,53 @@ func NewVideoService(ctx context.Context) *VideoService {
 	return &VideoService{ctx: ctx}
 }
 
-func (s *VideoService) CreateVideo(UserID string, VideoURL string, CoverURL string, Title string, Description string, req *video.PublishVideoRequest) error {
-	_, err := db.QueryVideoByTitle(Title)
-
-	if err == nil {
-		return errno.VideoAlreadyExistErr
-	}
-
-	if !errors.Is(err, gorm.ErrRecordNotFound) {
+func (s *VideoService) CreateVideo(UserID string, VideoFile *multipart.FileHeader, coverFilename string, coverSavePath string, coverSize int64, req *video.PublishVideoRequest) error {
+	user, err := db.QueryUserByUserId(UserID)
+	if err != nil {
 		return err
 	}
 
+	VideoID := uuid.NewString()
+	CoverID := uuid.NewString()
+
+	VideoURL := "/data/videos/" + user.Username + "_" + VideoID
+	CoverURL := "/data/covers/" + user.Username + "_" + CoverID
+
+	newCover := &db.Image{
+		ID:               CoverID,
+		UserID:           UserID,
+		URL:              CoverURL,
+		OriginalFilename: coverFilename,
+		Filepath:         coverSavePath,
+		Filesize:         coverSize,
+		MimeType:         "jpg",
+	}
+
+	if err = db.CreateImage(newCover); err != nil {
+		return err
+	}
+
+	var title, description string
+
+	if req.Title == nil {
+		title = user.Username + VideoID
+	} else {
+		title = *req.Title
+	}
+
+	if req.Description == nil {
+		description = ""
+	} else {
+		description = *req.Description
+	}
+
 	newVideo := &db.VideoItems{
-		ID:           uuid.NewString(),
+		ID:           VideoID,
 		UserID:       UserID,
 		VideoURL:     VideoURL,
 		CoverURL:     CoverURL,
-		Title:        Title,
-		Description:  Description,
+		Title:        title,
+		Description:  description,
 		VisitCount:   0,
 		LikeCount:    0,
 		CommentCount: 0,
@@ -79,6 +107,21 @@ func (s *VideoService) PopularVideos(req *video.PopularVideoRequest) ([]db.Video
 	}
 
 	videos, err := db.PopularVideos(currentPage, pageSize)
+	if err != nil {
+		return nil, err
+	}
+	return videos, nil
+}
+
+func (s *VideoService) FeedVideos(req *video.FeedVideoRequest) ([]db.VideoItems, error) {
+	var lateTime string
+	if req.LatestTime == nil {
+		lateTime = time.Now().Format("2006-01-02 15:04:05")
+	} else {
+		lateTime = *req.LatestTime
+	}
+
+	videos, err := db.FeedVideos(lateTime)
 	if err != nil {
 		return nil, err
 	}

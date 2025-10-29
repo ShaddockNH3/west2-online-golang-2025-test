@@ -16,6 +16,10 @@ const (
 	UserNotExistErrCode             // 用户不存在
 	PasswordIsNotVerifiedErrCode    // 密码错误
 	UnableToRetrieveUserInfoErrCode // 无法获取用户信息
+	MFAAlreadyEnabledErrCode        // MFA已启用
+	MFACodeEmptyErrCode             // MFA代码或密钥为空
+	MFAInvalidCodeErrCode           // MFA代码无效
+	MFAInvalidSecretErrCode         // MFA密钥无效
 
 	FileUploadErrCode        // 文件上传错误
 	FileSaveErrCode          // 文件保存错误
@@ -72,6 +76,11 @@ var (
 	UserNotExistErr             = NewErrNo(UserNotExistErrCode, "User does not exist")
 	PasswordIsNotVerified       = NewErrNo(PasswordIsNotVerifiedErrCode, "Password is not verified")
 	UnableToRetrieveUserInfoErr = NewErrNo(UnableToRetrieveUserInfoErrCode, "Unable to retrieve user information")
+	MFAAlreadyEnabledErr        = NewErrNo(MFAAlreadyEnabledErrCode, "MFA is already enabled for this user")
+	MFACodeEmptyErr             = NewErrNo(MFACodeEmptyErrCode, "MFA code or secret cannot be empty")
+	MFAInvalidCodeErr           = NewErrNo(MFAInvalidCodeErrCode, "MFA code is invalid")
+	MFAInvalidSecretErr         = NewErrNo(MFAInvalidSecretErrCode, "MFA secret is invalid")
+
 
 	// File-related errors
 	FileUploadErr        = NewErrNo(FileUploadErrCode, "File upload error")

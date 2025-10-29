@@ -8,6 +8,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/model/common"
+	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/mw/redis"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/pkg/constants"
 )
 
@@ -44,140 +45,89 @@ func (CommentItems) TableName() string {
 	return constants.CommentsTableName
 }
 
-func CreateLike(likeableID, likeableType, userID string) error {
+func UpdateLike(likeableID, likeableType, userID string, likeAction int64) error {
 	if likeableType != "video" && likeableType != "comment" {
 		return errors.New("invalid likeable type")
 	}
-	like := &LikeItems{
-		ID:           uuid.New().String(),
-		UserID:       userID,
-		LikeableID:   likeableID,
-		LikeableType: likeableType,
+
+	if likeAction == 1 { // 点赞
+		isNewLike, err := redis.AddLike(userID, likeableType, likeableID)
+		if err != nil {
+			return err
+		}
+		// 如果是新点赞，创建数据库记录
+		if isNewLike {
+			go persistLike(userID, likeableType, likeableID)
+		}
+	}else if likeAction == 2 { // 取消点赞
+		wasLiked, err := redis.RemoveLike(userID, likeableType, likeableID)
+		if err != nil {
+			return err
+		}
+		// 如果是成功取消点赞，删除数据库记录
+		if wasLiked {
+			go persistUnlike(userID, likeableType, likeableID)
+		}else{
+			return errors.New("not liked yet")
+		}
 	}
-	return DB.Create(like).Error
+	return nil
+}
+
+func persistLike(userID, likeableType, likeableID string) {
+	var likeRecord LikeItems
+	// Unscoped() 可以在查找时也包括被软删除的记录
+	err := DB.Unscoped().Where("user_id = ? AND likeable_id = ?", userID, likeableID).First(&likeRecord).Error
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		// 记录不存在，创建新的
+		newLike := &LikeItems{
+			ID:           uuid.New().String(),
+			UserID:       userID,
+			LikeableID:   likeableID,
+			LikeableType: likeableType,
+		}
+		DB.Create(newLike)
+	} else if err == nil && likeRecord.DeletedAt.Valid {
+		// 记录存在但被软删除了，恢复它
+		DB.Unscoped().Model(&likeRecord).Update("deleted_at", nil)
+	}
+	// 如果记录存在且未被删除，则什么都不做，因为Redis已经处理过了
+
+	// 更新视频/评论表里的总赞数
+	// 这一步是为了数据最终一致性，即使Redis数据丢失也能恢复
+	var countFieldToUpdate string
+	var modelToUpdate interface{}
+	if likeableType == "video" {
+		modelToUpdate = &VideoItems{}
+		countFieldToUpdate = "like_count"
+	} else {
+		modelToUpdate = &CommentItems{}
+		countFieldToUpdate = "like_count"
+	}
+	DB.Model(modelToUpdate).Where("id = ?", likeableID).Update(countFieldToUpdate, gorm.Expr(countFieldToUpdate+" + 1"))
+}
+
+// persistUnlike - 异步持久化取消点赞记录到MySQL
+func persistUnlike(userID, likeableType, likeableID string) {
+	// 直接软删除，不用判断是否存在，因为能触发这个函数说明Redis里是存在的
+	DB.Where("user_id = ? AND likeable_id = ?", userID, likeableID).Delete(&LikeItems{})
+
+	// 更新视频/评论表里的总赞数
+	var countFieldToUpdate string
+	var modelToUpdate interface{}
+	if likeableType == "video" {
+		modelToUpdate = &VideoItems{}
+		countFieldToUpdate = "like_count"
+	} else {
+		modelToUpdate = &CommentItems{}
+		countFieldToUpdate = "like_count"
+	}
+	DB.Model(modelToUpdate).Where("id = ? AND "+countFieldToUpdate+" > 0", likeableID).Update(countFieldToUpdate, gorm.Expr(countFieldToUpdate+" - 1"))
 }
 
 func CreateComment(comment *CommentItems) error {
 	return DB.Create(comment).Error
-}
-
-func UpdateLike(likeableID, likeableType, userID string, likeType int64) error {
-	if likeableType != "video" && likeableType != "comment" {
-		return errors.New("invalid likeable type")
-	}
-
-	// 查询视频或者评论是否存在
-	var exist bool
-	var err error
-
-	if likeableType == "video" {
-		exist, err = IsVideoExist(likeableID)
-	} else {
-		exist, err = IsCommentExist(likeableID)
-	}
-
-	if err != nil {
-		return err
-	}
-
-	if !exist {
-		return errors.New("likeable item does not exist")
-	}
-
-	if likeType != 1 && likeType != 2 {
-		return errors.New("invalid like type")
-	}
-
-	// 查询是否已经有记录
-	var likeRecord LikeItems
-	err = DB.Unscoped().Where("likeable_id = ? AND user_id = ?", likeableID, userID).First(&likeRecord).Error
-
-	// 数据库里完全没有这条记录
-	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
-		if likeType == 1 { // 想点赞
-			// 创建一个新的
-			err = CreateLike(likeableID, likeableType, userID)
-			if err != nil {
-				return err
-			}
-		}
-		if likeType == 2 { // 想取消赞
-			// 本来就没有，不需要操作
-			return errors.New("not liked yet")
-		}
-	}
-
-	// 如果 err 不是 RecordNotFound，但还是有错误，那就直接返回
-	if err != nil {
-		return err
-	}
-
-	// 数据库里有记录，且没有被软删除
-	if !likeRecord.DeletedAt.Valid {
-		if likeType == 1 { // 想点赞
-			return errors.New("already liked")
-		}
-		if likeType == 2 { // 想取消赞
-			// 软删除
-			err = DB.Where("id = ?", likeRecord.ID).Delete(&LikeItems{}).Error
-			if err != nil {
-				return err
-			}
-		}
-	}
-
-	// 是被“软删除”的记录
-	if likeRecord.DeletedAt.Valid {
-		if likeType == 1 {
-			// 把 deleted_at 变回 null
-			err = DB.Unscoped().Model(&LikeItems{}).Where("id = ?", likeRecord.ID).Update("deleted_at", nil).Error
-			if err != nil {
-				return err
-			}
-		}
-		if likeType == 2 { // 想取消赞
-			return errors.New("not liked yet")
-		}
-	}
-
-	// 更新点赞数
-	if likeableType == "video" {
-		video, err := GetVideosByIDLike(likeableID)
-		if err != nil {
-			return err
-		}
-		var newLikeCount int64
-		if likeType == 1 {
-			newLikeCount = video.LikeCount + 1
-		} else {
-			newLikeCount = video.LikeCount - 1
-		}
-		if newLikeCount < 0 {
-			newLikeCount = 0
-		}
-		if err := DB.Model(&VideoItems{}).Where("id = ?", video.ID).Update("like_count", newLikeCount).Error; err != nil {
-			return err
-		}
-	} else {
-		comment, err := GetCommentsByIDLike(likeableID)
-		if err != nil {
-			return err
-		}
-		var newLikeCount int64
-		if likeType == 1 {
-			newLikeCount = comment.LikeCount + 1
-		} else {
-			newLikeCount = comment.LikeCount - 1
-		}
-		if newLikeCount < 0 {
-			newLikeCount = 0
-		}
-		if err := DB.Model(&CommentItems{}).Where("id = ?", comment.ID).Update("like_count", newLikeCount).Error; err != nil {
-			return err
-		}
-	}
-
-	return nil
 }
 
 func QueryVideosByUserID(userID string, page, pageSize int64) (*[]common.LikeVideoDTO, error) {
@@ -316,22 +266,4 @@ func DeleteCommentByVideoID(videoID string) error {
 		}
 	}
 	return DB.Where("video_id = ?", videoID).Delete(&CommentItems{}).Error
-}
-
-func IsVideoExist(videoID string) (bool, error) {
-	var count int64
-	err := DB.Unscoped().Model(&VideoItems{}).Where("id = ?", videoID).Count(&count).Error
-	if err != nil {
-		return false, err
-	}
-	return count > 0, nil
-}
-
-func IsCommentExist(commentID string) (bool, error) {
-	var count int64
-	err := DB.Unscoped().Model(&CommentItems{}).Where("id = ?", commentID).Count(&count).Error
-	if err != nil {
-		return false, err
-	}
-	return count > 0, nil
 }

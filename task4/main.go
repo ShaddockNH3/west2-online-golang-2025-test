@@ -6,6 +6,7 @@ import (
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/dal/db"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/mw/jwt"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/mw/redis"
+
 	// "github.com/ShaddockNH3/west2-online-golang-2025-test/task4/biz/websocket"
 	"github.com/ShaddockNH3/west2-online-golang-2025-test/task4/pkg/utils"
 	"github.com/cloudwego/hertz/pkg/app/server"
@@ -13,10 +14,10 @@ import (
 
 func main() {
 	// 创建必要的文件夹来存储上传的图片和视频
-	utils.CreateDirIfNotExist("./data/")
-	utils.CreateDirIfNotExist("./data/avatars/")
-	utils.CreateDirIfNotExist("./data/videos/")
-	utils.CreateDirIfNotExist("./data/covers/")
+	utils.CreateDirIfNotExist("./pkg/data/")
+	utils.CreateDirIfNotExist("./pkg/data/avatars/")
+	utils.CreateDirIfNotExist("./pkg/data/videos/")
+	utils.CreateDirIfNotExist("./pkg/data/covers/")
 
 	db.Init()
 	jwt.InitJwt()
